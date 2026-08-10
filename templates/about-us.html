@@ -661,10 +661,20 @@
       <span class="mobile-nav-badge cart-badge">0</span>
       <span>Cart</span>
     </a>
-    <a href="#account" class="mobile-nav-item" data-bs-toggle="dropdown" data-bs-target="#mobileAccountDropdown">
+    <button type="button" class="mobile-nav-item" id="mobileAccountBtn" aria-label="Account">
       <i class="fa-regular fa-user"></i>
       <span>Account</span>
-    </a>
+    </button>
+    <div class="mobile-account-popup" id="mobileAccountPopup">
+      <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        <span>Login / Register</span>
+      </a>
+      <a href="{% url 'ComfyCuteApp:track_order' %}" class="mobile-account-popup-item">
+        <i class="fa-solid fa-box-archive"></i>
+        <span>Track Your Order</span>
+      </a>
+    </div>
   </div>
 
   <!-- ==========================================

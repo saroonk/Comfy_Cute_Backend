@@ -833,6 +833,34 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // ==========================================
+  // 11. MOBILE ACCOUNT POPUP
+  // ==========================================
+  const mobileAccountBtn = document.getElementById('mobileAccountBtn');
+  const mobileAccountPopup = document.getElementById('mobileAccountPopup');
+
+  if (mobileAccountBtn && mobileAccountPopup) {
+    // Toggle popup on Account button click
+    mobileAccountBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      mobileAccountPopup.classList.toggle('show');
+    });
+
+    // Close popup when clicking outside
+    document.addEventListener('click', function (e) {
+      if (!mobileAccountBtn.contains(e.target) && !mobileAccountPopup.contains(e.target)) {
+        mobileAccountPopup.classList.remove('show');
+      }
+    });
+
+    // Close popup when clicking a link (navigation)
+    mobileAccountPopup.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function () {
+        mobileAccountPopup.classList.remove('show');
+      });
+    });
+  }
+
   // Shop by Category Slider
   if ($('.category-carousel').length) {
     $('.category-carousel').owlCarousel({
