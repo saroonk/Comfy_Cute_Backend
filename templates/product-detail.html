@@ -50,7 +50,7 @@
     <div class="container">
       <nav class="navbar navbar-expand-lg">
         <!-- Logo -->
-        <a class="navbar-brand" href="#home" id="brandLogo">
+        <a class="navbar-brand" href="{% url 'ComfyCuteApp:home' %}" id="brandLogo">
           <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
 
@@ -64,7 +64,7 @@
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active" href="#home">Home</a>
+              <a class="nav-link active" href="{% url 'ComfyCuteApp:home' %}">Home</a>
             </li>
 
             <!-- Women Mega Menu -->
@@ -106,7 +106,7 @@
                         <div class="mega-menu-promo-overlay">
                           <h5 class="mega-menu-promo-title">The Linen Edit</h5>
                           <p class="mega-menu-promo-subtitle">Naturally cooling fabrics</p>
-                          <a href="#women" class="btn btn-sm-premium">Shop New Arrivals</a>
+                          <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Shop New Arrivals</a>
                         </div>
                       </div>
                     </div>
@@ -167,16 +167,14 @@
               <a class="nav-link" href="#collections">Collections</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#bestsellers">New Arrivals</a>
+              <a class="nav-link" href="{% url 'ComfyCuteApp:products' %}">New Arrivals</a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'ComfyCuteApp:about_us' %}">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#limited-offer">Offers</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#why-choose">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#footer">Contact</a>
+              <a class="nav-link" href="{% url 'ComfyCuteApp:contact' %}">Contact</a>
             </li>
           </ul>
         </div>
@@ -189,7 +187,7 @@
           </button>
 
           <!-- Wishlist -->
-          <a href="#wishlist" class="icon-btn" id="wishlistTrigger">
+          <a href="{% url 'ComfyCuteApp:wishlist' %}" class="icon-btn" id="wishlistTrigger">
             <i class="fa-regular fa-heart"></i>
             <span class="icon-badge wishlist-badge">0</span>
           </a>
@@ -201,11 +199,11 @@
             </button>
             <ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
               <li><h6 class="dropdown-header font-heading fw-bold" style="font-size: 1rem; color: var(--color-heading)">Welcome Back</h6></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
               <li><hr class="dropdown-divider" style="border-color: var(--color-border)"></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#orders"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#wishlist"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#support"><i class="fa-solid fa-circle-question"></i> Help & Support</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:track_order' %}"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:wishlist' %}"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:contact' %}"><i class="fa-solid fa-circle-question"></i> Help & Support</a></li>
             </ul>
           </div>
 
@@ -240,7 +238,7 @@
           </button>
         </div>
         <ul class="mobile-nav-list">
-          <li><a href="#home" class="mobile-nav-link">Home</a></li>
+          <li><a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-link">Home</a></li>
           <li>
             <button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="women">
               Women <i class="fa-solid fa-chevron-right"></i>
@@ -252,10 +250,10 @@
             </button>
           </li>
           <li><a href="#collections" class="mobile-nav-link">Collections</a></li>
-          <li><a href="#bestsellers" class="mobile-nav-link">New Arrivals</a></li>
-          <li><a href="#limited-offer" class="mobile-nav-link">Offers</a></li>
-          <li><a href="#why-choose" class="mobile-nav-link">About</a></li>
-          <li><a href="#footer" class="mobile-nav-link">Contact</a></li>
+          <li><a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-link">New Arrivals</a></li>
+          
+          <li><a href="{% url 'ComfyCuteApp:about_us' %}" class="mobile-nav-link">About</a></li>
+          <li><a href="{% url 'ComfyCuteApp:contact' %}" class="mobile-nav-link">Contact</a></li>
         </ul>
       </div>
 
@@ -418,7 +416,7 @@
     <div class="container">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb-list">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'ComfyCuteApp:home' %}">Home</a></li>
           <li class="breadcrumb-item"><a href="#women">Women</a></li>
           <li class="breadcrumb-item"><a href="#apparel">Apparel</a></li>
           <li class="breadcrumb-item active" aria-current="page">Elegant Linen Blend Dress</li>
@@ -770,7 +768,7 @@
 
       <!-- View All Button -->
       <div class="related-products-footer">
-        <a href="products.html" class="related-products-btn">View All Products</a>
+        <a href="{% url 'ComfyCuteApp:products' %}" class="related-products-btn">View All Products</a>
       </div>
     </div>
   </section>
@@ -791,15 +789,15 @@
 
   <!-- Mobile Sticky Bottom Navigation -->
   <div class="mobile-bottom-nav">
-    <a href="index.html" class="mobile-nav-item">
+    <a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-item">
       <i class="fa-solid fa-house"></i>
       <span>Home</span>
     </a>
-    <a href="#categories" class="mobile-nav-item">
+    <a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-item">
       <i class="fa-solid fa-grip-vertical"></i>
       <span>Shop</span>
     </a>
-    <a href="#wishlist" class="mobile-nav-item">
+    <a href="{% url 'ComfyCuteApp:wishlist' %}" class="mobile-nav-item">
       <i class="fa-regular fa-heart"></i>
       <span class="mobile-nav-badge wishlist-badge">0</span>
       <span>Wishlist</span>

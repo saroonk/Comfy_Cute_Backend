@@ -30,7 +30,7 @@
   <header>
     <div class="container">
       <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="index.html" id="brandLogo">
+        <a class="navbar-brand" href="{% url 'ComfyCuteApp:home' %}" id="brandLogo">
           <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
         <button class="navbar-toggler" type="button" id="mobileNavToggle" aria-controls="mobileNavDrawer" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,34 +38,34 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'ComfyCuteApp:home' %}">Home</a></li>
             <li class="nav-item nav-item-mega">
               <a class="nav-link" href="#women">Women <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem"></i></a>
-              <div class="mega-menu"><div class="container"><div class="row"><div class="col-lg-3 col-6 mb-4 mb-lg-0"><h6 class="mega-menu-title">Top Wear</h6><ul class="mega-menu-list"><li><a href="#women-tops">Tops & Tunics</a></li><li><a href="#women-shirts">Linen Shirts</a></li><li><a href="#women-tees">Organic Tees</a></li><li><a href="#women-sweaters">Knit Sweaters</a></li></ul></div><div class="col-lg-3 col-6 mb-4 mb-lg-0"><h6 class="mega-menu-title">Bottom Wear & Dresses</h6><ul class="mega-menu-list"><li><a href="#women-trousers">Linen Pants</a></li><li><a href="#women-shorts">Comfort Shorts</a></li><li><a href="#women-dresses">Summer Dresses</a></li><li><a href="#women-kurtis">Elegant Kurtis</a></li></ul></div><div class="col-lg-3 col-6"><h6 class="mega-menu-title">Lounge & Accessories</h6><ul class="mega-menu-list"><li><a href="#women-sleepwear">Night Wear Sets</a></li><li><a href="#women-loungewear">Loungewear</a></li><li><a href="#women-bags">Fabric Tote Bags</a></li><li><a href="#women-scarves">Soft Cotton Scarves</a></li></ul></div><div class="col-lg-3 col-6"><div class="mega-menu-promo"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop" alt="Women New Collection"><div class="mega-menu-promo-overlay"><h5 class="mega-menu-promo-title">The Linen Edit</h5><p class="mega-menu-promo-subtitle">Naturally cooling fabrics</p><a href="#women" class="btn btn-sm-premium">Shop New Arrivals</a></div></div></div></div></div></div>
+              <div class="mega-menu"><div class="container"><div class="row"><div class="col-lg-3 col-6 mb-4 mb-lg-0"><h6 class="mega-menu-title">Top Wear</h6><ul class="mega-menu-list"><li><a href="#women-tops">Tops & Tunics</a></li><li><a href="#women-shirts">Linen Shirts</a></li><li><a href="#women-tees">Organic Tees</a></li><li><a href="#women-sweaters">Knit Sweaters</a></li></ul></div><div class="col-lg-3 col-6 mb-4 mb-lg-0"><h6 class="mega-menu-title">Bottom Wear & Dresses</h6><ul class="mega-menu-list"><li><a href="#women-trousers">Linen Pants</a></li><li><a href="#women-shorts">Comfort Shorts</a></li><li><a href="#women-dresses">Summer Dresses</a></li><li><a href="#women-kurtis">Elegant Kurtis</a></li></ul></div><div class="col-lg-3 col-6"><h6 class="mega-menu-title">Lounge & Accessories</h6><ul class="mega-menu-list"><li><a href="#women-sleepwear">Night Wear Sets</a></li><li><a href="#women-loungewear">Loungewear</a></li><li><a href="#women-bags">Fabric Tote Bags</a></li><li><a href="#women-scarves">Soft Cotton Scarves</a></li></ul></div><div class="col-lg-3 col-6"><div class="mega-menu-promo"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop" alt="Women New Collection"><div class="mega-menu-promo-overlay"><h5 class="mega-menu-promo-title">The Linen Edit</h5><p class="mega-menu-promo-subtitle">Naturally cooling fabrics</p><a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Shop New Arrivals</a></div></div></div></div></div></div>
             </li>
             <li class="nav-item nav-item-mega">
               <a class="nav-link" href="#baby">Baby <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem"></i></a>
               <div class="mega-menu"><div class="container"><div class="row"><div class="col-lg-3 col-6 mb-4 mb-lg-0"><h6 class="mega-menu-title">Baby Girls</h6><ul class="mega-menu-list"><li><a href="#babyg-frocks">Ruffled Frocks</a></li><li><a href="#babyg-rompers">Cotton Rompers</a></li><li><a href="#babyg-sets">Matching Sets</a></li><li><a href="#babyg-jumpsuits">Floral Jumpsuits</a></li></ul></div><div class="col-lg-3 col-6 mb-4 mb-lg-0"><h6 class="mega-menu-title">Baby Boys</h6><ul class="mega-menu-list"><li><a href="#babyb-dungarees">Denim Dungarees</a></li><li><a href="#babyb-shirts">Collar Shirts</a></li><li><a href="#babyb-tshirts">Graphic Tees</a></li><li><a href="#babyb-shorts">Utility Shorts</a></li></ul></div><div class="col-lg-3 col-6"><h6 class="mega-menu-title">Newborn (0-12M)</h6><ul class="mega-menu-list"><li><a href="#newborn-sleepwear">Zip Sleepwear</a></li><li><a href="#newborn-swaddles">Muslin Swaddles</a></li><li><a href="#newborn-bodysuits">Kimono Bodysuits</a></li><li><a href="#newborn-giftsets">Newborn Gift Sets</a></li></ul></div><div class="col-lg-3 col-6"><div class="mega-menu-promo"><img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=400&auto=format&fit=crop" alt="Baby Organic Cotton"><div class="mega-menu-promo-overlay"><h5 class="mega-menu-promo-title">Organic Cotton</h5><p class="mega-menu-promo-subtitle">Soft on baby's skin</p><a href="#baby" class="btn btn-sm-premium">Shop Baby Wear</a></div></div></div></div></div></div>
             </li>
             <li class="nav-item"><a class="nav-link" href="#collections">Collections</a></li>
-            <li class="nav-item"><a class="nav-link" href="#bestsellers">New Arrivals</a></li>
-            <li class="nav-item"><a class="nav-link" href="#limited-offer">Offers</a></li>
-            <li class="nav-item"><a class="nav-link" href="#why-choose">About</a></li>
-            <li class="nav-item"><a class="nav-link" href="#footer">Contact</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'ComfyCuteApp:products' %}">New Arrivals</a></li>
+            
+            <li class="nav-item"><a class="nav-link" href="{% url 'ComfyCuteApp:about_us' %}">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'ComfyCuteApp:contact' %}">Contact</a></li>
           </ul>
         </div>
         <div class="header-icons d-none d-lg-flex">
           <button class="icon-btn btn-search" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
-          <a href="#wishlist" class="icon-btn" id="wishlistTrigger"><i class="fa-regular fa-heart"></i><span class="icon-badge wishlist-badge">0</span></a>
+          <a href="{% url 'ComfyCuteApp:wishlist' %}" class="icon-btn" id="wishlistTrigger"><i class="fa-regular fa-heart"></i><span class="icon-badge wishlist-badge">0</span></a>
           <div class="dropdown">
             <button class="icon-btn" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account"><i class="fa-regular fa-user"></i></button>
             <ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
               <li><h6 class="dropdown-header font-heading fw-bold" style="font-size: 1rem; color: var(--color-heading)">Welcome Back</h6></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
               <li><hr class="dropdown-divider" style="border-color: var(--color-border)"></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#orders"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#wishlist"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
-              <li><a class="dropdown-item account-dropdown-item" href="#support"><i class="fa-solid fa-circle-question"></i> Help & Support</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:track_order' %}"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:wishlist' %}"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:contact' %}"><i class="fa-solid fa-circle-question"></i> Help & Support</a></li>
             </ul>
           </div>
           <button class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer" aria-controls="cartDrawer" aria-label="Cart"><i class="fa-solid fa-bag-shopping"></i><span class="icon-badge cart-badge">0</span></button>
@@ -82,14 +82,14 @@
           <button type="button" class="mobile-nav-close" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <ul class="mobile-nav-list">
-          <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+          <li><a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-link">Home</a></li>
           <li><button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="women">Women <i class="fa-solid fa-chevron-right"></i></button></li>
           <li><button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="baby">Baby <i class="fa-solid fa-chevron-right"></i></button></li>
           <li><a href="#collections" class="mobile-nav-link">Collections</a></li>
-          <li><a href="#bestsellers" class="mobile-nav-link">New Arrivals</a></li>
-          <li><a href="#limited-offer" class="mobile-nav-link">Offers</a></li>
-          <li><a href="#why-choose" class="mobile-nav-link">About</a></li>
-          <li><a href="#footer" class="mobile-nav-link">Contact</a></li>
+          <li><a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-link">New Arrivals</a></li>
+          
+          <li><a href="{% url 'ComfyCuteApp:about_us' %}" class="mobile-nav-link">About</a></li>
+          <li><a href="{% url 'ComfyCuteApp:contact' %}" class="mobile-nav-link">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -336,11 +336,11 @@
   </section>
 
   <div class="mobile-bottom-nav">
-    <a href="index.html" class="mobile-nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
-    <a href="#categories" class="mobile-nav-item"><i class="fa-solid fa-grip-vertical"></i><span>Shop</span></a>
-    <a href="#wishlist" class="mobile-nav-item"><i class="fa-regular fa-heart"></i><span class="mobile-nav-badge wishlist-badge">0</span><span>Wishlist</span></a>
+    <a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-item"><i class="fa-solid fa-grip-vertical"></i><span>Shop</span></a>
+    <a href="{% url 'ComfyCuteApp:wishlist' %}" class="mobile-nav-item"><i class="fa-regular fa-heart"></i><span class="mobile-nav-badge wishlist-badge">0</span><span>Wishlist</span></a>
     <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer"><i class="fa-solid fa-bag-shopping"></i><span class="mobile-nav-badge cart-badge">0</span><span>Cart</span></a>
-    <a href="#account" class="mobile-nav-item" data-bs-toggle="dropdown" data-bs-target="#mobileAccountDropdown"><i class="fa-regular fa-user"></i><span>Account</span><ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" id="mobileAccountDropdown" style="position: absolute; bottom: 70px; right: 10px;"><li><a class="dropdown-item account-dropdown-item" href="#login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li><li><a class="dropdown-item account-dropdown-item" href="#orders"><i class="fa-solid fa-box-archive"></i> Track Orders</a></li></ul></a>
+    <a href="#account" class="mobile-nav-item" data-bs-toggle="dropdown" data-bs-target="#mobileAccountDropdown"><i class="fa-regular fa-user"></i><span>Account</span><ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" id="mobileAccountDropdown" style="position: absolute; bottom: 70px; right: 10px;"><li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li><li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:track_order' %}"><i class="fa-solid fa-box-archive"></i> Track Orders</a></li></ul></a>
   </div>
 
   {% include 'footer.html' %}

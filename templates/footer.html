@@ -7,7 +7,7 @@
 
         <!-- Column 1: Info -->
         <div class="col-lg-3 col-md-6">
-          <a class="footer-logo" href="#home">
+          <a class="footer-logo" href="{% url 'ComfyCuteApp:home' %}">
             COMFY CUTE <span>.</span>
           </a>
           <p class="footer-desc text-muted">A premium contemporary fashion brand bringing organic cotton baby wear and minimalist linen women wear together. Crafted responsibly with love.</p>
@@ -25,9 +25,9 @@
           <ul class="footer-links">
             <li><a href="#women">Women's Collection</a></li>
             <li><a href="#baby">Baby Collection</a></li>
-            <li><a href="#new-arrivals">New Arrivals</a></li>
+            <li><a href="{% url 'ComfyCuteApp:products' %}">New Arrivals</a></li>
             <li><a href="#limited-offer">Hot Offers</a></li>
-            <li><a href="#categories">Featured Looks</a></li>
+            <li><a href="{% url 'ComfyCuteApp:products' %}">Featured Looks</a></li>
           </ul>
         </div>
 
@@ -35,11 +35,11 @@
         <div class="col-lg-2 col-md-6 col-6">
           <h5 class="footer-col-title">Customer Care</h5>
           <ul class="footer-links">
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="#shipping">Shipping Policy</a></li>
-            <li><a href="#returns">Returns & Exchanges</a></li>
+            <li><a href="{% url 'ComfyCuteApp:contact' %}">Contact Us</a></li>
+            <li><a href="{% url 'ComfyCuteApp:shipping_policy' %}">Shipping Policy</a></li>
+            <li><a href="{% url 'ComfyCuteApp:return_exchange' %}">Returns & Exchanges</a></li>
             <li><a href="#faqs">Frequently Asked FAQs</a></li>
-            <li><a href="#track">Track Your Order</a></li>
+            <li><a href="{% url 'ComfyCuteApp:track_order' %}">Track Your Order</a></li>
           </ul>
         </div>
 
@@ -47,9 +47,9 @@
         <div class="col-lg-2 col-md-6 col-6">
           <h5 class="footer-col-title">Our Policies</h5>
           <ul class="footer-links">
-            <li><a href="#privacy">Privacy Policy</a></li>
-            <li><a href="#terms">Terms of Service</a></li>
-            <li><a href="#refund">Refund Policy</a></li>
+            <li><a href="{% url 'ComfyCuteApp:privacy_policy' %}">Privacy Policy</a></li>
+            <li><a href="{% url 'ComfyCuteApp:terms_of_service' %}">Terms of Service</a></li>
+            <li><a href="{% url 'ComfyCuteApp:refund_policy' %}">Refund Policy</a></li>
             <li><a href="#cookies">Cookie Settings</a></li>
           </ul>
         </div>
