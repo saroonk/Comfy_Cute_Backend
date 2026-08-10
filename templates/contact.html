@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Wishlist | COMFY CUTE | Saved Favorites</title>
+  <title>Contact Us | COMFY CUTE | Get in Touch</title>
 
   <!-- Meta Tags for SEO -->
-  <meta name="description" content="Browse your COMFY CUTE wishlist. Save your favorite products and add them to cart whenever you're ready. Premium women's and baby fashion collections.">
-  <meta name="keywords" content="wishlist, favorites, saved products, comfy cute, fashion shopping">
+  <meta name="description" content="Contact COMFY CUTE for any questions about our products, shipping, or returns. We're here to help! Call us, email us, or fill out our contact form.">
+  <meta name="keywords" content="contact us, customer service, comfy cute, fashion support">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,8 +21,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/wishlist.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/contact.css' %}">
 </head>
 <body>
 
@@ -46,7 +47,7 @@
       <nav class="navbar navbar-expand-lg">
         <!-- Logo -->
         <a class="navbar-brand" href="index.html" id="brandLogo">
-          <img src="assets/images/logo.jpeg" alt="COMFY CUTE Logo" class="navbar-logo-img">
+          <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
 
         <!-- Hamburger Toggler (Mobile) -->
@@ -158,19 +159,19 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" href="products.html">Collections</a>
+              <a class="nav-link" href="#collections">Collections</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="products.html">New Arrivals</a>
+              <a class="nav-link" href="#bestsellers">New Arrivals</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#limited-offer">Offers</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="about-us.html">About</a>
+              <a class="nav-link" href="#why-choose">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="contact.html">Contact</a>
+              <a class="nav-link active" href="contact.html">Contact</a>
             </li>
           </ul>
         </div>
@@ -183,7 +184,7 @@
           </button>
 
           <!-- Wishlist -->
-          <a href="wishlist.html" class="icon-btn" id="wishlistTrigger">
+          <a href="#wishlist" class="icon-btn" id="wishlistTrigger">
             <i class="fa-regular fa-heart"></i>
             <span class="icon-badge wishlist-badge">0</span>
           </a>
@@ -198,7 +199,7 @@
               <li><a class="dropdown-item account-dropdown-item" href="#login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
               <li><hr class="dropdown-divider" style="border-color: var(--color-border)"></li>
               <li><a class="dropdown-item account-dropdown-item" href="#orders"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
-              <li><a class="dropdown-item account-dropdown-item" href="wishlist.html"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
+              <li><a class="dropdown-item account-dropdown-item" href="#wishlist"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
               <li><a class="dropdown-item account-dropdown-item" href="#support"><i class="fa-solid fa-circle-question"></i> Help & Support</a></li>
             </ul>
           </div>
@@ -214,7 +215,7 @@
   </header>
 
   <!-- ==========================================
-       MOBILE MULTI-LEVEL NAV DRAWER
+       MOBILE MULTI-LEVEL NAV DRAWER (mobile-only)
        ========================================== -->
   <div class="mobile-nav-drawer d-lg-none" id="mobileNavDrawer">
     <div class="mobile-nav-panels">
@@ -238,10 +239,10 @@
               Baby <i class="fa-solid fa-chevron-right"></i>
             </button>
           </li>
-          <li><a href="products.html" class="mobile-nav-link">Collections</a></li>
-          <li><a href="products.html" class="mobile-nav-link">New Arrivals</a></li>
+          <li><a href="#collections" class="mobile-nav-link">Collections</a></li>
+          <li><a href="#bestsellers" class="mobile-nav-link">New Arrivals</a></li>
           <li><a href="#limited-offer" class="mobile-nav-link">Offers</a></li>
-          <li><a href="about-us.html" class="mobile-nav-link">About</a></li>
+          <li><a href="#why-choose" class="mobile-nav-link">About</a></li>
           <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
         </ul>
       </div>
@@ -275,6 +276,44 @@
             <a href="#women-sweaters" class="mobile-nav-cat">
               <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
               <span class="mobile-nav-cat-label">Knit Sweaters</span>
+            </a>
+          </div>
+          <h6 class="mobile-nav-group-title">Bottom Wear &amp; Dresses</h6>
+          <div class="mobile-nav-cat-grid">
+            <a href="#women-trousers" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Linen Pants</span>
+            </a>
+            <a href="#women-shorts" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Comfort Shorts</span>
+            </a>
+            <a href="#women-dresses" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Summer Dresses</span>
+            </a>
+            <a href="#women-kurtis" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Elegant Kurtis</span>
+            </a>
+          </div>
+          <h6 class="mobile-nav-group-title">Lounge &amp; Accessories</h6>
+          <div class="mobile-nav-cat-grid">
+            <a href="#women-sleepwear" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Night Wear Sets</span>
+            </a>
+            <a href="#women-loungewear" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Loungewear</span>
+            </a>
+            <a href="#women-bags" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Fabric Tote Bags</span>
+            </a>
+            <a href="#women-scarves" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Cotton Scarves</span>
             </a>
           </div>
         </div>
@@ -311,6 +350,44 @@
               <span class="mobile-nav-cat-label">Floral Jumpsuits</span>
             </a>
           </div>
+          <h6 class="mobile-nav-group-title">Baby Boys</h6>
+          <div class="mobile-nav-cat-grid">
+            <a href="#babyb-dungarees" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Denim Dungarees</span>
+            </a>
+            <a href="#babyb-shirts" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Collar Shirts</span>
+            </a>
+            <a href="#babyb-tshirts" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Graphic Tees</span>
+            </a>
+            <a href="#babyb-shorts" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Utility Shorts</span>
+            </a>
+          </div>
+          <h6 class="mobile-nav-group-title">Newborn (0-12M)</h6>
+          <div class="mobile-nav-cat-grid">
+            <a href="#newborn-sleepwear" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Zip Sleepwear</span>
+            </a>
+            <a href="#newborn-swaddles" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Muslin Swaddles</span>
+            </a>
+            <a href="#newborn-bodysuits" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Kimono Bodysuits</span>
+            </a>
+            <a href="#newborn-giftsets" class="mobile-nav-cat">
+              <span class="mobile-nav-cat-thumb"><img data-src="https://images.unsplash.com/photo-1522771935878-f35f1f9e99e4?q=80&w=120&h=120&fit=crop&auto=format" alt="" decoding="async"></span>
+              <span class="mobile-nav-cat-label">Newborn Gift Sets</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -319,149 +396,221 @@
   <!-- ==========================================
        HERO SECTION
        ========================================== -->
-  <section class="wishlist-hero">
-    <div class="wishlist-hero-overlay"></div>
+  <section class="contact-hero">
+    <div class="contact-hero-overlay"></div>
     <div class="container h-100">
       <div class="row h-100 align-items-center">
-        <div class="col-lg-8 col-12 wishlist-hero-content">
-          <div class="hero-label">YOUR FAVORITES</div>
-          <h1 class="hero-title">Wishlisted Products</h1>
-          <p class="hero-description">Save your favorite styles in one place and revisit them anytime. Explore the pieces you love and add them to your cart whenever you're ready.</p>
-          <a href="products.html" class="btn btn-hero-primary">Continue Shopping</a>
+        <div class="col-lg-6 col-12 contact-hero-content">
+          <div class="hero-label">COMFY CUTE</div>
+          <h1 class="hero-title">Contact Us</h1>
+          <p class="hero-description">We're here to help. Whether you have a question about your order, sizing, products, or anything else, our team is always happy to assist.</p>
+          <a href="#contact-form" class="btn btn-hero-cta">Get In Touch</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ==========================================
-       WISHLIST PRODUCTS SECTION
+       CONTACT SECTION - INFO + FORM
        ========================================== -->
-  <section class="wishlist-products-section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Wishlisted Products</h2>
-        <p class="section-subtitle">Your saved favorites, ready whenever you are.</p>
-      </div>
-
-      <!-- Empty State -->
-      <div class="empty-wishlist-state" id="emptyWishlistState" style="display: none;">
-        <div class="empty-state-content">
-          <div class="empty-state-icon">
-            <i class="fa-regular fa-heart"></i>
-          </div>
-          <h3 class="empty-state-title">Your Wishlist is Empty</h3>
-          <p class="empty-state-description">Looks like you haven't saved any items yet. Start exploring our collection and add your favorite pieces to your wishlist.</p>
-          <a href="products.html" class="btn btn-primary-cta">Browse Products</a>
-        </div>
-      </div>
-
-      <!-- Products Grid -->
-      <div class="products-grid" id="wishlistProductsGrid">
-        <!-- Products will be rendered here by JavaScript -->
-      </div>
-    </div>
-  </section>
-
-  <!-- ==========================================
-       FOOTER
-       ========================================== -->
-  <footer id="footer">
+  <section class="contact-section" id="contact-form">
     <div class="container">
       <div class="row g-4">
+        <!-- Left: Contact Information -->
+        <div class="col-lg-5">
+          <div class="contact-info-card">
+            <div class="contact-info-header">
+              <h2 class="contact-info-title">Let's Connect</h2>
+            </div>
 
-        <!-- Column 1: Info -->
-        <div class="col-lg-3 col-md-6">
-          <a class="footer-logo" href="index.html">
-            COMFY CUTE <span>.</span>
-          </a>
-          <p class="footer-desc text-muted">A premium contemporary fashion brand bringing organic cotton baby wear and minimalist linen women wear together. Crafted responsibly with love.</p>
-          <div class="social-links">
-            <a href="#fb" class="social-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="#ig" class="social-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-            <a href="#pi" class="social-btn" aria-label="Pinterest"><i class="fa-brands fa-pinterest-p"></i></a>
-            <a href="#yt" class="social-btn" aria-label="Youtube"><i class="fa-brands fa-youtube"></i></a>
+            <!-- Phone -->
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div class="contact-info-content">
+                <h4 class="contact-info-label">Phone</h4>
+                <p class="contact-info-value">1-800-COMFY-CO</p>
+                <p class="contact-info-note">Mon-Fri 9am - 6pm EST</p>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div class="contact-info-content">
+                <h4 class="contact-info-label">Email</h4>
+                <p class="contact-info-value">hello@comfycute.com</p>
+                <p class="contact-info-note">We aim to reply within 24 hours</p>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div class="contact-info-content">
+                <h4 class="contact-info-label">Studio & Store</h4>
+                <p class="contact-info-value">102 Design District, Sector 5</p>
+                <p class="contact-info-note">Bengaluru, Karnataka, India - 560001</p>
+              </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="contact-social">
+              <p class="contact-social-label">FOLLOW US</p>
+              <div class="contact-social-links">
+                <a href="#instagram" class="social-link" aria-label="Instagram">
+                  <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="#facebook" class="social-link" aria-label="Facebook">
+                  <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="#pinterest" class="social-link" aria-label="Pinterest">
+                  <i class="fa-brands fa-pinterest-p"></i>
+                </a>
+                <a href="#youtube" class="social-link" aria-label="YouTube">
+                  <i class="fa-brands fa-youtube"></i>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Column 2: Shop Links -->
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Shop</h5>
-          <ul class="footer-links">
-            <li><a href="#women">Women's Collection</a></li>
-            <li><a href="#baby">Baby Collection</a></li>
-            <li><a href="products.html">New Arrivals</a></li>
-            <li><a href="#limited-offer">Hot Offers</a></li>
-            <li><a href="#categories">Featured Looks</a></li>
-          </ul>
-        </div>
+        <!-- Right: Contact Form -->
+        <div class="col-lg-7">
+          <div class="contact-form-card">
+            <form class="contact-form" id="contactForm" onsubmit="handleContactSubmit(event)">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" id="firstName" class="form-control" placeholder="Jane" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" id="lastName" class="form-control" placeholder="Doe" required>
+                  </div>
+                </div>
+              </div>
 
-        <!-- Column 3: Customer Service -->
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Customer Care</h5>
-          <ul class="footer-links">
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="#shipping">Shipping Policy</a></li>
-            <li><a href="#returns">Returns & Exchanges</a></li>
-            <li><a href="#faqs">Frequently Asked FAQs</a></li>
-            <li><a href="#track">Track Your Order</a></li>
-          </ul>
-        </div>
+              <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" id="email" class="form-control" placeholder="jane@example.com" required>
+              </div>
 
-        <!-- Column 4: Policies -->
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Our Policies</h5>
-          <ul class="footer-links">
-            <li><a href="#privacy">Privacy Policy</a></li>
-            <li><a href="#terms">Terms of Service</a></li>
-            <li><a href="#refund">Refund Policy</a></li>
-            <li><a href="#cookies">Cookie Settings</a></li>
-          </ul>
-        </div>
+              <div class="form-group">
+                <label for="phone" class="form-label">Phone Number (Optional)</label>
+                <input type="tel" id="phone" class="form-control" placeholder="+1 (555) 000-0000">
+              </div>
 
-        <!-- Column 5: Contact Info -->
-        <div class="col-lg-3 col-md-6 col-6">
-          <h5 class="footer-col-title">Get in Touch</h5>
-          <ul class="contact-info-list text-muted">
-            <li>
-              <i class="fa-solid fa-location-dot contact-icon"></i>
-              <span>102, Design District, Sector 5, Bengaluru, Karnataka, India - 560001</span>
-            </li>
-            <li>
-              <i class="fa-solid fa-envelope contact-icon"></i>
-              <span>hello@comfycute.com</span>
-            </li>
-            <li>
-              <i class="fa-solid fa-phone contact-icon"></i>
-              <span>+91 80 4930 2011</span>
-            </li>
-            <li>
-              <i class="fa-solid fa-clock contact-icon"></i>
-              <span>Mon - Sat: 9:00 AM - 7:00 PM</span>
-            </li>
-          </ul>
-        </div>
+              <div class="form-group">
+                <label for="subject" class="form-label">Subject</label>
+                <select id="subject" class="form-control" required>
+                  <option value="">Select an inquiry type...</option>
+                  <option value="order">Order Inquiry</option>
+                  <option value="shipping">Shipping & Delivery</option>
+                  <option value="returns">Returns & Exchanges</option>
+                  <option value="sizing">Sizing & Fit</option>
+                  <option value="product">Product Information</option>
+                  <option value="feedback">Feedback</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
 
+              <div class="form-group">
+                <label for="message" class="form-label">Message</label>
+                <textarea id="message" class="form-control" rows="6" placeholder="How can we help you?" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-contact-submit">Send Message <i class="fa-solid fa-arrow-right ms-2"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       FAQ SECTION
+       ========================================== -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Frequently Asked</h2>
+        <p class="section-subtitle">Quick answers to our most common questions.</p>
       </div>
 
-      <!-- Bottom Footer -->
-      <div class="bottom-footer">
-        <div class="row align-items-center">
-          <div class="col-md-6 text-center text-md-start">
-            <p class="copyright-text text-muted mb-0">&copy; 2026 COMFY CUTE. All rights reserved. Made with love for premium fashion.</p>
+      <div class="faq-container">
+        <div class="faq-item">
+          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="false" aria-controls="faq1">
+            <span>How long does shipping take?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div id="faq1" class="collapse faq-answer" data-bs-parent=".faq-container">
+            <div class="faq-content">
+              <p>Standard shipping typically takes 3-5 business days within India. Express shipping options are available for rush deliveries. We ship every weekday, excluding holidays.</p>
+            </div>
           </div>
-          <div class="col-md-6 text-center text-md-end">
-            <div class="payment-methods">
-              <span class="text-muted small me-2 align-self-center">We Accept:</span>
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Visa" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="Mastercard" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196566.png" alt="PayPal" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/5968/5968638.png" alt="UPI" class="payment-card">
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+            <span>Can I return my order?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div id="faq2" class="collapse faq-answer" data-bs-parent=".faq-container">
+            <div class="faq-content">
+              <p>Yes! We offer hassle-free returns within 15 days of delivery. Items must be unused with original tags attached. Return shipping is free for defective items, while standard returns have a small fee.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+            <span>How do I track my order?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div id="faq3" class="collapse faq-answer" data-bs-parent=".faq-container">
+            <div class="faq-content">
+              <p>Once your order ships, you'll receive a tracking number via email. You can use this to track your package in real-time on our website or the courier's portal.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+            <span>How do I choose the right size?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div id="faq4" class="collapse faq-answer" data-bs-parent=".faq-container">
+            <div class="faq-content">
+              <p>Our products generally run true to size. We provide a detailed size guide for each category on the product page. If you're between sizes, we recommend going up for comfort. Still unsure? Contact us!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
+            <span>Do you offer Cash on Delivery?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div id="faq5" class="collapse faq-answer" data-bs-parent=".faq-container">
+            <div class="faq-content">
+              <p>Yes, we accept Cash on Delivery for orders within India. You can pay directly to the courier when your package arrives. COD is available on all products.</p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </footer>
+  </section>
+
+  {% include 'footer.html' %}
 
   <!-- ==========================================
        FLOATING ACTIONS & STICKY NAVIGATION
@@ -478,12 +627,12 @@
       <i class="fa-solid fa-house"></i>
       <span>Home</span>
     </a>
-    <a href="products.html" class="mobile-nav-item">
+    <a href="#categories" class="mobile-nav-item">
       <i class="fa-solid fa-grip-vertical"></i>
       <span>Shop</span>
     </a>
-    <a href="wishlist.html" class="mobile-nav-item active">
-      <i class="fa-solid fa-heart"></i>
+    <a href="#wishlist" class="mobile-nav-item">
+      <i class="fa-regular fa-heart"></i>
       <span class="mobile-nav-badge wishlist-badge">0</span>
       <span>Wishlist</span>
     </a>
@@ -559,8 +708,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Custom JS -->
-  <script src="js/main.js"></script>
-  <script src="js/wishlist.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/contact.js' %}"></script>
 
 </body>
 </html>

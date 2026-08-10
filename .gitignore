@@ -1,0 +1,43 @@
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Django
+db.sqlite3
+*.log
+local_settings.py
+/staticfiles/
+/media/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+# (Do not ignore project files)
+# templates/ - keep
+# static/ - keep
+# manage.py - keep
+# requirements.txt - keep

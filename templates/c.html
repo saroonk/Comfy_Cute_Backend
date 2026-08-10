@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -126,7 +127,7 @@ body {
 <div class="bento-grid">
 
     <div class="card a">
-        <img src="assets/images/hero_slide_desktop2.png" alt="">
+        <img src="{% static 'images/hero_slide_desktop2.png' %}" alt="">
         <div class="content">
             <h3>Women essential</h3>
             <button class="btn">Shop Now</button>
@@ -140,6 +141,8 @@ body {
     <div class="card d">D</div>
 
 </div>
+
+  {% include 'footer.html' %}
 
 </body>
 </html>

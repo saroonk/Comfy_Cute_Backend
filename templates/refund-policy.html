@@ -1,18 +1,19 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Return & Exchange Policy | COMFY CUTE</title>
-  <meta name="description" content="Learn about COMFY CUTE's Return & Exchange Policy for clothing. Easy returns, size exchanges, and hassle-free process.">
+  <title>Refund Policy | COMFY CUTE</title>
+  <meta name="description" content="Learn about COMFY CUTE's Refund Policy and how to get a refund for your order.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/policies.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/policies.css' %}">
 </head>
 <body>
 
@@ -30,7 +31,7 @@
     <div class="container">
       <nav class="navbar navbar-expand-lg">
         <a class="navbar-brand" href="index.html" id="brandLogo">
-          <img src="assets/images/logo.jpeg" alt="COMFY CUTE Logo" class="navbar-logo-img">
+          <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
         <button class="navbar-toggler" type="button" id="mobileNavToggle" aria-controls="mobileNavDrawer" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fa-solid fa-bars-staggered"></i>
@@ -132,197 +133,132 @@
   <section class="policy-page">
     <div class="container">
       <div class="policy-header">
-        <h1 class="policy-title">Return & Exchange Policy</h1>
+        <h1 class="policy-title">Refund Policy</h1>
         <p class="policy-meta">Last Updated: January 2026</p>
       </div>
 
       <div class="policy-content">
         <div class="policy-section">
-          <h2 class="section-heading">1. Return Eligibility</h2>
-          <p>Items at COMFY CUTE can be returned within 15 days of delivery if they meet the following conditions:</p>
+          <h2 class="section-heading">1. Refund Eligibility</h2>
+          <p>To be eligible for a refund at COMFY CUTE, your returned item must meet the following conditions:</p>
           <ul class="policy-list">
-            <li>Item is unused and unworn with no signs of wear</li>
-            <li>All original price tags and labels are attached and intact</li>
-            <li>Item is in original, saleable condition</li>
-            <li>No damage, stains, odors, or washing</li>
-            <li>Original packaging and boxes are intact (where applicable)</li>
-            <li>Return initiated within 15 days of delivery</li>
-          </ul>
-          <p class="policy-note"><strong>Important for Clothing:</strong> Returned items must look exactly as they did when you received them. Even trying on clothes in your home may affect eligibility if it leaves marks or creases.</p>
-        </div>
-
-        <div class="policy-section">
-          <h2 class="section-heading">2. Exchange Eligibility</h2>
-          <p>Exchanges are available for the same product in a different size or color within 15 days of delivery. Conditions:</p>
-          <ul class="policy-list">
-            <li>Item must meet return eligibility criteria (unused, unworn)</li>
-            <li>Exchange must be for the same product line or similar value</li>
-            <li>Requested item must be in stock at the time of exchange</li>
-            <li>No additional charges for size/color exchanges</li>
-            <li>If new item costs more, difference will be charged</li>
-            <li>If new item costs less, difference will be refunded</li>
+            <li>Return request initiated within 15 days of delivery</li>
+            <li>Item unused, unworn, and in original condition</li>
+            <li>All original tags and labels attached</li>
+            <li>Original packaging and boxes intact (where applicable)</li>
+            <li>No damage, stains, or odors on the item</li>
+            <li>Item not customized or personalized</li>
           </ul>
         </div>
 
         <div class="policy-section">
-          <h2 class="section-heading">3. Return Window (15 Days)</h2>
-          <p>The 15-day return window is calculated as follows:</p>
+          <h2 class="section-heading">2. Eligible Products for Return</h2>
+          <p>Most of our products are eligible for return, including:</p>
           <ul class="policy-list">
-            <li>Begins from the date of delivery, not the date of order</li>
-            <li>Includes weekends and holidays</li>
-            <li>Return request must be initiated within 15 days</li>
-            <li>Physical return can be made after 15 days if approved within window</li>
-            <li>No returns accepted after the 15-day window</li>
+            <li>Regular clothing items (dresses, kurtis, tops, bottoms)</li>
+            <li>Baby wear and children's clothing</li>
+            <li>Accessories (scarves, bags, belts)</li>
+            <li>Sleepwear and loungewear</li>
           </ul>
         </div>
 
         <div class="policy-section">
-          <h2 class="section-heading">4. Product Condition Requirements for Clothing</h2>
-          <p>For clothing to be eligible for return or exchange, it must meet these specific requirements:</p>
-          <h3 class="subsection-heading">General Condition</h3>
+          <h2 class="section-heading">3. Non-Returnable Items</h2>
+          <p>The following items cannot be returned or refunded:</p>
           <ul class="policy-list">
-            <li>Never worn or used</li>
-            <li>No stains, tears, or discoloration</li>
-            <li>Seams and stitching intact</li>
-            <li>Prints or embroidery unaffected</li>
-            <li>No lingering odors or perfume</li>
-          </ul>
-
-          <h3 class="subsection-heading">Tags & Labels</h3>
-          <ul class="policy-list">
-            <li>All original price tags must be attached</li>
-            <li>Manufacturer care labels intact</li>
-            <li>No tag removal or alteration</li>
-          </ul>
-
-          <h3 class="subsection-heading">What Constitutes "Worn"</h3>
-          <p>Items are considered worn if:</p>
-          <ul class="policy-list">
-            <li>Tried on outside the home (even once)</li>
-            <li>Washed or rinsed</li>
-            <li>Shows any visible creases from wearing</li>
-            <li>Has deodorant, makeup, or cosmetic marks</li>
-            <li>Sat/bent in a way that changed the fabric shape</li>
+            <li>Intimate apparel and undergarments (for hygiene reasons)</li>
+            <li>Customized or personalized products</li>
+            <li>Items purchased in final sale or clearance section</li>
+            <li>Products without original tags or labels</li>
+            <li>Items showing signs of wear or damage</li>
+            <li>Products purchased from third-party sellers</li>
           </ul>
         </div>
 
         <div class="policy-section">
-          <h2 class="section-heading">5. How to Request a Return</h2>
+          <h2 class="section-heading">4. How to Request a Return</h2>
+          <p>To initiate a return, follow these steps:</p>
           <ol style="padding-left: 24px; margin-bottom: 16px;">
-            <li style="margin-bottom: 12px;">Visit "My Orders" in your account</li>
-            <li style="margin-bottom: 12px;">Select the order with the item you want to return</li>
-            <li style="margin-bottom: 12px;">Click "Initiate Return"</li>
-            <li style="margin-bottom: 12px;">Select the item and reason for return</li>
-            <li style="margin-bottom: 12px;">Review the return policy acknowledgment</li>
+            <li style="margin-bottom: 12px;">Log in to your account and go to "My Orders"</li>
+            <li style="margin-bottom: 12px;">Select the order containing the item you wish to return</li>
+            <li style="margin-bottom: 12px;">Click "Return" and select the item(s) you want to return</li>
+            <li style="margin-bottom: 12px;">Provide a reason for return and any comments</li>
             <li style="margin-bottom: 12px;">Submit your return request</li>
-            <li>Receive return shipping label via email</li>
+            <li style="margin-bottom: 12px;">We will send you a return shipping label via email</li>
+            <li>Ship the item back to us with the provided label</li>
           </ol>
-          <p>You can also contact our support team at [Support Email] or [Contact Number] to initiate a return.</p>
+          <p>Alternatively, contact our customer service team at [Support Email] or [Contact Number] to initiate a return.</p>
         </div>
 
         <div class="policy-section">
-          <h2 class="section-heading">6. How Exchanges Work</h2>
-          <ol style="padding-left: 24px; margin-bottom: 16px;">
-            <li style="margin-bottom: 12px;">Select "Exchange" instead of "Return" in My Orders</li>
-            <li style="margin-bottom: 12px;">Choose the size or color you want to exchange to</li>
-            <li style="margin-bottom: 12px;">Confirm availability of new item</li>
-            <li style="margin-bottom: 12px;">Receive return shipping label</li>
-            <li style="margin-bottom: 12px;">Ship original item back to us</li>
-            <li>New item will be shipped once original is received and inspected</li>
-          </ol>
-          <p>Free return shipping is provided for size/color exchanges.</p>
-        </div>
-
-        <div class="policy-section">
-          <h2 class="section-heading">7. Size Exchanges</h2>
-          <p>If the item doesn't fit:</p>
+          <h2 class="section-heading">5. Inspection and Approval Process</h2>
+          <p>Once we receive your return:</p>
           <ul class="policy-list">
-            <li>Exchange for a different size of the same product</li>
-            <li>Free return shipping for size exchanges</li>
-            <li>New item shipped after inspection of original</li>
-            <li>No additional shipping charges</li>
-            <li>Exchange must be requested within 15 days</li>
+            <li>Our team will inspect the item within 3-5 business days</li>
+            <li>We will verify that the item meets return eligibility conditions</li>
+            <li>You will receive an email notification about approval or rejection</li>
+            <li>If approved, we will initiate the refund process</li>
+            <li>If rejected, we will contact you with an explanation</li>
           </ul>
-          <p>Refer to our Size Guide on the product pages for accurate sizing. We recommend measuring your existing garments for best fit.</p>
+        </div>
+
+        <div class="policy-section">
+          <h2 class="section-heading">6. Refund Processing Time</h2>
+          <p>After your return is approved:</p>
+          <ul class="policy-list">
+            <li>Refund will be initiated within 1-2 business days</li>
+            <li>The amount will be credited to your original payment method</li>
+            <li>Banking processing time: 5-7 business days</li>
+            <li>You will receive a refund confirmation email</li>
+          </ul>
+          <p class="policy-note"><strong>Note:</strong> Refund processing times may vary depending on your bank and payment method. Please check with your bank if you don't see the refund within 7 business days.</p>
+        </div>
+
+        <div class="policy-section">
+          <h2 class="section-heading">7. Refund Amount</h2>
+          <ul class="policy-list">
+            <li><strong>Product Cost:</strong> Full refund of the item price</li>
+            <li><strong>Shipping Charges:</strong> Not refunded (non-returnable expense)</li>
+            <li><strong>Return Shipping:</strong> Free return shipping provided for eligible returns</li>
+            <li><strong>Taxes:</strong> Included in the refund if applicable</li>
+          </ul>
         </div>
 
         <div class="policy-section">
           <h2 class="section-heading">8. Damaged or Defective Products</h2>
-          <p>If you receive a damaged or defective item:</p>
+          <p>If you receive a damaged, defective, or incorrect item:</p>
           <ul class="policy-list">
-            <li>Report within 24 hours of delivery with photos</li>
-            <li>Free return shipping label provided</li>
-            <li>Full refund or replacement offered immediately</li>
-            <li>No condition inspection for manufacturing defects</li>
-            <li>Expedited processing for defective items</li>
+            <li>Contact us within 24 hours of delivery with photos as proof</li>
+            <li>We will provide a prepaid return label</li>
+            <li>Full refund or replacement will be offered immediately upon approval</li>
+            <li>No inspection fee will be charged for defective items</li>
           </ul>
         </div>
 
         <div class="policy-section">
-          <h2 class="section-heading">9. Wrong Product Received</h2>
-          <p>If you received the wrong item:</p>
+          <h2 class="section-heading">9. Failed or Cancelled Orders</h2>
+          <p>If your payment fails but you were charged, or if your order was cancelled:</p>
           <ul class="policy-list">
-            <li>Report immediately with order confirmation</li>
-            <li>Return label provided for wrong item</li>
-            <li>Correct item shipped immediately</li>
-            <li>Prepaid return label for wrong item</li>
-            <li>No restocking fees apply</li>
+            <li>We will process a full refund automatically within 1-2 business days</li>
+            <li>Refund will be credited to your original payment method</li>
+            <li>Please check with your bank if the amount doesn't reflect within 7 days</li>
           </ul>
         </div>
 
         <div class="policy-section">
-          <h2 class="section-heading">10. Non-Returnable Items</h2>
-          <p>The following items cannot be returned or exchanged:</p>
+          <h2 class="section-heading">10. Partial Refunds</h2>
+          <p>We may issue a partial refund in the following situations:</p>
           <ul class="policy-list">
-            <li>Intimate apparel and undergarments (for hygiene)</li>
-            <li>Customized or personalized products</li>
-            <li>Final sale or clearance items</li>
-            <li>Items without original tags</li>
-            <li>Visibly worn or used items</li>
-            <li>Items showing signs of wear (creases, odors, dirt)</li>
-            <li>Washed or dry-cleaned items</li>
-            <li>Items purchased from third-party sellers</li>
+            <li>Item has minor signs of wear but is otherwise in good condition</li>
+            <li>Original packaging is damaged but item is undamaged</li>
+            <li>In such cases, a 10-20% deduction may apply</li>
           </ul>
+          <p>You will be notified via email about any partial refund deductions before processing.</p>
         </div>
 
         <div class="policy-section">
-          <h2 class="section-heading">11. Return Shipping</h2>
-          <ul class="policy-list">
-            <li>Free return shipping label provided for eligible returns</li>
-            <li>Use only the provided label for returns</li>
-            <li>Pack item securely in original or similar packaging</li>
-            <li>Drop at any courier facility or arrange pickup</li>
-            <li>Keep tracking number for your records</li>
-          </ul>
-        </div>
-
-        <div class="policy-section">
-          <h2 class="section-heading">12. Inspection Process</h2>
-          <p>After we receive your return:</p>
-          <ul class="policy-list">
-            <li>Inspection completed within 3-5 business days</li>
-            <li>Item checked for condition and tags</li>
-            <li>Approval/rejection email notification sent</li>
-            <li>Photos may be requested for clarification</li>
-            <li>Partial refund if item has minor issues (10-20% deduction)</li>
-          </ul>
-        </div>
-
-        <div class="policy-section">
-          <h2 class="section-heading">13. Refund After Return Approval</h2>
-          <p>Once your return is approved:</p>
-          <ul class="policy-list">
-            <li>Refund initiated within 1-2 business days</li>
-            <li>Amount credited to original payment method</li>
-            <li>Bank processing: 5-7 business days</li>
-            <li>For exchanges: new item shipped immediately</li>
-            <li>Refund confirmation email sent</li>
-          </ul>
-        </div>
-
-        <div class="policy-section">
-          <h2 class="section-heading">14. Contact Us</h2>
-          <p>For return or exchange questions, reach out to:</p>
+          <h2 class="section-heading">11. Contact Us for Refund Questions</h2>
+          <p>If you have any questions about refunds or your return status, please reach out:</p>
           <div class="contact-info">
             <p><strong>Email:</strong> <a href="mailto:[Support Email]">[Support Email]</a></p>
             <p><strong>Phone:</strong> <a href="tel:[Contact Number]">[Contact Number]</a></p>
@@ -342,76 +278,7 @@
     <a href="#account" class="mobile-nav-item" data-bs-toggle="dropdown" data-bs-target="#mobileAccountDropdown"><i class="fa-regular fa-user"></i><span>Account</span><ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" id="mobileAccountDropdown" style="position: absolute; bottom: 70px; right: 10px;"><li><a class="dropdown-item account-dropdown-item" href="#login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li><li><a class="dropdown-item account-dropdown-item" href="#orders"><i class="fa-solid fa-box-archive"></i> Track Orders</a></li></ul></a>
   </div>
 
-  <footer id="footer">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-3 col-md-6">
-          <a class="footer-logo" href="index.html">COMFY CUTE <span>.</span></a>
-          <p class="footer-desc text-muted">A premium contemporary fashion brand bringing organic cotton baby wear and minimalist linen women wear together. Crafted responsibly with love.</p>
-          <div class="social-links">
-            <a href="#fb" class="social-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="#ig" class="social-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-            <a href="#pi" class="social-btn" aria-label="Pinterest"><i class="fa-brands fa-pinterest-p"></i></a>
-            <a href="#yt" class="social-btn" aria-label="Youtube"><i class="fa-brands fa-youtube"></i></a>
-          </div>
-        </div>
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Shop</h5>
-          <ul class="footer-links">
-            <li><a href="index.html#women">Women's Collection</a></li>
-            <li><a href="index.html#baby">Baby Collection</a></li>
-            <li><a href="index.html#new-arrivals">New Arrivals</a></li>
-            <li><a href="index.html#limited-offer">Hot Offers</a></li>
-            <li><a href="index.html#categories">Featured Looks</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Customer Care</h5>
-          <ul class="footer-links">
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="shipping-policy.html">Shipping Policy</a></li>
-            <li><a href="return-exchange.html">Returns & Exchanges</a></li>
-            <li><a href="#faqs">Frequently Asked FAQs</a></li>
-            <li><a href="track-order.html">Track Your Order</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Our Policies</h5>
-          <ul class="footer-links">
-            <li><a href="privacy-policy.html">Privacy Policy</a></li>
-            <li><a href="terms-of-service.html">Terms of Service</a></li>
-            <li><a href="refund-policy.html">Refund Policy</a></li>
-            <li><a href="#cookies">Cookie Settings</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-3 col-md-6 col-6">
-          <h5 class="footer-col-title">Get in Touch</h5>
-          <ul class="contact-info-list text-muted">
-            <li><i class="fa-solid fa-location-dot contact-icon"></i><span>[Business Address]</span></li>
-            <li><i class="fa-solid fa-envelope contact-icon"></i><span><a href="mailto:[Support Email]" style="color: inherit; text-decoration: none;">[Support Email]</a></span></li>
-            <li><i class="fa-solid fa-phone contact-icon"></i><span><a href="tel:[Contact Number]" style="color: inherit; text-decoration: none;">[Contact Number]</a></span></li>
-            <li><i class="fa-solid fa-clock contact-icon"></i><span>Mon - Sat: 9:00 AM - 7:00 PM</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="bottom-footer">
-        <div class="row align-items-center">
-          <div class="col-md-6 text-center text-md-start">
-            <p class="copyright-text text-muted mb-0">&copy; 2026 COMFY CUTE. All rights reserved. Made with love for premium fashion.</p>
-          </div>
-          <div class="col-md-6 text-center text-md-end">
-            <div class="payment-methods">
-              <span class="text-muted small me-2 align-self-center">We Accept:</span>
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Visa" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="Mastercard" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196566.png" alt="PayPal" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/5968/5968638.png" alt="UPI" class="payment-card">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+  {% include 'footer.html' %}
 
   <div class="floating-actions-container">
     <button class="floating-btn btn-back-to-top" aria-label="Back to Top"><i class="fa-solid fa-arrow-up"></i></button>
@@ -420,7 +287,7 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
 
 </body>
 </html>

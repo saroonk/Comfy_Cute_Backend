@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Us | COMFY CUTE | Get in Touch</title>
+  <title>About Us | COMFY CUTE | Our Story & Values</title>
 
   <!-- Meta Tags for SEO -->
-  <meta name="description" content="Contact COMFY CUTE for any questions about our products, shipping, or returns. We're here to help! Call us, email us, or fill out our contact form.">
-  <meta name="keywords" content="contact us, customer service, comfy cute, fashion support">
+  <meta name="description" content="Learn about COMFY CUTE - a premium fashion brand dedicated to creating timeless, comfortable clothing for women and babies. Discover our story and values.">
+  <meta name="keywords" content="about comfy cute, fashion brand, organic cotton, premium clothing, our story">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,8 +21,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/contact.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/about-us.css' %}">
 </head>
 <body>
 
@@ -46,7 +47,7 @@
       <nav class="navbar navbar-expand-lg">
         <!-- Logo -->
         <a class="navbar-brand" href="index.html" id="brandLogo">
-          <img src="assets/images/logo.jpeg" alt="COMFY CUTE Logo" class="navbar-logo-img">
+          <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
 
         <!-- Hamburger Toggler (Mobile) -->
@@ -167,10 +168,10 @@
               <a class="nav-link" href="#limited-offer">Offers</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#why-choose">About</a>
+              <a class="nav-link active" href="about-us.html">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="contact.html">Contact</a>
+              <a class="nav-link" href="contact.html">Contact</a>
             </li>
           </ul>
         </div>
@@ -241,7 +242,7 @@
           <li><a href="#collections" class="mobile-nav-link">Collections</a></li>
           <li><a href="#bestsellers" class="mobile-nav-link">New Arrivals</a></li>
           <li><a href="#limited-offer" class="mobile-nav-link">Offers</a></li>
-          <li><a href="#why-choose" class="mobile-nav-link">About</a></li>
+          <li><a href="about-us.html" class="mobile-nav-link">About</a></li>
           <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
         </ul>
       </div>
@@ -395,140 +396,75 @@
   <!-- ==========================================
        HERO SECTION
        ========================================== -->
-  <section class="contact-hero">
-    <div class="contact-hero-overlay"></div>
+  <section class="about-hero">
+    <div class="about-hero-overlay"></div>
     <div class="container h-100">
       <div class="row h-100 align-items-center">
-        <div class="col-lg-6 col-12 contact-hero-content">
-          <div class="hero-label">COMFY CUTE</div>
-          <h1 class="hero-title">Contact Us</h1>
-          <p class="hero-description">We're here to help. Whether you have a question about your order, sizing, products, or anything else, our team is always happy to assist.</p>
-          <a href="#contact-form" class="btn btn-hero-cta">Get In Touch</a>
+        <div class="col-lg-6 col-12 about-hero-content">
+          <div class="hero-label">ABOUT COMFY CUTE</div>
+          <h1 class="hero-title">Fashion Designed for Every Beautiful Moment</h1>
+          <p class="hero-description">At COMFY CUTE, we believe fashion should feel as beautiful as it looks. From timeless women's wear to adorable kidswear, every collection is thoughtfully curated to bring comfort, confidence, and elegance into your everyday life.</p>
+          <div class="hero-buttons">
+            <a href="#collections" class="btn btn-hero-primary">Explore Collections</a>
+            <a href="contact.html" class="btn btn-hero-secondary">Contact Us</a>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ==========================================
-       CONTACT SECTION - INFO + FORM
+       OUR STORY SECTION
        ========================================== -->
-  <section class="contact-section" id="contact-form">
+  <section class="our-story-section">
     <div class="container">
-      <div class="row g-4">
-        <!-- Left: Contact Information -->
-        <div class="col-lg-5">
-          <div class="contact-info-card">
-            <div class="contact-info-header">
-              <h2 class="contact-info-title">Let's Connect</h2>
-            </div>
-
-            <!-- Phone -->
-            <div class="contact-info-item">
-              <div class="contact-info-icon">
-                <i class="fa-solid fa-phone"></i>
-              </div>
-              <div class="contact-info-content">
-                <h4 class="contact-info-label">Phone</h4>
-                <p class="contact-info-value">1-800-COMFY-CO</p>
-                <p class="contact-info-note">Mon-Fri 9am - 6pm EST</p>
-              </div>
-            </div>
-
-            <!-- Email -->
-            <div class="contact-info-item">
-              <div class="contact-info-icon">
-                <i class="fa-solid fa-envelope"></i>
-              </div>
-              <div class="contact-info-content">
-                <h4 class="contact-info-label">Email</h4>
-                <p class="contact-info-value">hello@comfycute.com</p>
-                <p class="contact-info-note">We aim to reply within 24 hours</p>
-              </div>
-            </div>
-
-            <!-- Address -->
-            <div class="contact-info-item">
-              <div class="contact-info-icon">
-                <i class="fa-solid fa-location-dot"></i>
-              </div>
-              <div class="contact-info-content">
-                <h4 class="contact-info-label">Studio & Store</h4>
-                <p class="contact-info-value">102 Design District, Sector 5</p>
-                <p class="contact-info-note">Bengaluru, Karnataka, India - 560001</p>
-              </div>
-            </div>
-
-            <!-- Social Links -->
-            <div class="contact-social">
-              <p class="contact-social-label">FOLLOW US</p>
-              <div class="contact-social-links">
-                <a href="#instagram" class="social-link" aria-label="Instagram">
-                  <i class="fa-brands fa-instagram"></i>
-                </a>
-                <a href="#facebook" class="social-link" aria-label="Facebook">
-                  <i class="fa-brands fa-facebook-f"></i>
-                </a>
-                <a href="#pinterest" class="social-link" aria-label="Pinterest">
-                  <i class="fa-brands fa-pinterest-p"></i>
-                </a>
-                <a href="#youtube" class="social-link" aria-label="YouTube">
-                  <i class="fa-brands fa-youtube"></i>
-                </a>
-              </div>
-            </div>
+      <div class="row g-md-5 g-3 align-items-center">
+        <!-- Left: Image -->
+        <div class="col-lg-6 col-12">
+          <div class="story-image">
+            <img src="{% static 'images/aboutwhychoosesection.webp' %}" alt="Our Story" class="story-img">
           </div>
         </div>
 
-        <!-- Right: Contact Form -->
-        <div class="col-lg-7">
-          <div class="contact-form-card">
-            <form class="contact-form" id="contactForm" onsubmit="handleContactSubmit(event)">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="firstName" class="form-label">First Name</label>
-                    <input type="text" id="firstName" class="form-control" placeholder="Jane" required>
-                  </div>
+        <!-- Right: Content -->
+        <div class="col-lg-6 col-12">
+          <div class="story-content">
+            <h2 class="story-title">Where Comfort Meets Style</h2>
+            <p class="story-description">What started as a small dream to create clothing that genuinely felt good to wear has blossomed into a premium destination for families. We noticed a gap between high-end aesthetic and everyday comfort, and COMFY CUTE was born to bridge that divide.</p>
+            <p class="story-description">Our journey is woven with a dedication to soft fabrics, gentle silhouettes, and a commitment to ensuring every piece feels like a gentle hug.</p>
+
+            <!-- Story Features -->
+            <div class="story-features">
+              <div class="story-feature">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-gem"></i>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="lastName" class="form-label">Last Name</label>
-                    <input type="text" id="lastName" class="form-control" placeholder="Doe" required>
-                  </div>
+                <div class="feature-content">
+                  <h4>Premium Quality</h4>
+                  <p>Soft, breathable, and high-quality materials.</p>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
-                <input type="email" id="email" class="form-control" placeholder="jane@example.com" required>
+              <div class="story-feature">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-heart"></i>
+                </div>
+                <div class="feature-content">
+                  <h4>Comfort First</h4>
+                  <p>Every design prioritizes your comfort and ease.</p>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label for="phone" class="form-label">Phone Number (Optional)</label>
-                <input type="tel" id="phone" class="form-control" placeholder="+1 (555) 000-0000">
+              <div class="story-feature">
+                <div class="feature-icon">
+                  <i class="fa-solid fa-hand-holding-heart"></i>
+                </div>
+                <div class="feature-content">
+                  <h4>Designed With Love</h4>
+                  <p>Crafted thoughtfully with care in every detail.</p>
+                </div>
               </div>
-
-              <div class="form-group">
-                <label for="subject" class="form-label">Subject</label>
-                <select id="subject" class="form-control" required>
-                  <option value="">Select an inquiry type...</option>
-                  <option value="order">Order Inquiry</option>
-                  <option value="shipping">Shipping & Delivery</option>
-                  <option value="returns">Returns & Exchanges</option>
-                  <option value="sizing">Sizing & Fit</option>
-                  <option value="product">Product Information</option>
-                  <option value="feedback">Feedback</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="message" class="form-label">Message</label>
-                <textarea id="message" class="form-control" rows="6" placeholder="How can we help you?" required></textarea>
-              </div>
-
-              <button type="submit" class="btn btn-contact-submit">Send Message <i class="fa-solid fa-arrow-right ms-2"></i></button>
-            </form>
+            </div>
           </div>
         </div>
       </div>
@@ -536,179 +472,167 @@
   </section>
 
   <!-- ==========================================
-       FAQ SECTION
+       WHY CHOOSE COMFY CUTE SECTION
        ========================================== -->
-  <section class="faq-section">
+  <section class="why-choose-section">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Frequently Asked</h2>
-        <p class="section-subtitle">Quick answers to our most common questions.</p>
+        <span class="section-label">OUR VALUES</span>
+        <h2 class="section-title">Why Choose COMFY CUTE</h2>
       </div>
 
-      <div class="faq-container">
-        <div class="faq-item">
-          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="false" aria-controls="faq1">
-            <span>How long does shipping take?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div id="faq1" class="collapse faq-answer" data-bs-parent=".faq-container">
-            <div class="faq-content">
-              <p>Standard shipping typically takes 3-5 business days within India. Express shipping options are available for rush deliveries. We ship every weekday, excluding holidays.</p>
-            </div>
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <i class="fa-solid fa-star"></i>
           </div>
+          <h3 class="feature-card-title">Premium Fabrics</h3>
+          <p class="feature-card-description">Soft, breathable, and high-quality materials.</p>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
-            <span>Can I return my order?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div id="faq2" class="collapse faq-answer" data-bs-parent=".faq-container">
-            <div class="faq-content">
-              <p>Yes! We offer hassle-free returns within 15 days of delivery. Items must be unused with original tags attached. Return shipping is free for defective items, while standard returns have a small fee.</p>
-            </div>
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <i class="fa-solid fa-hand-holding-heart"></i>
           </div>
+          <h3 class="feature-card-title">Handpicked Collections</h3>
+          <p class="feature-card-description">Thoughtfully curated styles for women and kids.</p>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
-            <span>How do I track my order?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div id="faq3" class="collapse faq-answer" data-bs-parent=".faq-container">
-            <div class="faq-content">
-              <p>Once your order ships, you'll receive a tracking number via email. You can use this to track your package in real-time on our website or the courier's portal.</p>
-            </div>
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <i class="fa-solid fa-tag"></i>
           </div>
+          <h3 class="feature-card-title">Affordable Pricing</h3>
+          <p class="feature-card-description">Premium fashion that doesn't break the bank.</p>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
-            <span>How do I choose the right size?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div id="faq4" class="collapse faq-answer" data-bs-parent=".faq-container">
-            <div class="faq-content">
-              <p>Our products generally run true to size. We provide a detailed size guide for each category on the product page. If you're between sizes, we recommend going up for comfort. Still unsure? Contact us!</p>
-            </div>
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <i class="fa-solid fa-arrow-rotate-left"></i>
           </div>
+          <h3 class="feature-card-title">Easy Returns</h3>
+          <p class="feature-card-description">Hassle-free 15-day return policy.</p>
         </div>
 
-        <div class="faq-item">
-          <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
-            <span>Do you offer Cash on Delivery?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div id="faq5" class="collapse faq-answer" data-bs-parent=".faq-container">
-            <div class="faq-content">
-              <p>Yes, we accept Cash on Delivery for orders within India. You can pay directly to the courier when your package arrives. COD is available on all products.</p>
-            </div>
+        <!-- Feature 5 -->
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <i class="fa-solid fa-truck-fast"></i>
           </div>
+          <h3 class="feature-card-title">Fast Shipping</h3>
+          <p class="feature-card-description">Quick and reliable delivery to your doorstep.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card">
+          <div class="feature-card-icon">
+            <i class="fa-solid fa-heart"></i>
+          </div>
+          <h3 class="feature-card-title">Trusted by Families</h3>
+          <p class="feature-card-description">A community of happy customers worldwide.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ==========================================
-       FOOTER
+       TESTIMONIALS SECTION
        ========================================== -->
-  <footer id="footer">
+  <section class="testimonials-section">
     <div class="container">
-      <div class="row g-4">
-
-        <!-- Column 1: Info -->
-        <div class="col-lg-3 col-md-6">
-          <a class="footer-logo" href="index.html">
-            COMFY CUTE <span>.</span>
-          </a>
-          <p class="footer-desc text-muted">A premium contemporary fashion brand bringing organic cotton baby wear and minimalist linen women wear together. Crafted responsibly with love.</p>
-          <div class="social-links">
-            <a href="#fb" class="social-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="#ig" class="social-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-            <a href="#pi" class="social-btn" aria-label="Pinterest"><i class="fa-brands fa-pinterest-p"></i></a>
-            <a href="#yt" class="social-btn" aria-label="Youtube"><i class="fa-brands fa-youtube"></i></a>
-          </div>
-        </div>
-
-        <!-- Column 2: Shop Links -->
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Shop</h5>
-          <ul class="footer-links">
-            <li><a href="#women">Women's Collection</a></li>
-            <li><a href="#baby">Baby Collection</a></li>
-            <li><a href="#new-arrivals">New Arrivals</a></li>
-            <li><a href="#limited-offer">Hot Offers</a></li>
-            <li><a href="#categories">Featured Looks</a></li>
-          </ul>
-        </div>
-
-        <!-- Column 3: Customer Service -->
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Customer Care</h5>
-          <ul class="footer-links">
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="#shipping">Shipping Policy</a></li>
-            <li><a href="#returns">Returns & Exchanges</a></li>
-            <li><a href="#faqs">Frequently Asked FAQs</a></li>
-            <li><a href="#track">Track Your Order</a></li>
-          </ul>
-        </div>
-
-        <!-- Column 4: Policies -->
-        <div class="col-lg-2 col-md-6 col-6">
-          <h5 class="footer-col-title">Our Policies</h5>
-          <ul class="footer-links">
-            <li><a href="#privacy">Privacy Policy</a></li>
-            <li><a href="#terms">Terms of Service</a></li>
-            <li><a href="#refund">Refund Policy</a></li>
-            <li><a href="#cookies">Cookie Settings</a></li>
-          </ul>
-        </div>
-
-        <!-- Column 5: Contact Info -->
-        <div class="col-lg-3 col-md-6 col-6">
-          <h5 class="footer-col-title">Get in Touch</h5>
-          <ul class="contact-info-list text-muted">
-            <li>
-              <i class="fa-solid fa-location-dot contact-icon"></i>
-              <span>102, Design District, Sector 5, Bengaluru, Karnataka, India - 560001</span>
-            </li>
-            <li>
-              <i class="fa-solid fa-envelope contact-icon"></i>
-              <span>hello@comfycute.com</span>
-            </li>
-            <li>
-              <i class="fa-solid fa-phone contact-icon"></i>
-              <span>+91 80 4930 2011</span>
-            </li>
-            <li>
-              <i class="fa-solid fa-clock contact-icon"></i>
-              <span>Mon - Sat: 9:00 AM - 7:00 PM</span>
-            </li>
-          </ul>
-        </div>
-
+      <div class="section-header">
+        <span class="section-label">TESTIMONIALS</span>
+        <h2 class="section-title">What Our Customers Say</h2>
       </div>
 
-      <!-- Bottom Footer -->
-      <div class="bottom-footer">
-        <div class="row align-items-center">
-          <div class="col-md-6 text-center text-md-start">
-            <p class="copyright-text text-muted mb-0">&copy; 2026 COMFY CUTE. All rights reserved. Made with love for premium fashion.</p>
-          </div>
-          <div class="col-md-6 text-center text-md-end">
-            <div class="payment-methods">
-              <span class="text-muted small me-2 align-self-center">We Accept:</span>
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Visa" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="Mastercard" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/196/196566.png" alt="PayPal" class="payment-card">
-              <img src="https://cdn-icons-png.flaticon.com/128/5968/5968638.png" alt="UPI" class="payment-card">
+      <div class="testimonials-grid">
+        <!-- Testimonial 1 -->
+        <div class="testimonial-card">
+          <div class="testimonial-header">
+            <div class="testimonial-avatar">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop" alt="Sarah Jenkins">
+            </div>
+            <div class="testimonial-info">
+              <h4 class="testimonial-name">Sarah Jenkins</h4>
+              <p class="testimonial-badge">VERIFIED BUYER</p>
             </div>
           </div>
+          <div class="testimonial-rating">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <p class="testimonial-text">"The quality of the linen is absolutely unmatched. It's so soft on my daughter's skin, and we get endless compliments. They truly beautiful pieces."</p>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="testimonial-card">
+          <div class="testimonial-header">
+            <div class="testimonial-avatar">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop" alt="Elena Rodriguez">
+            </div>
+            <div class="testimonial-info">
+              <h4 class="testimonial-name">Elena Rodriguez</h4>
+              <p class="testimonial-badge">VERIFIED BUYER</p>
+            </div>
+          </div>
+          <div class="testimonial-rating">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <p class="testimonial-text">"I finally found a brand that balances elegance with comfort. These clothes make me feel confident relaxed at the same time. Showing way too fast too!"</p>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="testimonial-card">
+          <div class="testimonial-header">
+            <div class="testimonial-avatar">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop" alt="Maya Thompson">
+            </div>
+            <div class="testimonial-info">
+              <h4 class="testimonial-name">Maya Thompson</h4>
+              <p class="testimonial-badge">VERIFIED BUYER</p>
+            </div>
+          </div>
+          <div class="testimonial-rating">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <p class="testimonial-text">"The customer service is just as premium as the clothing. They helped me get sizing for my boys and the fit is perfect! COMFY CUTE is our family favorite."</p>
         </div>
       </div>
     </div>
-  </footer>
+  </section>
+
+  <!-- ==========================================
+       CTA SECTION
+       ========================================== -->
+  <section class="about-cta-section">
+    <div class="about-cta-overlay"></div>
+    <div class="container h-100">
+      <div class="row h-100 align-items-center justify-content-center">
+        <div class="col-lg-8 col-12 text-center cta-content">
+          <h2 class="cta-title">Ready to Refresh Your Wardrobe?</h2>
+          <p class="cta-description">Discover timeless collections crafted for women and kids. Experience the soft touch of premium fabrics today.</p>
+          <a href="products.html" class="btn btn-cta-primary">Shop Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% include 'footer.html' %}
 
   <!-- ==========================================
        FLOATING ACTIONS & STICKY NAVIGATION
@@ -806,8 +730,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Custom JS -->
-  <script src="js/main.js"></script>
-  <script src="js/contact.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/about-us.js' %}"></script>
 
 </body>
 </html>
