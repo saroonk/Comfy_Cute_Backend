@@ -420,52 +420,21 @@
        ========================================== -->
   <section class="hero-section" id="home">
     <div class="hero-slider owl-carousel">
-      <!-- Slide 1 — Women's Collection -->
+      {% for banner in hero_banners %}
       <div class="hero-slide">
-        <a href="{% url 'ComfyCuteApp:products' %}" class="hero-slide-link" aria-label="Shop Women's Collection">
+        <a href="{% if banner.hero_url %}{{ banner.hero_url }}{% else %}{% url 'ComfyCuteApp:products' %}{% endif %}" class="hero-slide-link" aria-label="Shop Collection">
           <picture>
-            <source media="(max-width: 767px)" srcset="{% static 'images/hero_slide_mobile3.webp' %}">
+            <source media="(max-width: 767px)" srcset="{{ banner.mobile_image.url }}">
             <img
-              src="{% static 'images/hero_slide_desktop1.webp' %}"
-              alt="Women's Collection — COMFY CUTE"
+              src="{{ banner.desktop_image.url }}"
+              alt="COMFY CUTE Collection"
               class="hero-slide-img"
-              loading="eager"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
             >
           </picture>
         </a>
       </div>
-
-      <!-- Slide 2 — Baby Collection -->
-      <div class="hero-slide">
-        <a href="#baby" class="hero-slide-link" aria-label="Shop Baby Collection">
-          <picture>
-            <source media="(max-width: 767px)" srcset="{% static 'images/hero_slide_mobile2.webp' %}">
-            <img
-              src="{% static 'images/hero_slide_desktop2.webp' %}"
-              alt="Baby Collection — COMFY CUTE"
-              class="hero-slide-img"
-              loading="lazy"
-            >
-          </picture>
-        </a>
-      </div>
-
-      <!-- Slide 3 — New Arrivals -->
-      <div class="hero-slide">
-        <a href="{% url 'ComfyCuteApp:products' %}" class="hero-slide-link" aria-label="Shop New Arrivals">
-          <picture>
-            <source media="(max-width: 767px)" srcset="{% static 'images/hero_slide_mobile1.webp' %}">
-            <img
-              src="{% static 'images/hero_slide_desktop3.webp' %}"
-              alt="New Arrivals — COMFY CUTE"
-              class="hero-slide-img"
-              loading="lazy"
-            >
-          </picture>
-        </a>
-      </div>
-
-
+      {% endfor %}
     </div>
 
     <!-- Premium Slider Controls -->

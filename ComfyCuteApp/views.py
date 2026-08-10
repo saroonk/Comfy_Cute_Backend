@@ -1,7 +1,12 @@
 from django.shortcuts import render
+from .models import HeroBanner
 
 def home(request):
-    return render(request, 'index.html')
+    hero_banners = HeroBanner.objects.filter(is_active=True).order_by('order')
+    context = {
+        'hero_banners': hero_banners,
+    }
+    return render(request, 'index.html', context)
 
 def products(request):
     return render(request, 'products.html')
