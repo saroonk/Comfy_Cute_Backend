@@ -42,61 +42,156 @@ function setupHeroSpacing() {
   }, { once: false });
 }
 
+// Get CSRF token from the form
+function getCSRFToken() {
+  const name = 'csrftoken';
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  // If not in cookie, try to get from hidden input in form
+  if (!cookieValue) {
+    const token = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (token) {
+      cookieValue = token.value;
+    }
+  }
+  return cookieValue;
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+  const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+  const toastEl = document.createElement('div');
+  toastEl.className = `toast-notification toast-${type}`;
+  toastEl.innerHTML = `
+    <div class="toast-content">
+      <i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+      <span>${message}</span>
+    </div>
+  `;
+
+  toastContainer.appendChild(toastEl);
+
+  // Trigger animation
+  setTimeout(() => toastEl.classList.add('show'), 10);
+
+  // Remove after 4 seconds
+  setTimeout(() => {
+    toastEl.classList.remove('show');
+    setTimeout(() => toastEl.remove(), 300);
+  }, 4000);
+}
+
+// Create toast container if it doesn't exist
+function createToastContainer() {
+  const container = document.createElement('div');
+  container.id = 'toastContainer';
+  container.className = 'toast-container';
+  document.body.appendChild(container);
+  return container;
+}
+
+// Clear form errors
+function clearFormErrors() {
+  const errorElements = document.querySelectorAll('.form-error');
+  errorElements.forEach(el => {
+    el.textContent = '';
+  });
+
+  const formInputs = document.querySelectorAll('#contactForm .form-control');
+  formInputs.forEach(el => {
+    el.classList.remove('is-invalid');
+  });
+}
+
+// Display form errors
+function displayFormErrors(errors) {
+  clearFormErrors();
+
+  for (const [field, message] of Object.entries(errors)) {
+    const errorEl = document.getElementById(`error-${field}`);
+    const inputEl = document.querySelector(`[name="${field}"]`);
+
+    if (errorEl) {
+      errorEl.textContent = message;
+    }
+    if (inputEl) {
+      inputEl.classList.add('is-invalid');
+    }
+  }
+}
+
 // Contact Form Submission
 function handleContactSubmit(event) {
   event.preventDefault();
 
-  const firstName = document.getElementById('firstName').value.trim();
-  const lastName = document.getElementById('lastName').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-  const subject = document.getElementById('subject').value;
-  const message = document.getElementById('message').value.trim();
-
-  // Validate form
-  if (!firstName || !lastName || !email || !subject || !message) {
-    alert('Please fill in all required fields.');
-    return;
-  }
-
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    alert('Please enter a valid email address.');
-    return;
-  }
-
-  // Create form data
-  const formData = {
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    phone: phone || 'Not provided',
-    subject: subject,
-    message: message,
-    timestamp: new Date().toISOString()
-  };
-
-  // Log form data (in production, this would be sent to a server)
-  console.log('Contact Form Submitted:', formData);
-
-  // Show success message
   const form = document.getElementById('contactForm');
-  const submitButton = form.querySelector('button[type="submit"]');
-  const originalText = submitButton.innerHTML;
+  const submitBtn = document.getElementById('submitBtn');
+  const originalBtnText = submitBtn.innerHTML;
 
-  submitButton.innerHTML = '<i class="fa-solid fa-check"></i> Message Sent!';
-  submitButton.style.backgroundColor = 'var(--color-primary-hover)';
-  submitButton.disabled = true;
+  // Clear previous errors
+  clearFormErrors();
 
-  // Reset form after 2 seconds and show message
-  setTimeout(() => {
-    form.reset();
-    submitButton.innerHTML = originalText;
-    submitButton.style.backgroundColor = '';
-    submitButton.disabled = false;
-    alert('Thank you for your message! We\'ll get back to you within 24 hours.');
-  }, 2000);
+  // Disable button and show loading state
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
+  // Get form data
+  const formData = new FormData(form);
+  const csrfToken = getCSRFToken();
+
+  // Send AJAX request
+  fetch('/contact/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrfToken,
+    },
+    body: formData,
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      return response.json().then(data => {
+        throw data;
+      });
+    }
+  })
+  .then(data => {
+    if (data.success) {
+      // Success
+      showToast(data.message, 'success');
+      form.reset();
+      clearFormErrors();
+    } else {
+      // Validation errors
+      showToast(data.message || 'Please check the form for errors.', 'error');
+      if (data.errors) {
+        displayFormErrors(data.errors);
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showToast(error.message || 'Something went wrong. Please try again.', 'error');
+    if (error.errors) {
+      displayFormErrors(error.errors);
+    }
+  })
+  .finally(() => {
+    // Re-enable button
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalBtnText;
+  });
 }
 
 // Setup Contact Form

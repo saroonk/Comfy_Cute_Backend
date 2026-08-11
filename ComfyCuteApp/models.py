@@ -1,6 +1,37 @@
 from django.db import models
 
 
+class ContactSubmission(models.Model):
+    """
+    Model for storing contact form submissions from the Contact Us page.
+    """
+    SUBJECT_CHOICES = [
+        ('order', 'Order Inquiry'),
+        ('shipping', 'Shipping & Delivery'),
+        ('returns', 'Returns & Exchanges'),
+        ('sizing', 'Sizing & Fit'),
+        ('product', 'Product Information'),
+        ('feedback', 'Feedback'),
+        ('other', 'Other'),
+    ]
+
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    subject = models.CharField(max_length=50, choices=SUBJECT_CHOICES)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Contact Submission'
+        verbose_name_plural = 'Contact Submissions'
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.get_subject_display()}"
+
+
 class HeroBanner(models.Model):
     """
     Model for managing homepage hero slider banners.

@@ -1,8 +1,36 @@
 from django.contrib import admin
-from .models import HeroBanner
-
-
+from .models import HeroBanner, ContactSubmission
 from unfold.admin import ModelAdmin
+
+
+@admin.register(ContactSubmission)
+class ContactSubmissionAdmin(ModelAdmin):
+    list_display = ['first_name', 'last_name', 'email', 'phone', 'subject', 'created_at']
+    list_filter = ['subject', 'created_at']
+    search_fields = ['first_name', 'last_name', 'email', 'subject']
+    readonly_fields = ['created_at']
+    fieldsets = (
+        ('Contact Information', {
+            'fields': ('first_name', 'last_name', 'email', 'phone')
+        }),
+        ('Message Details', {
+            'fields': ('subject', 'message')
+        }),
+        ('Submission Info', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-created_at']
+
+    def has_add_permission(self, request):
+        # Prevent direct admin creation of contact submissions
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Allow deletion of submissions
+        return True
+
 
 @admin.register(HeroBanner)
 class HeroBannerAdmin(ModelAdmin):
