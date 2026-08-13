@@ -1,7 +1,29 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import HeroBanner, ContactSubmission, Testimonial, User
+from .models import HeroBanner, ContactSubmission, Testimonial, User, Announcement
 from unfold.admin import ModelAdmin
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(ModelAdmin):
+    list_display = ['content', 'order', 'is_active', 'created_at']
+    list_editable = ['order', 'is_active']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['content']
+    readonly_fields = ['created_at', 'updated_at']
+    fieldsets = (
+        ('Announcement Content', {
+            'fields': ('content', 'icon')
+        }),
+        ('Configuration', {
+            'fields': ('order', 'is_active')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['order']
 
 
 @admin.register(User)

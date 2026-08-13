@@ -17,15 +17,17 @@
 </head>
 <body>
 
+  {% if announcements %}
   <div class="announcement-bar" id="announcementBar">
     <div class="announcement-slider">
-      <div class="announcement-item active"><i class="fa-solid fa-truck-fast me-2"></i> Free Shipping above â‚¹999</div>
-      <div class="announcement-item"><i class="fa-solid fa-arrow-rotate-left me-2"></i> Easy 15-Day Returns</div>
-      <div class="announcement-item"><i class="fa-solid fa-hand-holding-dollar me-2"></i> Cash on Delivery Available</div>
-      <div class="announcement-item"><i class="fa-solid fa-shield-halved me-2"></i> 100% Secure Payments</div>
-      <div class="announcement-item"><i class="fa-solid fa-sparkles me-2"></i> Summer Sale Live - Flat 50% OFF</div>
+      {% for announcement in announcements %}
+        <div class="announcement-item{% if forloop.first %} active{% endif %}">
+          {% if announcement.icon %}<i class="{{ announcement.icon }} me-2"></i>{% endif %}{{ announcement.content }}
+        </div>
+      {% endfor %}
     </div>
   </div>
+  {% endif %}
 
   <header>
     <div class="container">
@@ -318,6 +320,7 @@
 
 </body>
 </html>
+
 
 
 

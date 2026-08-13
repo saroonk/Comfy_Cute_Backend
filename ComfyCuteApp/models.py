@@ -58,6 +58,41 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
 
+class Announcement(models.Model):
+    """
+    Model for managing dynamic announcement bar content.
+    Announcements are displayed in the top announcement bar in order.
+    """
+    content = models.CharField(
+        max_length=255,
+        help_text='Announcement text to display in the announcement bar'
+    )
+    icon = models.CharField(
+        max_length=100,
+        blank=True,
+        default='fa-solid fa-bell',
+        help_text='FontAwesome icon class (e.g., "fa-solid fa-truck-fast", leave blank for no icon)'
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text='Display order - lower numbers appear first'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Enable/disable announcement without deleting it'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Announcement'
+        verbose_name_plural = 'Announcements'
+
+    def __str__(self):
+        return f"{self.content[:50]}... (Order: {self.order})"
+
+
 class Testimonial(models.Model):
     """
     Model for storing customer testimonials/reviews.
