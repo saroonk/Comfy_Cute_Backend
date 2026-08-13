@@ -215,9 +215,9 @@ def register(request):
             # Auto-login user after registration
             auth_login(request, user)
             return redirect('ComfyCuteApp:home')
-        # Registration failed - show errors in register form
+        # Registration failed - show errors in register form and keep it active
         login_form = EmailAuthenticationForm()
-        context = {'login_form': login_form, 'register_form': form}
+        context = {'login_form': login_form, 'register_form': form, 'register_active': True}
         return render(request, 'login.html', context)
 
     # GET request - show both forms
@@ -246,9 +246,9 @@ def login_view(request):
             if user is not None:
                 auth_login(request, user)
                 return redirect('ComfyCuteApp:home')
-        # Login failed - show errors in login form
+        # Login failed - show errors in login form and keep it active
         register_form = RegistrationForm()
-        context = {'login_form': login_form, 'register_form': register_form}
+        context = {'login_form': login_form, 'register_form': register_form, 'login_active': True}
         return render(request, 'login.html', context)
 
     # GET request - show both forms

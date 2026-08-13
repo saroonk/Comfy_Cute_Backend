@@ -48,10 +48,10 @@
             <!-- TOGGLE TABS -->
             <div class="auth-toggle-wrapper">
               <div class="auth-toggle">
-                <button class="auth-toggle-btn active" id="loginToggle" data-mode="login">
+                <button class="auth-toggle-btn{% if not register_active %} active{% endif %}" id="loginToggle" data-mode="login">
                   LOGIN
                 </button>
-                <button class="auth-toggle-btn" id="registerToggle" data-mode="register">
+                <button class="auth-toggle-btn{% if register_active %} active{% endif %}" id="registerToggle" data-mode="register">
                   REGISTER
                 </button>
                 <div class="auth-toggle-indicator"></div>
@@ -59,7 +59,7 @@
             </div>
 
             <!-- LOGIN FORM -->
-            <div class="auth-form-wrapper active" id="loginForm">
+            <div class="auth-form-wrapper{% if not register_active %} active{% endif %}" id="loginForm">
               <h1 class="auth-title">Welcome to COMFY CUTE</h1>
               <p class="auth-subtitle">Sign in to continue shopping your favorite styles.</p>
 
@@ -136,7 +136,7 @@
             </div>
 
             <!-- REGISTER FORM -->
-            <div class="auth-form-wrapper" id="registerForm">
+            <div class="auth-form-wrapper{% if register_active %} active{% endif %}" id="registerForm">
               <h1 class="auth-title">Create Your Account</h1>
               <p class="auth-subtitle">Join COMFY CUTE and discover premium styles.</p>
 
