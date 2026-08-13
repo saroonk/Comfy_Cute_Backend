@@ -452,6 +452,16 @@ header.scrolled .navbar {
   padding-left: 6px;
 }
 
+.mega-menu-cat-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% !important;
+  object-fit: cover;
+  margin-right: 8px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
 /* Promo image card inside mega menu */
 .mega-menu-promo {
   position: relative;
@@ -3133,8 +3143,8 @@ footer {
     opacity: 0.7;
   }
   .mobile-nav-cat-item img {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
