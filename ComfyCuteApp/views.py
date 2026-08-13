@@ -1,14 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.conf import settings
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 import threading
 import logging
 from .models import HeroBanner, ContactSubmission, Testimonial
-from .forms import ContactSubmissionForm
+from .forms import ContactSubmissionForm, RegistrationForm, EmailAuthenticationForm
 
 logger = logging.getLogger(__name__)
 
@@ -197,3 +196,73 @@ def return_exchange(request):
 
 def c_page(request):
     return render(request, 'c.html')
+
+
+# ==========================================
+# AUTHENTICATION VIEWS
+# ==========================================
+
+@require_http_methods(["GET", "POST"])
+def register(request):
+    """
+    User registration view.
+    POST: Process registration form and create account
+    """
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Auto-login user after registration
+            auth_login(request, user)
+            return redirect('ComfyCuteApp:home')
+        # Registration failed - show errors in register form
+        login_form = EmailAuthenticationForm()
+        context = {'login_form': login_form, 'register_form': form}
+        return render(request, 'login.html', context)
+
+    # GET request - show both forms
+    login_form = EmailAuthenticationForm()
+    register_form = RegistrationForm()
+    context = {'login_form': login_form, 'register_form': register_form}
+    return render(request, 'login.html', context)
+
+
+@require_http_methods(["GET", "POST"])
+def login_view(request):
+    """
+    User login view.
+    GET: Display login page with login and register forms
+    POST: Process login form (email + password)
+    """
+    if request.user.is_authenticated:
+        return redirect('ComfyCuteApp:home')
+
+    if request.method == 'POST':
+        login_form = EmailAuthenticationForm(request=request, data=request.POST)
+        if login_form.is_valid():
+            email = login_form.cleaned_data.get('username')
+            password = login_form.cleaned_data.get('password')
+            user = authenticate(request, username=email, password=password)
+            if user is not None:
+                auth_login(request, user)
+                return redirect('ComfyCuteApp:home')
+        # Login failed - show errors in login form
+        register_form = RegistrationForm()
+        context = {'login_form': login_form, 'register_form': register_form}
+        return render(request, 'login.html', context)
+
+    # GET request - show both forms
+    login_form = EmailAuthenticationForm()
+    register_form = RegistrationForm()
+    context = {'login_form': login_form, 'register_form': register_form}
+    return render(request, 'login.html', context)
+
+
+@require_http_methods(["GET"])
+def logout_view(request):
+    """
+    User logout view.
+    Logs out the user and redirects to home.
+    """
+    auth_logout(request)
+    return redirect('ComfyCuteApp:home')

@@ -93,6 +93,19 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'saroonsharu@gmail.com'  
-EMAIL_HOST_PASSWORD = 'rtpobhetadmayvul'   
+EMAIL_HOST_USER = 'saroonsharu@gmail.com'
+EMAIL_HOST_PASSWORD = 'rtpobhetadmayvul'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Custom User Model Configuration
+AUTH_USER_MODEL = 'ComfyCuteApp.User'
+
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Login/Logout URLs
+LOGIN_URL = 'ComfyCuteApp:login'
+LOGIN_REDIRECT_URL = 'ComfyCuteApp:home'
+LOGOUT_REDIRECT_URL = 'ComfyCuteApp:home'

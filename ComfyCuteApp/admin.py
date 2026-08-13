@@ -1,6 +1,19 @@
 from django.contrib import admin
-from .models import HeroBanner, ContactSubmission, Testimonial
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import HeroBanner, ContactSubmission, Testimonial, User
 from unfold.admin import ModelAdmin
+
+
+@admin.register(User)
+class UserAdmin(BaseUserAdmin, ModelAdmin):
+    """
+    User Admin for managing user accounts.
+    """
+    list_display = ['email', 'full_name', 'phone_number', 'is_active', 'date_joined']
+    list_filter = ['is_active', 'is_staff', 'is_superuser', 'date_joined']
+    search_fields = ['email', 'full_name', 'phone_number']
+    ordering = ['-date_joined']
+    readonly_fields = ['date_joined', 'last_login']
 
 
 @admin.register(Testimonial)

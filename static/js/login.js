@@ -107,131 +107,37 @@ function togglePasswordVisibility(input, toggle) {
 }
 
 /* ==========================================
-   FORM VALIDATION
+   FORM SUBMISSION
    ========================================== */
 function setupFormValidation() {
-  const loginFormElement = document.getElementById('loginFormElement');
-  const registerFormElement = document.getElementById('registerFormElement');
+  // Clear errors when switching forms
+  const loginToggle = document.getElementById('loginToggle');
+  const registerToggle = document.getElementById('registerToggle');
 
-  if (loginFormElement) {
-    loginFormElement.addEventListener('submit', handleLoginSubmit);
+  if (loginToggle) {
+    loginToggle.addEventListener('click', function () {
+      clearFormErrors('registerFormElement');
+    });
   }
 
-  if (registerFormElement) {
-    registerFormElement.addEventListener('submit', handleRegisterSubmit);
+  if (registerToggle) {
+    registerToggle.addEventListener('click', function () {
+      clearFormErrors('loginFormElement');
+    });
   }
 }
 
-function handleLoginSubmit(e) {
-  e.preventDefault();
+function clearFormErrors(formId) {
+  const form = document.getElementById(formId);
+  if (!form) return;
 
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value.trim();
-  const rememberMe = document.getElementById('rememberMe').checked;
+  // Clear Django form error alerts
+  const alerts = form.querySelectorAll('.alert');
+  alerts.forEach(alert => alert.remove());
 
-  // Validate inputs
-  if (!email || !password) {
-    showAlert('error', 'Please fill in all fields.');
-    return;
-  }
-
-  // Validate email format
-  if (!isValidEmail(email)) {
-    showAlert('error', 'Please enter a valid email address.');
-    return;
-  }
-
-  // Validate password length
-  if (password.length < 6) {
-    showAlert('error', 'Password must be at least 6 characters long.');
-    return;
-  }
-
-  // Create login data
-  const loginData = {
-    email: email,
-    password: password,
-    rememberMe: rememberMe,
-    timestamp: new Date().toISOString()
-  };
-
-  // Log data (in production, send to server)
-  console.log('Login Attempt:', loginData);
-
-  // Show success message
-  showAlert('success', 'Login successful! Redirecting...');
-
-  // Simulate redirect after 2 seconds
-  setTimeout(() => {
-    window.location.href = 'index.html';
-  }, 2000);
-}
-
-function handleRegisterSubmit(e) {
-  e.preventDefault();
-
-  const name = document.getElementById('registerName').value.trim();
-  const email = document.getElementById('registerEmail').value.trim();
-  const phone = document.getElementById('registerPhone').value.trim();
-  const password = document.getElementById('registerPassword').value.trim();
-  const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
-  const agreeTerms = document.getElementById('agreeTerms').checked;
-
-  // Validate inputs
-  if (!name || !email || !phone || !password || !confirmPassword) {
-    showAlert('error', 'Please fill in all fields.');
-    return;
-  }
-
-  // Validate email format
-  if (!isValidEmail(email)) {
-    showAlert('error', 'Please enter a valid email address.');
-    return;
-  }
-
-  // Validate phone format (basic check)
-  if (!isValidPhone(phone)) {
-    showAlert('error', 'Please enter a valid phone number.');
-    return;
-  }
-
-  // Validate password length
-  if (password.length < 6) {
-    showAlert('error', 'Password must be at least 6 characters long.');
-    return;
-  }
-
-  // Validate password match
-  if (password !== confirmPassword) {
-    showAlert('error', 'Passwords do not match. Please try again.');
-    return;
-  }
-
-  // Validate terms acceptance
-  if (!agreeTerms) {
-    showAlert('error', 'Please agree to the Terms of Service and Privacy Policy.');
-    return;
-  }
-
-  // Create registration data
-  const registrationData = {
-    name: name,
-    email: email,
-    phone: phone,
-    password: password,
-    timestamp: new Date().toISOString()
-  };
-
-  // Log data (in production, send to server)
-  console.log('Registration Data:', registrationData);
-
-  // Show success message
-  showAlert('success', 'Account created successfully! Redirecting...');
-
-  // Simulate redirect after 2 seconds
-  setTimeout(() => {
-    window.location.href = 'index.html';
-  }, 2000);
+  // Clear field-level errors
+  const errorMessages = form.querySelectorAll('.text-danger');
+  errorMessages.forEach(error => error.remove());
 }
 
 /* ==========================================

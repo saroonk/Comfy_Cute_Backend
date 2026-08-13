@@ -1,5 +1,61 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import AbstractUser, UserManager
+
+
+class CustomUserManager(UserManager):
+    """Custom manager for User model that handles email-based superuser creation."""
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Create and save a user with email-based username."""
+        if not email:
+            raise ValueError('The Email field must be set')
+
+        # Use email as username, will be stored in the username field
+        user = self.model(username=email, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password, **extra_fields):
+        """Create a superuser with email as the main identifier."""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
+    """
+    Simple custom User model extending Django's AbstractUser.
+    Uses email as the login identifier while keeping the username field.
+    """
+    email = models.EmailField(unique=True)
+    full_name = models.CharField(max_length=255, blank=False)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['full_name']
+
+    objects = CustomUserManager()
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+
+    def __str__(self):
+        return self.email
+
+    def save(self, *args, **kwargs):
+        """Automatically set username to email if not already set."""
+        if not self.username:
+            self.username = self.email
+        super().save(*args, **kwargs)
 
 
 class Testimonial(models.Model):

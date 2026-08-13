@@ -63,7 +63,17 @@
               <h1 class="auth-title">Welcome to COMFY CUTE</h1>
               <p class="auth-subtitle">Sign in to continue shopping your favorite styles.</p>
 
-              <form class="auth-form" id="loginFormElement">
+              <form class="auth-form" id="loginFormElement" method="POST" action="{% url 'ComfyCuteApp:login' %}">
+                {% csrf_token %}
+
+                <!-- Display Form Errors -->
+                {% if login_form.non_field_errors %}
+                  <div class="alert alert-danger" role="alert">
+                    {% for error in login_form.non_field_errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
 
                 <!-- Email -->
                 <div class="auth-input-group">
@@ -73,11 +83,15 @@
                     <input
                       type="email"
                       id="loginEmail"
+                      name="username"
                       class="auth-input"
                       placeholder="Enter your email"
                       required
                     >
                   </div>
+                  {% if login_form.username.errors %}
+                    <div class="text-danger small">{{ login_form.username.errors.0 }}</div>
+                  {% endif %}
                 </div>
 
                 <!-- Password -->
@@ -88,6 +102,7 @@
                     <input
                       type="password"
                       id="loginPassword"
+                      name="password"
                       class="auth-input"
                       placeholder="Enter your password"
                       required
@@ -96,6 +111,9 @@
                       <i class="fa-solid fa-eye"></i>
                     </button>
                   </div>
+                  {% if login_form.password.errors %}
+                    <div class="text-danger small">{{ login_form.password.errors.0 }}</div>
+                  {% endif %}
                 </div>
 
                 <!-- Remember Me & Forgot Password -->
@@ -122,7 +140,17 @@
               <h1 class="auth-title">Create Your Account</h1>
               <p class="auth-subtitle">Join COMFY CUTE and discover premium styles.</p>
 
-              <form class="auth-form" id="registerFormElement">
+              <form class="auth-form" id="registerFormElement" method="POST" action="{% url 'ComfyCuteApp:register' %}">
+                {% csrf_token %}
+
+                <!-- Display Form Errors -->
+                {% if register_form.non_field_errors %}
+                  <div class="alert alert-danger" role="alert">
+                    {% for error in register_form.non_field_errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
 
                 <!-- Full Name -->
                 <div class="auth-input-group">
@@ -132,11 +160,15 @@
                     <input
                       type="text"
                       id="registerName"
+                      name="full_name"
                       class="auth-input"
                       placeholder="Enter your full name"
                       required
                     >
                   </div>
+                  {% if register_form.full_name.errors %}
+                    <div class="text-danger small">{{ register_form.full_name.errors.0 }}</div>
+                  {% endif %}
                 </div>
 
                 <!-- Email -->
@@ -147,11 +179,15 @@
                     <input
                       type="email"
                       id="registerEmail"
+                      name="email"
                       class="auth-input"
                       placeholder="Enter your email"
                       required
                     >
                   </div>
+                  {% if register_form.email.errors %}
+                    <div class="text-danger small">{{ register_form.email.errors.0 }}</div>
+                  {% endif %}
                 </div>
 
                 <!-- Phone Number -->
@@ -162,11 +198,14 @@
                     <input
                       type="tel"
                       id="registerPhone"
+                      name="phone_number"
                       class="auth-input"
                       placeholder="Enter your phone number"
-                      required
                     >
                   </div>
+                  {% if register_form.phone_number.errors %}
+                    <div class="text-danger small">{{ register_form.phone_number.errors.0 }}</div>
+                  {% endif %}
                 </div>
 
                 <!-- Password -->
@@ -177,6 +216,7 @@
                     <input
                       type="password"
                       id="registerPassword"
+                      name="password1"
                       class="auth-input"
                       placeholder="Create a password"
                       required
@@ -185,6 +225,9 @@
                       <i class="fa-solid fa-eye"></i>
                     </button>
                   </div>
+                  {% if register_form.password1.errors %}
+                    <div class="text-danger small">{{ register_form.password1.errors.0 }}</div>
+                  {% endif %}
                 </div>
 
                 <!-- Confirm Password -->
@@ -195,6 +238,7 @@
                     <input
                       type="password"
                       id="registerConfirmPassword"
+                      name="password2"
                       class="auth-input"
                       placeholder="Confirm your password"
                       required
@@ -203,6 +247,9 @@
                       <i class="fa-solid fa-eye"></i>
                     </button>
                   </div>
+                  {% if register_form.password2.errors %}
+                    <div class="text-danger small">{{ register_form.password2.errors.0 }}</div>
+                  {% endif %}
                 </div>
 
                 <!-- Terms & Conditions -->
