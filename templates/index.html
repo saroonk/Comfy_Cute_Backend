@@ -1231,71 +1231,33 @@
       </div>
 
       <div class="reviews-slider owl-carousel owl-theme">
-        
-        <!-- Review 1 -->
-        <div class="review-card">
-          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" alt="Customer Riya" class="review-img">
-          <div class="review-stars">
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-          </div>
-          <p class="review-text">"The linen summer dresses from Comfy Cute are simply incredible. They feel so luxurious, lightweight, and perfect for hot days. I bought three colors!"</p>
-          <div class="review-author">
-            Riya Sen <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>
-          </div>
-        </div>
-
-        <!-- Review 2 -->
-        <div class="review-card">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" alt="Customer Amit" class="review-img">
-          <div class="review-stars">
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-          </div>
-          <p class="review-text">"Perfect rompers for my 6-month-old. The organic cotton is extremely soft and hasn't shrunk at all after multiple machine washes. Love the flat snaps."</p>
-          <div class="review-author">
-            Amit Sharma <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>
-          </div>
-        </div>
-
-        <!-- Review 3 -->
-        <div class="review-card">
-          <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=200&auto=format&fit=crop" alt="Customer Priya" class="review-img">
-          <div class="review-stars">
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-          </div>
-          <p class="review-text">"Excellent quality ethnic kurtis. The block print is beautifully detailed, and it drapes very elegantly. Comfy Cute is my new favorite fashion brand!"</p>
-          <div class="review-author">
-            Priya Nair <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>
-          </div>
-        </div>
-
-        <!-- Review 4 -->
-        <div class="review-card">
-          <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop" alt="Customer Meera" class="review-img">
-          <div class="review-stars">
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star"></i>
-            <i class="fa-solid fa-star-half-stroke"></i>
-          </div>
-          <p class="review-text">"Bought matching family outfits for our holiday photos. Got so many compliments. Fabric quality is premium and details are perfect."</p>
-          <div class="review-author">
-            Meera Patel <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>
-          </div>
-        </div>
-
+        {% if testimonials %}
+          {% for testimonial in testimonials %}
+            <!-- Review -->
+            <div class="review-card">
+              {% if testimonial.profile_image %}
+                <img src="{{ testimonial.profile_image.url }}" alt="Customer {{ testimonial.name }}" class="review-img">
+              {% else %}
+                <div class="review-img review-avatar">{{ testimonial.get_first_initial }}</div>
+              {% endif %}
+              <div class="review-stars">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= testimonial.rating %}
+                    <i class="fa-solid fa-star"></i>
+                  {% elif forloop.counter == testimonial.rating|add:"0.5" and testimonial.rating|divisibleby:"1" == False %}
+                    <i class="fa-solid fa-star-half-stroke"></i>
+                  {% else %}
+                    <i class="fa-regular fa-star"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <p class="review-text">"{{ testimonial.content }}"</p>
+              <div class="review-author">
+                {{ testimonial.name }} <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
       </div>
     </div>
   </section>

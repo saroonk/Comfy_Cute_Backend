@@ -1,6 +1,30 @@
 from django.contrib import admin
-from .models import HeroBanner, ContactSubmission
+from .models import HeroBanner, ContactSubmission, Testimonial
 from unfold.admin import ModelAdmin
+
+
+@admin.register(Testimonial)
+class TestimonialAdmin(ModelAdmin):
+    list_display = ['name', 'rating', 'is_active', 'created_at']
+    list_filter = ['is_active', 'rating', 'created_at']
+    search_fields = ['name', 'content']
+    readonly_fields = ['created_at', 'updated_at']
+    fieldsets = (
+        ('Customer Information', {
+            'fields': ('name', 'profile_image')
+        }),
+        ('Review', {
+            'fields': ('rating', 'content')
+        }),
+        ('Status', {
+            'fields': ('is_active',)
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-created_at']
 
 
 @admin.register(ContactSubmission)

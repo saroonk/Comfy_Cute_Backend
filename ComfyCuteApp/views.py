@@ -7,15 +7,17 @@ from django.utils.html import strip_tags
 from django.conf import settings
 import threading
 import logging
-from .models import HeroBanner, ContactSubmission
+from .models import HeroBanner, ContactSubmission, Testimonial
 from .forms import ContactSubmissionForm
 
 logger = logging.getLogger(__name__)
 
 def home(request):
     hero_banners = HeroBanner.objects.filter(is_active=True).order_by('order')
+    testimonials = Testimonial.objects.filter(is_active=True)
     context = {
         'hero_banners': hero_banners,
+        'testimonials': testimonials,
     }
     return render(request, 'index.html', context)
 

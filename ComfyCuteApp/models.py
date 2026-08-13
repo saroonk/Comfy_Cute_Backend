@@ -1,4 +1,50 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+
+class Testimonial(models.Model):
+    """
+    Model for storing customer testimonials/reviews.
+    Only active testimonials are displayed on the homepage.
+    """
+    name = models.CharField(max_length=100)
+    profile_image = models.ImageField(
+        upload_to='testimonials/profiles/',
+        blank=True,
+        null=True,
+        help_text='Optional customer profile image. Leave blank to show first letter avatar.'
+    )
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text='Rating from 1 to 5 stars'
+    )
+    content = models.TextField(
+        help_text='Customer review/testimonial text'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Only active testimonials appear on the homepage'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Testimonial'
+        verbose_name_plural = 'Testimonials'
+
+    def __str__(self):
+        return f"{self.name} - {self.rating}★"
+
+    def get_first_initial(self):
+        """Get first letter of customer name for avatar fallback."""
+        return self.name[0].upper() if self.name else "?"
+
+    def clean(self):
+        """Validate testimonial data."""
+        from django.core.exceptions import ValidationError
+        if self.rating < 1 or self.rating > 5:
+            raise ValidationError({'rating': 'Rating must be between 1 and 5 stars.'})
 
 
 class ContactSubmission(models.Model):

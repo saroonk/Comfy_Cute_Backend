@@ -2278,6 +2278,16 @@ body.announcement-hidden .hero-section {
   margin: 0 auto 20px auto;
   border: 3px solid var(--color-secondary);
 }
+.review-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-light) 100%);
+  color: var(--color-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
 .review-stars {
   color: #FBBF24;
   font-size: 0.9rem;
