@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 {% load static %}
 <html lang="en">
 <head>
@@ -35,7 +35,7 @@
        ========================================== -->
   <div class="announcement-bar" id="announcementBar">
     <div class="announcement-slider">
-      <div class="announcement-item active"><i class="fa-solid fa-truck-fast me-2"></i> Free Shipping above ₹999</div>
+      <div class="announcement-item active"><i class="fa-solid fa-truck-fast me-2"></i> Free Shipping above â‚¹999</div>
       <div class="announcement-item"><i class="fa-solid fa-arrow-rotate-left me-2"></i> Easy 15-Day Returns</div>
       <div class="announcement-item"><i class="fa-solid fa-hand-holding-dollar me-2"></i> Cash on Delivery Available</div>
       <div class="announcement-item"><i class="fa-solid fa-shield-halved me-2"></i> 100% Secure Payments</div>
@@ -54,7 +54,7 @@
           <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
 
-        <!-- Hamburger Toggler (Mobile) — plain JS toggle (no Bootstrap Collapse) so the
+        <!-- Hamburger Toggler (Mobile) â€” plain JS toggle (no Bootstrap Collapse) so the
              drawer opens instantly with no dead-time before its own animation starts -->
         <button class="navbar-toggler" type="button" id="mobileNavToggle" aria-controls="mobileNavDrawer" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fa-solid fa-bars-staggered"></i>
@@ -179,7 +179,7 @@
           </ul>
         </div>
 
-        <!-- Right Side Icons — hidden on mobile (bottom nav handles these) -->
+        <!-- Right Side Icons â€” hidden on mobile (bottom nav handles these) -->
         <div class="header-icons d-none d-lg-flex">
           <!-- Search -->
           <button class="icon-btn btn-search" aria-label="Search">
@@ -199,7 +199,11 @@
             </button>
             <ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
               <li><h6 class="dropdown-header font-heading fw-bold" style="font-size: 1rem; color: var(--color-heading)">Welcome Back</h6></li>
-              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              {% if request.user.is_authenticated %}
+                <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a></li>
+              {% else %}
+                <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              {% endif %}
               <li><hr class="dropdown-divider" style="border-color: var(--color-border)"></li>
               <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:track_order' %}"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
               <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:wishlist' %}"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
@@ -225,7 +229,7 @@
        <header>, it can correctly paint above the announcement bar, the
        navbar, and all page content.
        Desktop continues to use the untouched .navbar-nav mega menu
-       inside <header> — this block is mobile-only (d-lg-none).
+       inside <header> â€” this block is mobile-only (d-lg-none).
        ========================================== -->
   <div class="mobile-nav-drawer d-lg-none" id="mobileNavDrawer">
     <div class="mobile-nav-panels">
@@ -455,7 +459,7 @@
     <div class="cart-drawer-footer">
       <div class="cart-subtotal">
         <span>Subtotal:</span>
-        <span class="cart-subtotal-price">₹0</span>
+        <span class="cart-subtotal-price">â‚¹0</span>
       </div>
       <div class="cart-action-buttons">
         <button class="btn btn-cart-checkout" onclick="alert('Proceeding to Checkout!');">Proceed to Checkout</button>
@@ -683,9 +687,17 @@
       <span>Account</span>
     </button>
     <div class="mobile-account-popup" id="mobileAccountPopup">
-      <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
-        <i class="fa-solid fa-arrow-right-to-bracket"></i>
-        <span>Login / Register</span>
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'ComfyCuteApp:logout' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </a>
+      {% else %}
+        <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Login / Register</span>
+        </a>
+      {% endif %}
       </a>
       <a href="{% url 'ComfyCuteApp:track_order' %}" class="mobile-account-popup-item">
         <i class="fa-solid fa-box-archive"></i>
@@ -710,3 +722,6 @@
 
 </body>
 </html>
+
+
+

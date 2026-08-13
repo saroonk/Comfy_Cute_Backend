@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 {% load static %}
 <html lang="en">
 <head>
@@ -7,7 +7,7 @@
   <title>Elegant Linen Blend Midi Dress | COMFY CUTE | Premium Women's Fashion</title>
 
   <!-- Meta Tags for SEO -->
-  <meta name="description" content="Shop the Elegant Linen Blend Midi Dress at COMFY CUTE. Premium linen blend fabric, effortless elegance, and everyday comfort. Free shipping above ₹999.">
+  <meta name="description" content="Shop the Elegant Linen Blend Midi Dress at COMFY CUTE. Premium linen blend fabric, effortless elegance, and everyday comfort. Free shipping above â‚¹999.">
   <meta name="keywords" content="linen dress, midi dress, premium clothing, women fashion, organic cotton">
 
   <!-- Google Fonts -->
@@ -35,7 +35,7 @@
        ========================================== -->
   <div class="announcement-bar" id="announcementBar">
     <div class="announcement-slider">
-      <div class="announcement-item active"><i class="fa-solid fa-truck-fast me-2"></i> Free Shipping above ₹999</div>
+      <div class="announcement-item active"><i class="fa-solid fa-truck-fast me-2"></i> Free Shipping above â‚¹999</div>
       <div class="announcement-item"><i class="fa-solid fa-arrow-rotate-left me-2"></i> Easy 15-Day Returns</div>
       <div class="announcement-item"><i class="fa-solid fa-hand-holding-dollar me-2"></i> Cash on Delivery Available</div>
       <div class="announcement-item"><i class="fa-solid fa-shield-halved me-2"></i> 100% Secure Payments</div>
@@ -54,7 +54,7 @@
           <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
 
-        <!-- Hamburger Toggler (Mobile) — plain JS toggle (no Bootstrap Collapse) so the
+        <!-- Hamburger Toggler (Mobile) â€” plain JS toggle (no Bootstrap Collapse) so the
              drawer opens instantly with no dead-time before its own animation starts -->
         <button class="navbar-toggler" type="button" id="mobileNavToggle" aria-controls="mobileNavDrawer" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fa-solid fa-bars-staggered"></i>
@@ -179,7 +179,7 @@
           </ul>
         </div>
 
-        <!-- Right Side Icons — hidden on mobile (bottom nav handles these) -->
+        <!-- Right Side Icons â€” hidden on mobile (bottom nav handles these) -->
         <div class="header-icons d-none d-lg-flex">
           <!-- Search -->
           <button class="icon-btn btn-search" aria-label="Search">
@@ -199,7 +199,11 @@
             </button>
             <ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
               <li><h6 class="dropdown-header font-heading fw-bold" style="font-size: 1rem; color: var(--color-heading)">Welcome Back</h6></li>
-              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              {% if request.user.is_authenticated %}
+                <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a></li>
+              {% else %}
+                <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              {% endif %}
               <li><hr class="dropdown-divider" style="border-color: var(--color-border)"></li>
               <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:track_order' %}"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
               <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:wishlist' %}"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
@@ -225,7 +229,7 @@
        <header>, it can correctly paint above the announcement bar, the
        navbar, and all page content.
        Desktop continues to use the untouched .navbar-nav mega menu
-       inside <header> — this block is mobile-only (d-lg-none).
+       inside <header> â€” this block is mobile-only (d-lg-none).
        ========================================== -->
   <div class="mobile-nav-drawer d-lg-none" id="mobileNavDrawer">
     <div class="mobile-nav-panels">
@@ -487,8 +491,8 @@
 
           <!-- Price -->
           <div class="product-price">
-            <span class="price-current">₹2,499</span>
-            <span class="price-original">₹3,180</span>
+            <span class="price-current">â‚¹2,499</span>
+            <span class="price-original">â‚¹3,180</span>
           </div>
 
           <!-- Description -->
@@ -541,7 +545,7 @@
             <!-- Purchase Row: Quantity + Add to Cart + Wishlist -->
             <div class="purchase-row">
               <div class="quantity-input">
-                <button class="qty-btn qty-minus" onclick="decreaseQty()">−</button>
+                <button class="qty-btn qty-minus" onclick="decreaseQty()">âˆ’</button>
                 <input type="number" id="quantityInput" value="1" min="1" readonly>
                 <button class="qty-btn qty-plus" onclick="increaseQty()">+</button>
               </div>
@@ -647,7 +651,7 @@
             <div class="tab-content-inner">
               <h3>Shipping Information</h3>
               <p><strong>Shipping Time:</strong> 3-5 business days</p>
-              <p><strong>Shipping Cost:</strong> Free for orders above ₹999</p>
+              <p><strong>Shipping Cost:</strong> Free for orders above â‚¹999</p>
               <p>We ship across India with secure packaging to ensure your dress arrives in perfect condition.</p>
 
               <h3>Returns & Exchange</h3>
@@ -693,7 +697,7 @@
               </button>
             </div>
             <h3 class="arrival-product-name">Linen Summer Dress</h3>
-            <div class="arrival-price">₹2,499</div>
+            <div class="arrival-price">â‚¹2,499</div>
           </div>
 
           <!-- Product 2 -->
@@ -705,7 +709,7 @@
               </button>
             </div>
             <h3 class="arrival-product-name">Organic Cotton Kurti</h3>
-            <div class="arrival-price">₹1,899</div>
+            <div class="arrival-price">â‚¹1,899</div>
           </div>
 
           <!-- Product 3 -->
@@ -717,7 +721,7 @@
               </button>
             </div>
             <h3 class="arrival-product-name">Premium Silk Top</h3>
-            <div class="arrival-price">₹1,599</div>
+            <div class="arrival-price">â‚¹1,599</div>
           </div>
 
           <!-- Product 4 -->
@@ -729,7 +733,7 @@
               </button>
             </div>
             <h3 class="arrival-product-name">Casual Linen Shirt</h3>
-            <div class="arrival-price">₹1,799</div>
+            <div class="arrival-price">â‚¹1,799</div>
           </div>
 
           <!-- Product 5 -->
@@ -741,7 +745,7 @@
               </button>
             </div>
             <h3 class="arrival-product-name">Comfort Linen Pants</h3>
-            <div class="arrival-price">₹1,999</div>
+            <div class="arrival-price">â‚¹1,999</div>
           </div>
 
           <!-- Product 6 -->
@@ -753,7 +757,7 @@
               </button>
             </div>
             <h3 class="arrival-product-name">Flowy Rayon Dress</h3>
-            <div class="arrival-price">₹2,199</div>
+            <div class="arrival-price">â‚¹2,199</div>
           </div>
         </div>
 
@@ -812,9 +816,17 @@
       <span>Account</span>
     </button>
     <div class="mobile-account-popup" id="mobileAccountPopup">
-      <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
-        <i class="fa-solid fa-arrow-right-to-bracket"></i>
-        <span>Login / Register</span>
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'ComfyCuteApp:logout' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </a>
+      {% else %}
+        <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Login / Register</span>
+        </a>
+      {% endif %}
       </a>
       <a href="{% url 'ComfyCuteApp:track_order' %}" class="mobile-account-popup-item">
         <i class="fa-solid fa-box-archive"></i>
@@ -865,7 +877,7 @@
     <div class="cart-drawer-footer">
       <div class="cart-subtotal">
         <span>Subtotal:</span>
-        <span class="cart-subtotal-price">₹0</span>
+        <span class="cart-subtotal-price">â‚¹0</span>
       </div>
       <div class="cart-action-buttons">
         <button class="btn btn-cart-checkout" onclick="alert('Proceeding to Checkout!');">Proceed to Checkout</button>
@@ -892,3 +904,6 @@
 
 </body>
 </html>
+
+
+

@@ -201,7 +201,11 @@
             </button>
             <ul class="dropdown-menu account-dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
               <li><h6 class="dropdown-header font-heading fw-bold" style="font-size: 1rem; color: var(--color-heading)">Welcome Back</h6></li>
-              <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              {% if request.user.is_authenticated %}
+                <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:logout' %}"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a></li>
+              {% else %}
+                <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:login' %}"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a></li>
+              {% endif %}
               <li><hr class="dropdown-divider" style="border-color: var(--color-border)"></li>
               <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:track_order' %}"><i class="fa-solid fa-box-archive"></i> Track My Orders</a></li>
               <li><a class="dropdown-item account-dropdown-item" href="{% url 'ComfyCuteApp:wishlist' %}"><i class="fa-solid fa-heart"></i> My Wishlist</a></li>
@@ -1384,10 +1388,17 @@
       <span>Account</span>
     </button>
     <div class="mobile-account-popup" id="mobileAccountPopup">
-      <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
-        <i class="fa-solid fa-arrow-right-to-bracket"></i>
-        <span>Login / Register</span>
-      </a>
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'ComfyCuteApp:logout' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </a>
+      {% else %}
+        <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Login / Register</span>
+        </a>
+      {% endif %}
       <a href="{% url 'ComfyCuteApp:track_order' %}" class="mobile-account-popup-item">
         <i class="fa-solid fa-box-archive"></i>
         <span>Track Your Order</span>
