@@ -69,158 +69,87 @@
               <a class="nav-link" href="{% url 'ComfyCuteApp:home' %}">Home</a>
             </li>
 
-            <!-- Baby Mega Menu -->
+
+
+                        <!-- Dynamic Category Mega Menus -->
+            {% for category in navbar_categories %}
             <li class="nav-item nav-item-mega">
-              <a class="nav-link" href="#baby">Baby <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem"></i></a>
+              <a class="nav-link" href="#{{ category.slug }}">{{ category.name }} <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem"></i></a>
               <div class="mega-menu">
                 <div class="container">
                   <div class="row">
-                    <div class="col-lg-4 col-6 mb-4 mb-lg-0">
+                    <!-- Subcategories Column -->
+                    <div class="col-lg-{% if category.shop_by_age %}4{% else %}6{% endif %} col-6 mb-4 mb-lg-0">
                       <h6 class="mega-menu-title">Categories</h6>
                       <ul class="mega-menu-list">
-                        <li><a href="#baby-boy"><img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=40&h=40&fit=crop&auto=format" alt="Baby Boy" class="mega-menu-cat-img"> Baby Boy</a></li>
-                        <li><a href="#baby-girl"><img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=40&h=40&fit=crop&auto=format" alt="Baby Girl" class="mega-menu-cat-img"> Baby Girl</a></li>
-                        <li><a href="#baby-nightwear"><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=40&h=40&fit=crop&auto=format" alt="Night Wear" class="mega-menu-cat-img"> Night Wear</a></li>
-                        <li><a href="#baby-essentials"><img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=40&h=40&fit=crop&auto=format" alt="Essentials" class="mega-menu-cat-img"> Essentials</a></li>
-                        <li><a href="#baby-giftsets"><img src="https://images.unsplash.com/photo-1522771935878-f35f1f9e99e4?q=80&w=40&h=40&fit=crop&auto=format" alt="Gift Sets" class="mega-menu-cat-img"> Gift Sets</a></li>
+                        {% for subcategory in category.subcategories %}
+                        <li>
+                          <a href="#{{ subcategory.slug }}">
+                            {% if subcategory.image %}
+                              <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" class="mega-menu-cat-img">
+                            {% else %}
+                              <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=40&h=40&fit=crop&auto=format" alt="{{ subcategory.name }}" class="mega-menu-cat-img">
+                            {% endif %}
+                            {{ subcategory.name }}
+                          </a>
+                        </li>
+                        {% endfor %}
                       </ul>
                     </div>
+
+                    <!-- Shop By Age Column (if applicable) -->
+                    {% if category.shop_by_age %}
                     <div class="col-lg-4 col-6 mb-4 mb-lg-0">
                       <h6 class="mega-menu-title">Shop By Age</h6>
                       <ul class="mega-menu-list">
-                        <li><a href="#baby-age-0-3">0–3 Months</a></li>
-                        <li><a href="#baby-age-3-6">3–6 Months</a></li>
-                        <li><a href="#baby-age-6-9">6–9 Months</a></li>
+                        {% for age_range in category.shop_by_age %}
+                        <li><a href="#{{ category.slug }}-age">{{ age_range }}</a></li>
+                        {% endfor %}
                       </ul>
                     </div>
-                    <div class="col-lg-4 col-6">
-                      <div class="mega-menu-promo">
-                        <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=400&auto=format&fit=crop" alt="Baby Organic Cotton">
-                        <div class="mega-menu-promo-overlay">
-                          <h5 class="mega-menu-promo-title">Organic Cotton</h5>
-                          <p class="mega-menu-promo-subtitle">Soft on baby's skin</p>
-                          <a href="#baby" class="btn btn-sm-premium">Shop Baby Wear</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
+                    {% endif %}
 
-            <!-- Girl Mega Menu -->
-            <li class="nav-item nav-item-mega">
-              <a class="nav-link" href="#girl">Girl <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem"></i></a>
-              <div class="mega-menu">
-                <div class="container">
-                  <div class="row">
-                    <div class="col-lg-4 col-6 mb-4 mb-lg-0">
-                      <h6 class="mega-menu-title">Categories</h6>
-                      <ul class="mega-menu-list">
-                        <li><a href="#girl-coordsets-pants"><img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=40&h=40&fit=crop&auto=format" alt="Co-Ord Sets - Pants" class="mega-menu-cat-img"> Co-Ord Sets - Pants</a></li>
-                        <li><a href="#girl-coordsets-shorts"><img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=40&h=40&fit=crop&auto=format" alt="Co-Ord Sets - Shorts" class="mega-menu-cat-img"> Co-Ord Sets - Shorts</a></li>
-                        <li><a href="#girl-frocks"><img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=40&h=40&fit=crop&auto=format" alt="Frocks" class="mega-menu-cat-img"> Frocks</a></li>
-                        <li><a href="#girl-dresses"><img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=40&h=40&fit=crop&auto=format" alt="Cotton Dresses" class="mega-menu-cat-img"> Cotton Dresses</a></li>
-                        <li><a href="#girl-tshirts"><img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=40&h=40&fit=crop&auto=format" alt="T-Shirts" class="mega-menu-cat-img"> T-Shirts</a></li>
-                        <li><a href="#girl-pants"><img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=40&h=40&fit=crop&auto=format" alt="Pants" class="mega-menu-cat-img"> Pants</a></li>
-                        <li><a href="#girl-shorts"><img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=40&h=40&fit=crop&auto=format" alt="Shorts" class="mega-menu-cat-img"> Shorts</a></li>
-                        <li><a href="#girl-pajamas"><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=40&h=40&fit=crop&auto=format" alt="Pajama Sets" class="mega-menu-cat-img"> Pajama Sets</a></li>
-                      </ul>
-                    </div>
-                    <div class="col-lg-4 col-6 mb-4 mb-lg-0">
-                      <h6 class="mega-menu-title">Shop By Age</h6>
-                      <ul class="mega-menu-list">
-                        <li><a href="#girl-age-0-2">0–2 Years</a></li>
-                        <li><a href="#girl-age-3-5">3–5 Years</a></li>
-                        <li><a href="#girl-age-6-8">6–8 Years</a></li>
-                        <li><a href="#girl-age-9-12">9–12 Years</a></li>
-                        <li><a href="#girl-age-13">13+ Years</a></li>
-                      </ul>
-                    </div>
-                    <div class="col-lg-4 col-6">
+                    <!-- Promo Column -->
+                    <div class="col-lg-{% if category.shop_by_age %}4{% else %}6{% endif %} col-6">
                       <div class="mega-menu-promo">
-                        <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=400&auto=format&fit=crop" alt="Girls Collection">
-                        <div class="mega-menu-promo-overlay">
-                          <h5 class="mega-menu-promo-title">Girls Collection</h5>
-                          <p class="mega-menu-promo-subtitle">Playful & Stylish</p>
-                          <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Explore Now</a>
-                        </div>
+                        {% if category.name == 'Baby' %}
+                          <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=400&auto=format&fit=crop" alt="Baby Organic Cotton">
+                          <div class="mega-menu-promo-overlay">
+                            <h5 class="mega-menu-promo-title">Organic Cotton</h5>
+                            <p class="mega-menu-promo-subtitle">Soft on baby's skin</p>
+                            <a href="#{{ category.slug }}" class="btn btn-sm-premium">Shop Baby Wear</a>
+                          </div>
+                        {% elif category.name == 'Girl' %}
+                          <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=400&auto=format&fit=crop" alt="Girls Collection">
+                          <div class="mega-menu-promo-overlay">
+                            <h5 class="mega-menu-promo-title">Girls Collection</h5>
+                            <p class="mega-menu-promo-subtitle">Playful & Stylish</p>
+                            <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Explore Now</a>
+                          </div>
+                        {% elif category.name == 'Boy' %}
+                          <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=400&auto=format&fit=crop" alt="Boys Collection">
+                          <div class="mega-menu-promo-overlay">
+                            <h5 class="mega-menu-promo-title">Boys Collection</h5>
+                            <p class="mega-menu-promo-subtitle">Comfort & Style</p>
+                            <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Explore Now</a>
+                          </div>
+                        {% elif category.name == 'Women' %}
+                          <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop" alt="Women New Collection">
+                          <div class="mega-menu-promo-overlay">
+                            <h5 class="mega-menu-promo-title">Womens Wear Collections</h5>
+                            <p class="mega-menu-promo-subtitle">Lightweight styles made for everyday comfort</p>
+                            <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Shop New Arrivals</a>
+                          </div>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </li>
+            {% endfor %}
 
-            <!-- Boy Mega Menu -->
-            <li class="nav-item nav-item-mega">
-              <a class="nav-link" href="#boy">Boy <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem"></i></a>
-              <div class="mega-menu">
-                <div class="container">
-                  <div class="row">
-                    <div class="col-lg-4 col-6 mb-4 mb-lg-0">
-                      <h6 class="mega-menu-title">Categories</h6>
-                      <ul class="mega-menu-list">
-                        <li><a href="#boy-coordsets-pants"><img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=40&h=40&fit=crop&auto=format" alt="Co-Ord Sets - Pants" class="mega-menu-cat-img"> Co-Ord Sets - Pants</a></li>
-                        <li><a href="#boy-coordsets-shorts"><img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=40&h=40&fit=crop&auto=format" alt="Co-Ord Sets - Shorts" class="mega-menu-cat-img"> Co-Ord Sets - Shorts</a></li>
-                        <li><a href="#boy-dresses"><img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=40&h=40&fit=crop&auto=format" alt="Cotton Dresses" class="mega-menu-cat-img"> Cotton Dresses</a></li>
-                        <li><a href="#boy-tshirts"><img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=40&h=40&fit=crop&auto=format" alt="T-Shirts" class="mega-menu-cat-img"> T-Shirts</a></li>
-                        <li><a href="#boy-pants"><img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=40&h=40&fit=crop&auto=format" alt="Pants" class="mega-menu-cat-img"> Pants</a></li>
-                        <li><a href="#boy-shorts"><img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=40&h=40&fit=crop&auto=format" alt="Shorts" class="mega-menu-cat-img"> Shorts</a></li>
-                      </ul>
-                    </div>
-                    <div class="col-lg-4 col-6 mb-4 mb-lg-0">
-                      <h6 class="mega-menu-title">Shop By Age</h6>
-                      <ul class="mega-menu-list">
-                        <li><a href="#boy-age-0-2">0–2 Years</a></li>
-                        <li><a href="#boy-age-3-5">3–5 Years</a></li>
-                        <li><a href="#boy-age-6-8">6–8 Years</a></li>
-                        <li><a href="#boy-age-9-12">9–12 Years</a></li>
-                        <li><a href="#boy-age-13">13+ Years</a></li>
-                      </ul>
-                    </div>
-                    <div class="col-lg-4 col-6">
-                      <div class="mega-menu-promo">
-                        <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=400&auto=format&fit=crop" alt="Boys Collection">
-                        <div class="mega-menu-promo-overlay">
-                          <h5 class="mega-menu-promo-title">Boys Collection</h5>
-                          <p class="mega-menu-promo-subtitle">Comfort & Style</p>
-                          <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Explore Now</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
 
-            <!-- Women Mega Menu -->
-            <li class="nav-item nav-item-mega">
-              <a class="nav-link" href="#women">Women <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem"></i></a>
-              <div class="mega-menu">
-                <div class="container">
-                  <div class="row">
-                    <div class="col-lg-6 col-6 mb-4 mb-lg-0">
-                      <h6 class="mega-menu-title">Categories</h6>
-                      <ul class="mega-menu-list">
-                        <li><a href="#women-churidar"><img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=40&h=40&fit=crop&auto=format" alt="Cotton Churidar" class="mega-menu-cat-img"> Cotton Churidar</a></li>
-                        <li><a href="#women-nightwear"><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=40&h=40&fit=crop&auto=format" alt="Night Wear" class="mega-menu-cat-img"> Night Wear</a></li>
-                      </ul>
-                    </div>
-                    <div class="col-lg-6 col-6">
-                      <div class="mega-menu-promo">
-                        <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop" alt="Women New Collection">
-                        <div class="mega-menu-promo-overlay">
-                          <h5 class="mega-menu-promo-title">Womens Wear Collections</h5>
-                          <p class="mega-menu-promo-subtitle">Lightweight styles made for everyday comfort</p>
-                          <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Shop New Arrivals</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
 
             <li class="nav-item">
               <a class="nav-link" href="#collections">Collections</a>
@@ -293,26 +222,16 @@
               </div>
               <ul class="mobile-nav-list">
                 <li><a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-link">Home</a></li>
+
+                <!-- Dynamic Category Links -->
+                {% for category in navbar_categories %}
                 <li>
-                  <button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="baby">
-                    Baby <i class="fa-solid fa-chevron-right"></i>
+                  <button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="{{ category.slug }}">
+                    {{ category.name }} <i class="fa-solid fa-chevron-right"></i>
                   </button>
                 </li>
-                <li>
-                  <button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="girl">
-                    Girl <i class="fa-solid fa-chevron-right"></i>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="boy">
-                    Boy <i class="fa-solid fa-chevron-right"></i>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" class="mobile-nav-link mobile-nav-parent" data-open-panel="women">
-                    Women <i class="fa-solid fa-chevron-right"></i>
-                  </button>
-                </li>
+                {% endfor %}
+
                 <li><a href="#collections" class="mobile-nav-link">Collections</a></li>
                 <li><a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-link">New Arrivals</a></li>
                 <li><a href="{% url 'ComfyCuteApp:about_us' %}" class="mobile-nav-link">About</a></li>
@@ -320,13 +239,14 @@
               </ul>
             </div>
 
-            <!-- Panel: Baby -->
-            <div class="mobile-nav-panel" data-panel="baby">
+            <!-- Dynamic Category Panels -->
+            {% for category in navbar_categories %}
+            <div class="mobile-nav-panel" data-panel="{{ category.slug }}">
               <div class="mobile-nav-panel-header">
                 <button type="button" class="mobile-nav-back" data-open-panel="root" aria-label="Back to menu">
                   <i class="fa-solid fa-chevron-left"></i>
                 </button>
-                <span class="mobile-nav-panel-title">Baby</span>
+                <span class="mobile-nav-panel-title">{{ category.name }}</span>
                 <button type="button" class="mobile-nav-close" aria-label="Close menu">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -334,172 +254,29 @@
               <div class="mobile-nav-panel-body">
                 <h6 class="mobile-nav-group-title">Categories</h6>
                 <div class="mobile-nav-cat-list">
-                  <a href="#baby-boy" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=80&h=80&fit=crop&auto=format" alt="Baby Boy">
-                    <span>Baby Boy</span>
+                  {% for subcategory in category.subcategories %}
+                  <a href="#{{ subcategory.slug }}" class="mobile-nav-cat-item">
+                    {% if subcategory.image %}
+                      <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}">
+                    {% else %}
+                      <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=80&h=80&fit=crop&auto=format" alt="{{ subcategory.name }}">
+                    {% endif %}
+                    <span>{{ subcategory.name }}</span>
                   </a>
-                  <a href="#baby-girl" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=80&h=80&fit=crop&auto=format" alt="Baby Girl">
-                    <span>Baby Girl</span>
-                  </a>
-                  <a href="#baby-nightwear" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=80&h=80&fit=crop&auto=format" alt="Night Wear">
-                    <span>Night Wear</span>
-                  </a>
-                  <a href="#baby-essentials" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=80&h=80&fit=crop&auto=format" alt="Essentials">
-                    <span>Essentials</span>
-                  </a>
-                  <a href="#baby-giftsets" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1522771935878-f35f1f9e99e4?q=80&w=80&h=80&fit=crop&auto=format" alt="Gift Sets">
-                    <span>Gift Sets</span>
-                  </a>
+                  {% endfor %}
                 </div>
 
+                {% if category.shop_by_age %}
                 <h6 class="mobile-nav-group-title">Shop By Age</h6>
                 <div class="mobile-nav-age-list">
-                  <a href="#baby-age-0-3" class="mobile-nav-age-item">0–3 Months</a>
-                  <a href="#baby-age-3-6" class="mobile-nav-age-item">3–6 Months</a>
-                  <a href="#baby-age-6-9" class="mobile-nav-age-item">6–9 Months</a>
+                  {% for age_range in category.shop_by_age %}
+                  <a href="#{{ category.slug }}-age" class="mobile-nav-age-item">{{ age_range }}</a>
+                  {% endfor %}
                 </div>
+                {% endif %}
               </div>
             </div>
-
-            <!-- Panel: Girl -->
-            <div class="mobile-nav-panel" data-panel="girl">
-              <div class="mobile-nav-panel-header">
-                <button type="button" class="mobile-nav-back" data-open-panel="root" aria-label="Back to menu">
-                  <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <span class="mobile-nav-panel-title">Girl</span>
-                <button type="button" class="mobile-nav-close" aria-label="Close menu">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <div class="mobile-nav-panel-body">
-                <h6 class="mobile-nav-group-title">Categories</h6>
-                <div class="mobile-nav-cat-list">
-                  <a href="#girl-coordsets-pants" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=80&h=80&fit=crop&auto=format" alt="Co-Ord Sets - Pants">
-                    <span>Co-Ord Sets - Pants</span>
-                  </a>
-                  <a href="#girl-coordsets-shorts" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=80&h=80&fit=crop&auto=format" alt="Co-Ord Sets - Shorts">
-                    <span>Co-Ord Sets - Shorts</span>
-                  </a>
-                  <a href="#girl-frocks" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=80&h=80&fit=crop&auto=format" alt="Frocks">
-                    <span>Frocks</span>
-                  </a>
-                  <a href="#girl-dresses" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=80&h=80&fit=crop&auto=format" alt="Cotton Dresses">
-                    <span>Cotton Dresses</span>
-                  </a>
-                  <a href="#girl-tshirts" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=80&h=80&fit=crop&auto=format" alt="T-Shirts">
-                    <span>T-Shirts</span>
-                  </a>
-                  <a href="#girl-pants" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=80&h=80&fit=crop&auto=format" alt="Pants">
-                    <span>Pants</span>
-                  </a>
-                  <a href="#girl-shorts" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=80&h=80&fit=crop&auto=format" alt="Shorts">
-                    <span>Shorts</span>
-                  </a>
-                  <a href="#girl-pajamas" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=80&h=80&fit=crop&auto=format" alt="Pajama Sets">
-                    <span>Pajama Sets</span>
-                  </a>
-                </div>
-
-                <h6 class="mobile-nav-group-title">Shop By Age</h6>
-                <div class="mobile-nav-age-list">
-                  <a href="#girl-age-0-2" class="mobile-nav-age-item">0–2 Years</a>
-                  <a href="#girl-age-3-5" class="mobile-nav-age-item">3–5 Years</a>
-                  <a href="#girl-age-6-8" class="mobile-nav-age-item">6–8 Years</a>
-                  <a href="#girl-age-9-12" class="mobile-nav-age-item">9–12 Years</a>
-                  <a href="#girl-age-13" class="mobile-nav-age-item">13+ Years</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Panel: Boy -->
-            <div class="mobile-nav-panel" data-panel="boy">
-              <div class="mobile-nav-panel-header">
-                <button type="button" class="mobile-nav-back" data-open-panel="root" aria-label="Back to menu">
-                  <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <span class="mobile-nav-panel-title">Boy</span>
-                <button type="button" class="mobile-nav-close" aria-label="Close menu">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <div class="mobile-nav-panel-body">
-                <h6 class="mobile-nav-group-title">Categories</h6>
-                <div class="mobile-nav-cat-list">
-                  <a href="#boy-coordsets-pants" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=80&h=80&fit=crop&auto=format" alt="Co-Ord Sets - Pants">
-                    <span>Co-Ord Sets - Pants</span>
-                  </a>
-                  <a href="#boy-coordsets-shorts" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=80&h=80&fit=crop&auto=format" alt="Co-Ord Sets - Shorts">
-                    <span>Co-Ord Sets - Shorts</span>
-                  </a>
-                  <a href="#boy-dresses" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=80&h=80&fit=crop&auto=format" alt="Cotton Dresses">
-                    <span>Cotton Dresses</span>
-                  </a>
-                  <a href="#boy-tshirts" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=80&h=80&fit=crop&auto=format" alt="T-Shirts">
-                    <span>T-Shirts</span>
-                  </a>
-                  <a href="#boy-pants" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=80&h=80&fit=crop&auto=format" alt="Pants">
-                    <span>Pants</span>
-                  </a>
-                  <a href="#boy-shorts" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1594633312411-4a47fc00e84b?q=80&w=80&h=80&fit=crop&auto=format" alt="Shorts">
-                    <span>Shorts</span>
-                  </a>
-                </div>
-
-                <h6 class="mobile-nav-group-title">Shop By Age</h6>
-                <div class="mobile-nav-age-list">
-                  <a href="#boy-age-0-2" class="mobile-nav-age-item">0–2 Years</a>
-                  <a href="#boy-age-3-5" class="mobile-nav-age-item">3–5 Years</a>
-                  <a href="#boy-age-6-8" class="mobile-nav-age-item">6–8 Years</a>
-                  <a href="#boy-age-9-12" class="mobile-nav-age-item">9–12 Years</a>
-                  <a href="#boy-age-13" class="mobile-nav-age-item">13+ Years</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Panel: Women -->
-            <div class="mobile-nav-panel" data-panel="women">
-              <div class="mobile-nav-panel-header">
-                <button type="button" class="mobile-nav-back" data-open-panel="root" aria-label="Back to menu">
-                  <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <span class="mobile-nav-panel-title">Women</span>
-                <button type="button" class="mobile-nav-close" aria-label="Close menu">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <div class="mobile-nav-panel-body">
-                <h6 class="mobile-nav-group-title">Categories</h6>
-                <div class="mobile-nav-cat-list">
-                  <a href="#women-churidar" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=80&h=80&fit=crop&auto=format" alt="Cotton Churidar">
-                    <span>Cotton Churidar</span>
-                  </a>
-                  <a href="#women-nightwear" class="mobile-nav-cat-item">
-                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=80&h=80&fit=crop&auto=format" alt="Night Wear">
-                    <span>Night Wear</span>
-                  </a>
-                </div>
-              </div>
-            </div>
+            {% endfor %}
 
           </div>
   </div>
