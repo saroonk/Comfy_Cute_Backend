@@ -41,6 +41,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ComfyCuteApp.context_processors.announcements',
+                'ComfyCuteApp.context_processors.navbar_categories',
             ],
         },
     },
