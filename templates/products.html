@@ -569,23 +569,25 @@
               <h6 class="filter-group-title">Categories</h6>
               <div class="filter-checkboxes">
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="women"> Women
+                  <input type="checkbox" name="category" value="baby" class="category-checkbox"> Baby
                 </label>
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="tops"> Tops & Tunics
+                  <input type="checkbox" name="category" value="girl" class="category-checkbox"> Girl
                 </label>
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="dresses"> Dresses
+                  <input type="checkbox" name="category" value="boy" class="category-checkbox"> Boy
                 </label>
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="kurtis"> Kurtis
+                  <input type="checkbox" name="category" value="women" class="category-checkbox"> Women
                 </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="casual"> Casual Wear
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="party"> Party Wear
-                </label>
+              </div>
+            </div>
+
+            <!-- Subcategories (Dependent on Category) -->
+            <div class="filter-group">
+              <h6 class="filter-group-title">Subcategories</h6>
+              <div class="filter-checkboxes" id="subcategoryFilters">
+                <p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>
               </div>
             </div>
 
@@ -755,23 +757,25 @@
         <h6 class="filter-group-title">Categories</h6>
         <div class="filter-checkboxes">
           <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="women"> Women
+            <input type="checkbox" name="category" value="baby" class="category-checkbox"> Baby
           </label>
           <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="tops"> Tops & Tunics
+            <input type="checkbox" name="category" value="girl" class="category-checkbox"> Girl
           </label>
           <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="dresses"> Dresses
+            <input type="checkbox" name="category" value="boy" class="category-checkbox"> Boy
           </label>
           <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="kurtis"> Kurtis
+            <input type="checkbox" name="category" value="women" class="category-checkbox"> Women
           </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="casual"> Casual Wear
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="party"> Party Wear
-          </label>
+        </div>
+      </div>
+
+      <!-- Subcategories (Dependent on Category) -->
+      <div class="filter-group">
+        <h6 class="filter-group-title">Subcategories</h6>
+        <div class="filter-checkboxes" id="subcategoryFiltersMobile">
+          <p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>
         </div>
       </div>
 
@@ -965,6 +969,94 @@
 
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/products.js' %}"></script>
+
+  <!-- Subcategory Filter Script -->
+  <script>
+    // Category to Subcategory mapping based on navbar structure
+    const categorySubcategories = {
+      baby: [
+        'Baby Boy',
+        'Baby Girl',
+        'Night Wear',
+        'Essentials',
+        'Gift Sets'
+      ],
+      girl: [
+        'Co-Ord Sets - Pants',
+        'Co-Ord Sets - Shorts',
+        'Frocks',
+        'Cotton Dresses',
+        'T-Shirts',
+        'Pants',
+        'Shorts',
+        'Pajama Sets'
+      ],
+      boy: [
+        'Co-Ord Sets - Pants',
+        'Co-Ord Sets - Shorts',
+        'Cotton Dresses',
+        'T-Shirts',
+        'Pants',
+        'Shorts'
+      ],
+      women: [
+        'Cotton Churidar',
+        'Night Wear'
+      ]
+    };
+
+    // Initialize subcategory filters
+    function updateSubcategoryFilters() {
+      const desktopContainer = document.getElementById('subcategoryFilters');
+      const mobileContainer = document.getElementById('subcategoryFiltersMobile');
+
+      // Get selected categories
+      const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
+
+      // Get all available subcategories for selected categories
+      const availableSubcategories = new Set();
+      selectedCategories.forEach(category => {
+        if (categorySubcategories[category]) {
+          categorySubcategories[category].forEach(subcat => {
+            availableSubcategories.add(subcat);
+          });
+        }
+      });
+
+      // Clear incompatible subcategories
+      document.querySelectorAll('input[name="subcategory"]').forEach(checkbox => {
+        if (!availableSubcategories.has(checkbox.value)) {
+          checkbox.checked = false;
+        }
+      });
+
+      // Generate subcategory HTML
+      if (availableSubcategories.size === 0) {
+        const emptyText = '<p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>';
+        desktopContainer.innerHTML = emptyText;
+        mobileContainer.innerHTML = emptyText;
+      } else {
+        const subcategoryHTML = Array.from(availableSubcategories).sort().map(subcat => `
+          <label class="filter-checkbox">
+            <input type="checkbox" name="subcategory" value="${subcat}"> ${subcat}
+          </label>
+        `).join('');
+
+        desktopContainer.innerHTML = subcategoryHTML;
+        mobileContainer.innerHTML = subcategoryHTML;
+      }
+    }
+
+    // Add event listeners to category checkboxes
+    document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', updateSubcategoryFilters);
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateSubcategoryFilters();
+    });
+  </script>
 
 </body>
 </html>
