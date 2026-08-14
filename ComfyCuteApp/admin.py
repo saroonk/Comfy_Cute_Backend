@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import HeroBanner, ContactSubmission, Testimonial, User, Announcement
+from django.db import IntegrityError
+from .models import HeroBanner, ContactSubmission, Testimonial, User, Announcement, Category, SubCategory
 from unfold.admin import ModelAdmin
 
 
@@ -125,3 +126,96 @@ class HeroBannerAdmin(ModelAdmin):
         return 'No image'
     mobile_image_preview.short_description = 'Mobile Preview'
     mobile_image_preview.allow_tags = True
+
+
+@admin.register(Category)
+class CategoryAdmin(ModelAdmin):
+    list_display = ['name', 'slug', 'created_at', 'updated_at']
+    search_fields = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ['created_at', 'updated_at']
+    fieldsets = (
+        ('Category Information', {
+            'fields': ('name', 'slug', 'image')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['name']
+
+    def save_model(self, request, obj, form, change):
+        """
+        Override save_model to handle admin logging foreign key constraint issues
+        when using custom user models.
+        """
+        try:
+            super().save_model(request, obj, form, change)
+        except IntegrityError as e:
+            if 'django_admin_log' in str(e) and 'user_id' in str(e):
+                # Admin logging failed due to custom user model FK issue
+                # Save the object directly without logging
+                obj.save()
+                # Display a warning message to the user
+                self.message_user(
+                    request,
+                    f'✓ {obj._meta.verbose_name} "{obj}" saved successfully (admin logging skipped)',
+                    level=admin.messages.WARNING
+                )
+            else:
+                raise
+
+    def image_preview(self, obj):
+        if obj.image:
+            return f'<img src="{obj.image.url}" width="80" height="auto" />'
+        return 'No image'
+    image_preview.short_description = 'Image Preview'
+    image_preview.allow_tags = True
+
+
+@admin.register(SubCategory)
+class SubCategoryAdmin(ModelAdmin):
+    list_display = ['name', 'category', 'slug', 'created_at']
+    list_filter = ['category', 'created_at']
+    prepopulated_fields = {'slug': ('name',)}
+    search_fields = ['name', 'slug', 'category__name']
+    readonly_fields = ['created_at', 'updated_at']
+    fieldsets = (
+        ('Subcategory Information', {
+            'fields': ('category', 'name', 'slug', 'image')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['category', 'name']
+
+    def save_model(self, request, obj, form, change):
+        """
+        Override save_model to handle admin logging foreign key constraint issues
+        when using custom user models.
+        """
+        try:
+            super().save_model(request, obj, form, change)
+        except IntegrityError as e:
+            if 'django_admin_log' in str(e) and 'user_id' in str(e):
+                # Admin logging failed due to custom user model FK issue
+                # Save the object directly without logging
+                obj.save()
+                # Display a warning message to the user
+                self.message_user(
+                    request,
+                    f'✓ {obj._meta.verbose_name} "{obj}" saved successfully (admin logging skipped)',
+                    level=admin.messages.WARNING
+                )
+            else:
+                raise
+
+    def image_preview(self, obj):
+        if obj.image:
+            return f'<img src="{obj.image.url}" width="80" height="auto" />'
+        return 'No image'
+    image_preview.short_description = 'Image Preview'
+    image_preview.allow_tags = True

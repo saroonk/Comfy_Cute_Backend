@@ -206,3 +206,87 @@ class HeroBanner(models.Model):
 
     def __str__(self):
         return f"Hero Banner #{self.order}"
+
+
+class Category(models.Model):
+    """
+    Model for product categories (Baby, Girl, Boy, Women).
+    Each category can have multiple subcategories.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text='Category name (e.g., Baby, Girl, Boy, Women)'
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        help_text='URL-friendly identifier (e.g., baby, girl, boy, women)'
+    )
+    image = models.ImageField(
+        upload_to='categories/',
+        blank=True,
+        null=True,
+        help_text='Category image/icon for display in navigation'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
+    def save(self, *args, **kwargs):
+        self.slug = self.name.lower().replace(' ', '-')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class SubCategory(models.Model):
+    """
+    Model for product subcategories.
+    Each subcategory belongs to exactly one category.
+    Examples:
+    - Baby → Baby Boy, Baby Girl, Night Wear, Essentials, Gift Sets
+    - Girl → Co-Ord Sets - Pants, Co-Ord Sets - Shorts, Frocks, etc.
+    """
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name='subcategories',
+        help_text='Parent category'
+    )
+    name = models.CharField(
+        max_length=100,
+        help_text='Subcategory name (e.g., Baby Boy, Cotton Churidar)'
+    )
+    slug = models.SlugField(
+        max_length=100,
+        help_text='URL-friendly identifier (e.g., baby-boy, cotton-churidar)'
+    )
+    image = models.ImageField(
+        upload_to='subcategories/',
+        blank=True,
+        null=True,
+        help_text='Subcategory image for display in navigation'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['category', 'name']
+        verbose_name = 'Sub Category'
+        verbose_name_plural = 'Sub Categories'
+        # Slug uniqueness is scoped per category to allow same subcategory names under different categories
+        unique_together = ('category', 'slug')
+
+    def __str__(self):
+        return f"{self.category.name} → {self.name}"
+
+
+    def save(self, *args, **kwargs):
+        self.slug = self.name.lower().replace(' ', '-')
+        super().save(*args, **kwargs)
