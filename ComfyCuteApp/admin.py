@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.db import IntegrityError
-from .models import HeroBanner, ContactSubmission, Testimonial, User, Announcement, Category, SubCategory
+from .models import (
+    HeroBanner, ContactSubmission, Testimonial, User, Announcement,
+    Category, SubCategory, Product, ProductVariant, ProductVariantImage,
+    VariantSizeStock, Collection, Fabric, Color, Size
+)
 from unfold.admin import ModelAdmin
 
 
@@ -219,3 +223,165 @@ class SubCategoryAdmin(ModelAdmin):
         return 'No image'
     image_preview.short_description = 'Image Preview'
     image_preview.allow_tags = True
+
+
+# ==========================================
+# PRODUCT-RELATED ADMIN CLASSES
+# ==========================================
+
+@admin.register(Fabric)
+class FabricAdmin(ModelAdmin):
+    list_display = ['name', 'slug']
+    search_fields = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
+    ordering = ['name']
+
+
+@admin.register(Collection)
+class CollectionAdmin(ModelAdmin):
+    list_display = ['name', 'is_active', 'display_order', 'created_at']
+    list_editable = ['is_active', 'display_order']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ['created_at', 'updated_at']
+    fieldsets = (
+        ('Collection Information', {
+            'fields': ('name', 'slug', 'image')
+        }),
+        ('Configuration', {
+            'fields': ('display_order', 'is_active')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['display_order', 'name']
+
+
+@admin.register(Color)
+class ColorAdmin(ModelAdmin):
+    list_display = ['name', 'hex_code', 'slug']
+    search_fields = ['name', 'slug', 'hex_code']
+    prepopulated_fields = {'slug': ('name',)}
+    ordering = ['name']
+
+
+@admin.register(Size)
+class SizeAdmin(ModelAdmin):
+    list_display = ['name', 'display_order', 'slug']
+    list_editable = ['display_order']
+    search_fields = ['name', 'slug']
+    prepopulated_fields = {'slug': ('name',)}
+    ordering = ['display_order', 'name']
+
+
+class ProductVariantInline(admin.TabularInline):
+    """Inline admin for ProductVariant."""
+    model = ProductVariant
+    extra = 1
+    fields = ['color', 'is_default', 'selling_price_override', 'old_price_override', 'is_active']
+    list_display = ['color', 'is_default', 'is_active']
+
+
+@admin.register(Product)
+class ProductAdmin(ModelAdmin):
+    list_display = ['name', 'category', 'subcategory', 'fabric', 'selling_price', 'is_active', 'created_at']
+    list_filter = ['is_active', 'category', 'subcategory', 'fabric', 'collections', 'created_at']
+    search_fields = ['name', 'slug', 'category__name', 'subcategory__name']
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ['created_at', 'updated_at']
+    filter_horizontal = ['collections']
+    inlines = [ProductVariantInline]
+
+    fieldsets = (
+        ('Product Information', {
+            'fields': ('name', 'slug', 'main_image', 'short_description')
+        }),
+        ('Classification', {
+            'fields': ('category', 'subcategory', 'fabric', 'collections')
+        }),
+        ('Pricing', {
+            'fields': ('old_price', 'selling_price')
+        }),
+        ('Detailed Information', {
+            'fields': ('full_description', 'fabric_and_care', 'shipping_and_returns', 'manufactured_by'),
+            'classes': ('collapse',)
+        }),
+        ('Status', {
+            'fields': ('is_active',)
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-created_at']
+
+
+class ProductVariantImageInline(admin.TabularInline):
+    """Inline admin for ProductVariantImage."""
+    model = ProductVariantImage
+    extra = 1
+    fields = ['image', 'display_order']
+    ordering = ['display_order']
+
+
+class VariantSizeStockInline(admin.TabularInline):
+    """Inline admin for VariantSizeStock."""
+    model = VariantSizeStock
+    extra = 1
+    fields = ['size', 'stock']
+
+
+@admin.register(ProductVariant)
+class ProductVariantAdmin(ModelAdmin):
+    list_display = ['product', 'color', 'is_default', 'is_active', 'selling_price_override']
+    list_filter = ['is_active', 'is_default', 'product', 'color']
+    search_fields = ['product__name', 'color__name']
+    readonly_fields = ['created_at', 'updated_at']
+    inlines = [ProductVariantImageInline, VariantSizeStockInline]
+
+    fieldsets = (
+        ('Variant Information', {
+            'fields': ('product', 'color', 'is_default')
+        }),
+        ('Price Override', {
+            'fields': ('old_price_override', 'selling_price_override'),
+            'description': 'Leave blank to use product prices'
+        }),
+        ('Status', {
+            'fields': ('is_active',)
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['product', 'color']
+
+
+@admin.register(ProductVariantImage)
+class ProductVariantImageAdmin(ModelAdmin):
+    list_display = ['variant', 'display_order', 'image_preview']
+    list_editable = ['display_order']
+    list_filter = ['variant__product', 'display_order']
+    search_fields = ['variant__product__name', 'variant__color__name']
+    ordering = ['variant', 'display_order']
+
+    def image_preview(self, obj):
+        if obj.image:
+            return f'<img src="{obj.image.url}" width="50" height="auto" />'
+        return 'No image'
+    image_preview.short_description = 'Preview'
+    image_preview.allow_tags = True
+
+
+@admin.register(VariantSizeStock)
+class VariantSizeStockAdmin(ModelAdmin):
+    list_display = ['variant', 'size', 'stock']
+    list_editable = ['stock']
+    list_filter = ['variant__product', 'size']
+    search_fields = ['variant__product__name', 'variant__color__name', 'size__name']
+    ordering = ['variant', 'size']

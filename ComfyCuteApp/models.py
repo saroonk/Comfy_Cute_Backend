@@ -286,7 +286,401 @@ class SubCategory(models.Model):
     def __str__(self):
         return f"{self.category.name} → {self.name}"
 
+    def save(self, *args, **kwargs):
+        self.slug = self.name.lower().replace(' ', '-')
+        super().save(*args, **kwargs)
+
+
+# ==========================================
+# PRODUCT-RELATED MODELS
+# ==========================================
+
+class Fabric(models.Model):
+    """
+    Model for product fabrics/materials.
+    Examples: Cotton, Linen, Silk, Rayon, Blend
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text='Fabric name (e.g., Cotton, Linen, Silk)'
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        help_text='URL-friendly identifier'
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Fabric'
+        verbose_name_plural = 'Fabrics'
 
     def save(self, *args, **kwargs):
         self.slug = self.name.lower().replace(' ', '-')
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Collection(models.Model):
+    """
+    Model for product collections.
+    A product can belong to multiple collections.
+    Examples: New Arrivals, Featured, Party Wear, Baby Collection
+    """
+    name = models.CharField(
+        max_length=150,
+        help_text='Collection name'
+    )
+    slug = models.SlugField(
+        max_length=150,
+        unique=True,
+        help_text='URL-friendly identifier'
+    )
+    image = models.ImageField(
+        upload_to='collections/',
+        blank=True,
+        null=True,
+        help_text='Collection cover image'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Enable/disable collection without deleting it'
+    )
+    display_order = models.PositiveIntegerField(
+        default=0,
+        help_text='Display order - lower numbers appear first'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['display_order', 'name']
+        verbose_name = 'Collection'
+        verbose_name_plural = 'Collections'
+
+    def save(self, *args, **kwargs):
+        self.slug = self.name.lower().replace(' ', '-')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Color(models.Model):
+    """
+    Model for product colors.
+    Reusable across all products and variants.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text='Color name (e.g., Red, Blue, Pink)'
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        help_text='URL-friendly identifier'
+    )
+    hex_code = models.CharField(
+        max_length=7,
+        blank=True,
+        null=True,
+        help_text='Hex color code (e.g., #FF5733)'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Color'
+        verbose_name_plural = 'Colors'
+
+    def save(self, *args, **kwargs):
+        self.slug = self.name.lower().replace(' ', '-')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Size(models.Model):
+    """
+    Model for product sizes.
+    Reusable across all products and variants.
+    Supports both children's sizes and standard clothing sizes.
+    Examples: 0-3 Months, 3-6 Months, S, M, L, XL, Free Size
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text='Size name (e.g., S, M, L, 0-3 Months)'
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        help_text='URL-friendly identifier'
+    )
+    display_order = models.PositiveIntegerField(
+        default=0,
+        help_text='Display order - lower numbers appear first'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['display_order', 'name']
+        verbose_name = 'Size'
+        verbose_name_plural = 'Sizes'
+
+    def save(self, *args, **kwargs):
+        self.slug = self.name.lower().replace(' ', '-')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    """
+    Main product model representing the catalog product.
+    Example: Girls Cotton T-Shirt
+
+    A Product contains common information shared by all variants.
+    Variants differ in color, size, and stock.
+    """
+    name = models.CharField(
+        max_length=255,
+        help_text='Product name (e.g., Girls Cotton T-Shirt)'
+    )
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        help_text='URL-friendly identifier'
+    )
+    main_image = models.ImageField(
+        upload_to='products/main/',
+        help_text='Main product listing/card image'
+    )
+    short_description = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Brief product description for product cards'
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        related_name='products',
+        help_text='Product category (required)'
+    )
+    subcategory = models.ForeignKey(
+        SubCategory,
+        on_delete=models.PROTECT,
+        related_name='products',
+        help_text='Product subcategory (required)'
+    )
+    fabric = models.ForeignKey(
+        Fabric,
+        on_delete=models.PROTECT,
+        related_name='products',
+        help_text='Fabric/material (required)'
+    )
+    collections = models.ManyToManyField(
+        Collection,
+        blank=True,
+        related_name='products',
+        help_text='Collections this product belongs to'
+    )
+    old_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text='Original/marked price (optional)'
+    )
+    selling_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text='Current selling price (required)'
+    )
+    full_description = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Detailed product description'
+    )
+    fabric_and_care = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Fabric information and care instructions'
+    )
+    shipping_and_returns = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Shipping and returns information'
+    )
+    manufactured_by = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Manufacturing information'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Enable/disable product without deleting it'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
+
+    def save(self, *args, **kwargs):
+        self.slug = self.name.lower().replace(' ', '-')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    def get_default_variant(self):
+        """Get the default variant for this product."""
+        return self.variants.filter(is_default=True).first()
+
+
+class ProductVariant(models.Model):
+    """
+    Model for product variants.
+    A variant represents a specific version of a product (e.g., color variation).
+
+    Example:
+    Product: Girls Cotton T-Shirt
+    Variants: Red, Blue, Pink
+    """
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='variants',
+        help_text='Parent product'
+    )
+    color = models.ForeignKey(
+        Color,
+        on_delete=models.PROTECT,
+        related_name='variants',
+        help_text='Variant color'
+    )
+    is_default = models.BooleanField(
+        default=False,
+        help_text='Set as default variant for product detail page'
+    )
+    old_price_override = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text='Override product old price for this variant (optional)'
+    )
+    selling_price_override = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text='Override product selling price for this variant (optional)'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Enable/disable variant without deleting it'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['product', 'color']
+        verbose_name = 'Product Variant'
+        verbose_name_plural = 'Product Variants'
+
+    def __str__(self):
+        return f"{self.product.name} - {self.color.name}"
+
+    def get_selling_price(self):
+        """Get effective selling price (override or product price)."""
+        return self.selling_price_override or self.product.selling_price
+
+    def get_old_price(self):
+        """Get effective old price (override or product price)."""
+        return self.old_price_override or self.product.old_price
+
+
+class ProductVariantImage(models.Model):
+    """
+    Model for variant images.
+    A variant can have multiple images (e.g., front, back, side views).
+    """
+    variant = models.ForeignKey(
+        ProductVariant,
+        on_delete=models.CASCADE,
+        related_name='images',
+        help_text='Variant these images belong to'
+    )
+    image = models.ImageField(
+        upload_to='products/variants/',
+        help_text='Variant image (e.g., front, back, side view)'
+    )
+    display_order = models.PositiveIntegerField(
+        default=0,
+        help_text='Display order - lower numbers appear first'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['variant', 'display_order']
+        verbose_name = 'Product Variant Image'
+        verbose_name_plural = 'Product Variant Images'
+
+    def __str__(self):
+        return f"{self.variant} - Image #{self.display_order}"
+
+
+class VariantSizeStock(models.Model):
+    """
+    Model connecting ProductVariant + Size + Stock.
+    Represents available stock for a specific size of a variant.
+
+    Example:
+    Red T-Shirt Variant:
+    - Size S: 10 units
+    - Size M: 15 units
+    - Size L: 8 units
+    """
+    variant = models.ForeignKey(
+        ProductVariant,
+        on_delete=models.CASCADE,
+        related_name='size_stocks',
+        help_text='Product variant'
+    )
+    size = models.ForeignKey(
+        Size,
+        on_delete=models.PROTECT,
+        related_name='variant_stocks',
+        help_text='Size'
+    )
+    stock = models.PositiveIntegerField(
+        default=0,
+        help_text='Available stock quantity'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['variant', 'size']
+        verbose_name = 'Variant Size Stock'
+        verbose_name_plural = 'Variant Size Stocks'
+        # Prevent duplicate size entries for the same variant
+        constraints = [
+            models.UniqueConstraint(
+                fields=['variant', 'size'],
+                name='unique_variant_size'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.variant} - {self.size.name} ({self.stock} units)"
