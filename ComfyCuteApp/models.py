@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.utils.text import slugify
 
 
 class CustomUserManager(UserManager):
@@ -238,7 +239,8 @@ class Category(models.Model):
         verbose_name_plural = 'Categories'
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(' ', '-')
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -287,7 +289,8 @@ class SubCategory(models.Model):
         return f"{self.category.name} → {self.name}"
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(' ', '-')
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
 
@@ -317,7 +320,8 @@ class Fabric(models.Model):
         verbose_name_plural = 'Fabrics'
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(' ', '-')
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -362,7 +366,8 @@ class Collection(models.Model):
         verbose_name_plural = 'Collections'
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(' ', '-')
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -398,7 +403,8 @@ class Color(models.Model):
         verbose_name_plural = 'Colors'
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(' ', '-')
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -434,7 +440,8 @@ class Size(models.Model):
         verbose_name_plural = 'Sizes'
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(' ', '-')
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -536,7 +543,8 @@ class Product(models.Model):
         verbose_name_plural = 'Products'
 
     def save(self, *args, **kwargs):
-        self.slug = self.name.lower().replace(' ', '-')
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     def __str__(self):
