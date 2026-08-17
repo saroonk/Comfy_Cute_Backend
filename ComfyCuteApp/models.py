@@ -343,12 +343,6 @@ class Collection(models.Model):
         unique=True,
         help_text='URL-friendly identifier'
     )
-    image = models.ImageField(
-        upload_to='collections/',
-        blank=True,
-        null=True,
-        help_text='Collection cover image'
-    )
     is_active = models.BooleanField(
         default=True,
         help_text='Enable/disable collection without deleting it'

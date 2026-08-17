@@ -247,7 +247,7 @@ class CollectionAdmin(ModelAdmin):
     readonly_fields = ['created_at', 'updated_at']
     fieldsets = (
         ('Collection Information', {
-            'fields': ('name', 'slug', 'image')
+            'fields': ('name', 'slug')
         }),
         ('Configuration', {
             'fields': ('display_order', 'is_active')
@@ -277,12 +277,34 @@ class SizeAdmin(ModelAdmin):
     ordering = ['display_order', 'name']
 
 
-class ProductVariantInline(admin.TabularInline):
-    """Inline admin for ProductVariant."""
+# Nested inlines for complete product workflow
+class VariantSizeStockInline(admin.TabularInline):
+    """Inline admin for VariantSizeStock - manages size and stock for each variant."""
+    model = VariantSizeStock
+    extra = 1
+    fields = ['size', 'stock']
+    verbose_name = 'Size & Stock'
+    verbose_name_plural = 'Sizes & Stock'
+
+
+class ProductVariantImageInline(admin.TabularInline):
+    """Inline admin for ProductVariantImage - manages images for each variant."""
+    model = ProductVariantImage
+    extra = 1
+    fields = ['image', 'display_order']
+    ordering = ['display_order']
+    verbose_name = 'Variant Image'
+    verbose_name_plural = 'Variant Images'
+
+
+class ProductVariantInline(admin.StackedInline):
+    """Inline admin for ProductVariant with nested images and sizes."""
     model = ProductVariant
     extra = 1
-    fields = ['color', 'is_default', 'selling_price_override', 'old_price_override', 'is_active']
-    list_display = ['color', 'is_default', 'is_active']
+    fields = ['color', 'is_default', 'old_price_override', 'selling_price_override', 'is_active']
+    inlines = [ProductVariantImageInline, VariantSizeStockInline]
+    verbose_name = 'Variant'
+    verbose_name_plural = 'Variants'
 
 
 @admin.register(Product)
@@ -292,7 +314,6 @@ class ProductAdmin(ModelAdmin):
     search_fields = ['name', 'slug', 'category__name', 'subcategory__name']
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ['created_at', 'updated_at']
-    filter_horizontal = ['collections']
     inlines = [ProductVariantInline]
 
     fieldsets = (
@@ -319,20 +340,28 @@ class ProductAdmin(ModelAdmin):
     )
     ordering = ['-created_at']
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        Customize subcategory field to show only subcategories for the selected category.
+        This filters the dropdown based on the category selected in the form.
+        """
+        if db_field.name == 'subcategory':
+            # Default: show all subcategories ordered by category
+            kwargs['queryset'] = SubCategory.objects.all().order_by('category', 'name')
 
-class ProductVariantImageInline(admin.TabularInline):
-    """Inline admin for ProductVariantImage."""
-    model = ProductVariantImage
-    extra = 1
-    fields = ['image', 'display_order']
-    ordering = ['display_order']
+            # If editing an existing product, filter to only that product's category's subcategories
+            object_id = request.resolver_match.kwargs.get('object_id')
+            if object_id:
+                try:
+                    product = Product.objects.get(pk=object_id)
+                    kwargs['queryset'] = product.category.subcategories.all()
+                except (Product.DoesNotExist, AttributeError, TypeError):
+                    pass
 
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-class VariantSizeStockInline(admin.TabularInline):
-    """Inline admin for VariantSizeStock."""
-    model = VariantSizeStock
-    extra = 1
-    fields = ['size', 'stock']
+    class Media:
+        js = ('admin/js/product_admin_filter.js',)
 
 
 @admin.register(ProductVariant)
