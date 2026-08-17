@@ -329,114 +329,23 @@
 
       <div class="category-carousel-wrapper">
         <div class="category-carousel owl-carousel owl-theme">
-          
+
+          {% for category in navbar_categories %}
+            {% for subcategory in category.subcategories %}
           <div class="category-card">
             <div class="category-card-img">
-              <img src="{% static 'images/catcasual.webp' %}" alt="Casual Wear" loading="lazy">
+              {% if subcategory.image %}
+                <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.webp' %}" alt="{{ subcategory.name }}" loading="lazy">
+              {% endif %}
               <div class="category-card-overlay">
-                <h4 class="category-card-title">Casual Wear</h4>
+                <h4 class="category-card-title">{{ subcategory.name }}</h4>
               </div>
             </div>
           </div>
-
-          <!-- <div class="category-card">
-            <div class="category-card-img">
-              <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=500&auto=format&fit=crop" alt="Women" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Women</h4>
-              </div>
-            </div>
-          </div> -->
-
-          <div class="category-card">
-            <div class="category-card-img">
-              <img src="{% static 'images/catbabygirl.webp' %}" alt="Baby Girls" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Baby Girls</h4>
-              </div>
-            </div>
-          </div>
-
-          <div class="category-card">
-            <div class="category-card-img">
-              <img src="{% static 'images/catbabyboys.webp' %}" alt="Baby Boys" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Baby Boys</h4>
-              </div>
-            </div>
-          </div>
-
-          <!-- <div class="category-card">
-            <div class="category-card-img">
-              <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop" alt="Newborn" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Newborn</h4>
-              </div>
-            </div>
-          </div> -->
-
-          <div class="category-card">
-            <div class="category-card-img">
-              <img src="{% static 'images/catparty.webp' %}" alt="Party Wear" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Party Wear</h4>
-              </div>
-            </div>
-          </div>
-
-          <div class="category-card">
-            <div class="category-card-img">
-              <img src="{% static 'images/catkurta.webp' %}" alt="Kurtas" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Kurtas</h4>
-              </div>
-            </div>
-          </div>
-
-          <!-- <div class="category-card">
-            <div class="category-card-img">
-              <img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=500&auto=format&fit=crop" alt="Shirts" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Shirts</h4>
-              </div>
-            </div>
-          </div> -->
-
-          <div class="category-card">
-            <div class="category-card-img">
-              <img src="{% static 'images/cattshirt.webp' %}" alt="T-Shirts" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">T-Shirts</h4>
-              </div>
-            </div>
-          </div>
-
-          <div class="category-card">
-            <div class="category-card-img">
-              <img src="{% static 'images/catjeans.webp' %}" alt="Jeans" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Jeans</h4>
-              </div>
-            </div>
-          </div>
-
-          <!-- <div class="category-card">
-            <div class="category-card-img">
-              <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=500&auto=format&fit=crop" alt="Dresses" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Dresses</h4>
-              </div>
-            </div>
-          </div> -->
-
-          <div class="category-card">
-            <div class="category-card-img">
-              <img src="{% static 'images/catethnic.webp' %}" alt="Ethnic Wear" loading="lazy">
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">Ethnic Wear</h4>
-              </div>
-            </div>
-          </div>
+            {% endfor %}
+          {% endfor %}
 
         </div>
       </div>
