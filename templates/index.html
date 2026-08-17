@@ -495,44 +495,54 @@
 
       <div class="row justify-content-center">
 
-        <!-- Age 1 -->
+        <!-- Age 1: Newborns (0 to 3 months) -->
         <div class="col-lg-2 col-md-4 col-4">
-          <div class="age-card">
-            <div class="age-circle">0 - 3 M</div>
-            <span class="age-title">Newborns</span>
-          </div>
+          <a href="{% url 'ComfyCuteApp:products' %}?size=0-3-months&scroll_to=products" style="text-decoration: none; color: inherit;">
+            <div class="age-card">
+              <div class="age-circle">0 - 3 M</div>
+              <span class="age-title">Newborns</span>
+            </div>
+          </a>
         </div>
 
-        <!-- Age 2 -->
+        <!-- Age 2: Infants (3 to 6 months) -->
         <div class="col-lg-2 col-md-4 col-4">
-          <div class="age-card">
-            <div class="age-circle">3 - 6 M</div>
-            <span class="age-title">Infants</span>
-          </div>
+          <a href="{% url 'ComfyCuteApp:products' %}?size=3-6-months&scroll_to=products" style="text-decoration: none; color: inherit;">
+            <div class="age-card">
+              <div class="age-circle">3 - 6 M</div>
+              <span class="age-title">Infants</span>
+            </div>
+          </a>
         </div>
 
-        <!-- Age 3 -->
+        <!-- Age 3: Crawlers (6 to 12 months) -->
         <div class="col-lg-2 col-md-4 col-4">
-          <div class="age-card">
-            <div class="age-circle">6 - 12 M</div>
-            <span class="age-title">Crawlers</span>
-          </div>
+          <a href="{% url 'ComfyCuteApp:products' %}?size=6-12-months&scroll_to=products" style="text-decoration: none; color: inherit;">
+            <div class="age-card">
+              <div class="age-circle">6 - 12 M</div>
+              <span class="age-title">Crawlers</span>
+            </div>
+          </a>
         </div>
 
-        <!-- Age 4 -->
+        <!-- Age 4: Toddlers (1 to 2 years) -->
         <div class="col-lg-2 col-md-4 col-4">
-          <div class="age-card">
-            <div class="age-circle">1 - 2 Y</div>
-            <span class="age-title">Toddlers</span>
-          </div>
+          <a href="{% url 'ComfyCuteApp:products' %}?size=0-2-years&scroll_to=products" style="text-decoration: none; color: inherit;">
+            <div class="age-card">
+              <div class="age-circle">0 - 2 Y</div>
+              <span class="age-title">Toddlers</span>
+            </div>
+          </a>
         </div>
 
-        <!-- Age 5 -->
+        <!-- Age 5: Preschoolers (2 to 4 years) -->
         <div class="col-lg-2 col-md-4 col-4">
-          <div class="age-card">
-            <div class="age-circle">2 - 4 Y</div>
-            <span class="age-title">Preschoolers</span>
-          </div>
+          <a href="{% url 'ComfyCuteApp:products' %}?size=3-5-years&scroll_to=products" style="text-decoration: none; color: inherit;">
+            <div class="age-card">
+              <div class="age-circle">3 - 5 Y</div>
+              <span class="age-title">Preschoolers</span>
+            </div>
+          </a>
         </div>
 
       </div>
@@ -552,12 +562,12 @@
           <span class="editorial-label">COMFY CUTE COLLECTION</span>
           <h2 class="editorial-heading">Comfort That Feels Like Home.</h2>
           <p class="editorial-description">Thoughtfully designed outfits for women and little ones, crafted with soft fabrics and timeless style.</p>
-          <a href="#womens-collection" class="btn btn-premium btn-editorial">Discover the Collection <i class="fa-solid fa-arrow-right editorial-btn-arrow"></i></a>
+          <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-premium btn-editorial">Discover the Collection <i class="fa-solid fa-arrow-right editorial-btn-arrow"></i></a>
         </div>
       </div>
     </div>
   </section>
-
+ 
   <!-- ==========================================
        WOMEN'S COLLECTION GRID
        ========================================== -->
@@ -606,7 +616,7 @@
 
       <!-- Explore Button -->
       <div class="text-center mt-5">
-        <a href="#womens-collection" class="btn btn-premium btn-view-all">Explore Women's Collection</a>
+        <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-premium btn-view-all">Explore Women's Collection</a>
       </div>
     </div>
   </section>
@@ -659,7 +669,7 @@
 
       <!-- Explore Button -->
       <div class="text-center mt-5">
-        <a href="#baby-collection" class="btn btn-premium btn-view-all">Explore Kids Collection</a>
+        <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-premium btn-view-all">Explore Kids Collection</a>
       </div>
     </div>
   </section>

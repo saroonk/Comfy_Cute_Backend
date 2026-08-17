@@ -14,6 +14,18 @@ document.addEventListener('DOMContentLoaded', function () {
   // Products are now rendered server-side via Django
   // Do not render old static products
   // No event listener setup needed — backend handles product rendering
+
+  // Auto-scroll to products section when navigating from Shop by Age or when scroll_to parameter is present
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('scroll_to') === 'products') {
+    // Delay scroll slightly to ensure DOM is fully rendered
+    setTimeout(function () {
+      const productsSection = document.querySelector('.products-section');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
 });
 
 // Products are now rendered server-side via Django
