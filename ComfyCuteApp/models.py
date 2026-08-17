@@ -268,6 +268,7 @@ class SubCategory(models.Model):
     )
     slug = models.SlugField(
         max_length=100,
+        unique=True,
         help_text='URL-friendly identifier (e.g., baby-boy, cotton-churidar)'
     )
     image = models.ImageField(
@@ -283,8 +284,6 @@ class SubCategory(models.Model):
         ordering = ['category', 'name']
         verbose_name = 'Sub Category'
         verbose_name_plural = 'Sub Categories'
-        # Slug uniqueness is scoped per category to allow same subcategory names under different categories
-        unique_together = ('category', 'slug')
 
     def __str__(self):
         return f"{self.category.name} → {self.name}"

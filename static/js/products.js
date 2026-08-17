@@ -87,8 +87,9 @@ function scrollToProducts() {
 // Update subcategories dynamically via AJAX when user manually changes category
 // NOTE: This does NOT run on initial page load - Django's template rendering handles that
 // This ONLY runs when the user clicks a category checkbox to change it
-function updateSubcategoriesForCategory(categoryId) {
-  if (!categoryId) {
+// Now uses slug-based identification instead of ID
+function updateSubcategoriesForCategory(categorySlug) {
+  if (!categorySlug) {
     // No category selected - show message
     const subcategoryDiv = document.getElementById('subcategoryFilters');
     if (subcategoryDiv) {
@@ -102,16 +103,16 @@ function updateSubcategoriesForCategory(categoryId) {
     return;
   }
 
-  // Fetch subcategories for this category via API
-  fetch(`/api/product-subcategories/?category_id=${categoryId}`)
+  // Fetch subcategories for this category via API using slug-based identification
+  fetch(`/api/product-subcategories/?category_slug=${categorySlug}`)
     .then(response => response.json())
     .then(data => {
       if (data.subcategories && data.subcategories.length > 0) {
-        // Build subcategory checkboxes (no checked attribute since this is dynamic)
+        // Build subcategory checkboxes using slug as value (no checked attribute since this is dynamic)
         let html = '';
         data.subcategories.forEach(subcategory => {
           html += `<label class="filter-checkbox">
-            <input type="checkbox" name="subcategory" value="${subcategory.id}"> ${subcategory.name}
+            <input type="checkbox" name="subcategory" value="${subcategory.slug}"> ${subcategory.name}
           </label>`;
         });
 
@@ -154,7 +155,8 @@ document.addEventListener('DOMContentLoaded', function () {
   categoryCheckboxes.forEach(checkbox => {
     // IMPORTANT: Only attach listeners for manual user changes, not initial state
     checkbox.addEventListener('change', function () {
-      const selectedCategoryId = this.checked ? this.value : '';
+      // Now using slug-based identification (this.value is category.slug)
+      const selectedCategorySlug = this.checked ? this.value : '';
 
       // Enforce single-select behavior: uncheck all other categories
       categoryCheckboxes.forEach(cb => {
@@ -170,8 +172,8 @@ document.addEventListener('DOMContentLoaded', function () {
         cb.checked = false;
       });
 
-      // Dynamically fetch and update subcategories for the selected category
-      updateSubcategoriesForCategory(selectedCategoryId);
+      // Dynamically fetch and update subcategories for the selected category using slug
+      updateSubcategoriesForCategory(selectedCategorySlug);
     });
   });
 });

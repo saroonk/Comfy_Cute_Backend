@@ -293,11 +293,23 @@
   <section class="products-hero-section">
     <div class="container">
       <div class="products-hero-banner">
-        <img src="{% static 'images/producthero.webp' %}" alt="Women's Collection" class="products-hero-bg">
+        <img src="{% static 'images/producthero.webp' %}" alt="{% if selected_category.name == 'Baby' %}Baby Collection{% elif selected_category.name == 'Girl' %}Baby Girls Collection{% elif selected_category.name == 'Boy' %}Baby Boys Collection{% elif selected_category.name == 'Women' %}Women Collection{% else %}Collection{% endif %}" class="products-hero-bg">
         <div class="products-hero-overlay"></div>
         <div class="products-hero-content">
           <div class="products-hero-label">COMFY CUTE COLLECTION</div>
-          <h1 class="products-hero-heading">Women's Collection</h1>
+          <h1 class="products-hero-heading">
+            {% if selected_category.name == 'Baby' %}
+              Baby Collection
+            {% elif selected_category.name == 'Girl' %}
+              Girls Collection
+            {% elif selected_category.name == 'Boy' %}
+              Boys Collection
+            {% elif selected_category.name == 'Women' %}
+              Women Collection
+            {% else %}
+              Our Collection
+            {% endif %}
+          </h1>
           <p class="products-hero-desc">Discover timeless styles crafted from premium fabrics designed for everyday comfort and effortless elegance.</p>
           <button class="btn btn-editorial" onclick="scrollToProducts()">
             <span>Explore Collection</span>
@@ -346,7 +358,7 @@
               <div class="filter-checkboxes">
                 {% for category in categories %}
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="{{ category.id }}" class="category-checkbox" {% if selected_category == category.id|stringformat:'s' %}checked{% endif %}> {{ category.name }}
+                  <input type="checkbox" name="category" value="{{ category.slug }}" class="category-checkbox" {% if selected_category_slug == category.slug %}checked{% endif %}> {{ category.name }}
                 </label>
                 {% endfor %}
               </div>
@@ -359,7 +371,7 @@
                 {% if subcategories %}
                   {% for subcategory in subcategories %}
                   <label class="filter-checkbox">
-                    <input type="checkbox" name="subcategory" value="{{ subcategory.id }}" {% if selected_subcategory == subcategory.id|stringformat:'s' %}checked{% endif %}> {{ subcategory.name }}
+                    <input type="checkbox" name="subcategory" value="{{ subcategory.slug }}" {% if selected_subcategory_slug == subcategory.slug %}checked{% endif %}> {{ subcategory.name }}
                   </label>
                   {% endfor %}
                 {% else %}
@@ -556,7 +568,7 @@
         <div class="filter-checkboxes">
           {% for category in categories %}
           <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="{{ category.id }}" class="category-checkbox" {% if selected_category == category.id|stringformat:'s' %}checked{% endif %}> {{ category.name }}
+            <input type="checkbox" name="category" value="{{ category.slug }}" class="category-checkbox" {% if selected_category_slug == category.slug %}checked{% endif %}> {{ category.name }}
           </label>
           {% endfor %}
         </div>
@@ -569,7 +581,7 @@
           {% if subcategories %}
             {% for subcategory in subcategories %}
             <label class="filter-checkbox">
-              <input type="checkbox" name="subcategory" value="{{ subcategory.id }}" {% if selected_subcategory == subcategory.id|stringformat:'s' %}checked{% endif %}> {{ subcategory.name }}
+              <input type="checkbox" name="subcategory" value="{{ subcategory.slug }}" {% if selected_subcategory_slug == subcategory.slug %}checked{% endif %}> {{ subcategory.name }}
             </label>
             {% endfor %}
           {% else %}

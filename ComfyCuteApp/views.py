@@ -86,44 +86,42 @@ def products(request):
 
     # Get initial subcategories (will be filtered by category selection)
     # IMPORTANT: This must be restored from the CURRENT request, not stale values
-    selected_category_id = request.GET.get('category', '').strip() if request.GET.get('category') else None
+    # Use slug-based identification instead of ID
+    selected_category_slug = request.GET.get('category', '').strip() if request.GET.get('category') else None
+    selected_category = None
 
-    if selected_category_id:
+    if selected_category_slug:
         try:
-            # Ensure category_id is valid before filtering
-            category_exists = Category.objects.filter(id=selected_category_id).exists()
-            if category_exists:
-                subcategories = SubCategory.objects.filter(category_id=selected_category_id).order_by('name')
-                products_qs = products_qs.filter(category_id=selected_category_id)
-            else:
-                # Invalid category ID, ignore it
-                subcategories = SubCategory.objects.all().order_by('name')
-                selected_category_id = None
-        except (ValueError, TypeError):
-            # Error converting category ID, load all subcategories
+            # Ensure category_slug is valid before filtering
+            selected_category = Category.objects.get(slug=selected_category_slug)
+            subcategories = selected_category.subcategories.all().order_by('name')
+            products_qs = products_qs.filter(category=selected_category)
+        except Category.DoesNotExist:
+            # Invalid category slug, ignore it
             subcategories = SubCategory.objects.all().order_by('name')
-            selected_category_id = None
+            selected_category_slug = None
+            selected_category = None
     else:
         # No category selected, show all subcategories
         subcategories = SubCategory.objects.all().order_by('name')
 
     # Apply Subcategory filter (must belong to selected category if category is selected)
-    selected_subcategory_id = request.GET.get('subcategory')
-    if selected_subcategory_id:
+    # Use slug-based identification
+    selected_subcategory_slug = request.GET.get('subcategory')
+    if selected_subcategory_slug:
         try:
             # Validate that subcategory belongs to selected category (if category is selected)
-            if selected_category_id:
+            if selected_category:
                 # Verify subcategory belongs to this category
-                subcategory_obj = SubCategory.objects.filter(
-                    id=selected_subcategory_id,
-                    category_id=selected_category_id
+                subcategory_obj = selected_category.subcategories.filter(
+                    slug=selected_subcategory_slug
                 ).first()
                 if subcategory_obj:
-                    products_qs = products_qs.filter(subcategory_id=selected_subcategory_id)
+                    products_qs = products_qs.filter(subcategory=subcategory_obj)
                 # else: subcategory doesn't belong to selected category, ignore it
             else:
                 # No category selected, apply subcategory filter directly
-                products_qs = products_qs.filter(subcategory_id=selected_subcategory_id)
+                products_qs = products_qs.filter(subcategory__slug=selected_subcategory_slug)
         except (ValueError, TypeError):
             pass
 
@@ -235,9 +233,10 @@ def products(request):
         'sizes': sizes,
         'fabrics': fabrics,
 
-        # Selected values (for maintaining state)
-        'selected_category': selected_category_id,
-        'selected_subcategory': selected_subcategory_id,
+        # Selected values (for maintaining state) - now using slugs
+        'selected_category': selected_category,  # Pass the category object for hero title
+        'selected_category_slug': selected_category_slug,  # Pass slug for filter state
+        'selected_subcategory_slug': selected_subcategory_slug,
         'selected_sizes': selected_sizes,
         'selected_fabrics': selected_fabrics,
         'selected_availabilities': selected_availabilities,
@@ -523,16 +522,18 @@ def logout_view(request):
 @require_http_methods(["GET"])
 def admin_api_subcategories(request):
     """
-    API endpoint for Product admin dependent dropdown.
-    Returns subcategories filtered by category_id.
+    API endpoint for dynamic subcategory loading.
+    Returns subcategories filtered by category_slug (not ID).
 
     Query parameters:
-    - category_id: ID of the category to get subcategories for
+    - category_id: ID of the category to get subcategories for (for admin compatibility)
+    - category_slug: Slug of the category to get subcategories for (preferred)
     - all: If 'true', returns all categories with their subcategories
     """
     from .models import Category, SubCategory
 
     category_id = request.GET.get('category_id')
+    category_slug = request.GET.get('category_slug')
     all_data = request.GET.get('all', 'false').lower() == 'true'
 
     if all_data:
@@ -541,22 +542,31 @@ def admin_api_subcategories(request):
         for category in Category.objects.all():
             cat_data = {
                 'id': category.id,
+                'slug': category.slug,
                 'name': category.name,
                 'subcategories': list(
-                    category.subcategories.values('id', 'name').order_by('name')
+                    category.subcategories.values('id', 'slug', 'name').order_by('name')
                 )
             }
             categories.append(cat_data)
         return JsonResponse({'categories': categories})
 
-    if not category_id:
-        return JsonResponse({'error': 'category_id parameter required'}, status=400)
+    # Try slug first (preferred), then fall back to ID for compatibility
+    category = None
+    if category_slug:
+        try:
+            category = Category.objects.get(slug=category_slug)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category not found'}, status=404)
+    elif category_id:
+        try:
+            category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'category_slug or category_id parameter required'}, status=400)
 
-    try:
-        category = Category.objects.get(id=category_id)
-        subcategories = list(
-            category.subcategories.values('id', 'name').order_by('name')
-        )
-        return JsonResponse({'subcategories': subcategories})
-    except Category.DoesNotExist:
-        return JsonResponse({'error': 'Category not found'}, status=404)
+    subcategories = list(
+        category.subcategories.values('id', 'slug', 'name').order_by('name')
+    )
+    return JsonResponse({'subcategories': subcategories})

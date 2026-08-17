@@ -332,18 +332,20 @@
 
           {% for category in navbar_categories %}
             {% for subcategory in category.subcategories %}
-          <div class="category-card">
-            <div class="category-card-img">
-              {% if subcategory.image %}
-                <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" loading="lazy">
-              {% else %}
-                <img src="{% static 'images/placeholder.webp' %}" alt="{{ subcategory.name }}" loading="lazy">
-              {% endif %}
-              <div class="category-card-overlay">
-                <h4 class="category-card-title">{{ subcategory.name }}</h4>
+          <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}" style="text-decoration: none; color: inherit;">
+            <div class="category-card">
+              <div class="category-card-img">
+                {% if subcategory.image %}
+                  <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" loading="lazy">
+                {% else %}
+                  <img src="{% static 'images/placeholder.webp' %}" alt="{{ subcategory.name }}" loading="lazy">
+                {% endif %}
+                <div class="category-card-overlay">
+                  <h4 class="category-card-title">{{ subcategory.name }}</h4>
+                </div>
               </div>
             </div>
-          </div>
+          </a>
             {% endfor %}
           {% endfor %}
 
@@ -363,47 +365,65 @@
       </div>
 
       <div class="featured-grid">
-        <!-- Large Left Card: Women's Essentials -->
+        <!-- Large Left Card: Women Essential -->
         <div class="featured-card featured-card-main">
-          <img src="{% static 'images/women.webp' %}" alt="Women's Essentials" class="featured-card-img">
+          <img src="{% static 'images/women.webp' %}" alt="Women Essential" class="featured-card-img">
           <div class="featured-card-overlay">
             <span class="featured-card-tag">Premium Comfort</span>
-            <h3 class="featured-card-title">Women's Essentials</h3>
+            <h3 class="featured-card-title">Women Essential</h3>
             <p class="featured-card-desc">Timeless silhouettes crafted from the finest organic fibers for the modern woman.</p>
-            <a href="{% url 'ComfyCuteApp:products' %}" class="featured-card-btn">Shop Now</a>
+            {% with woman_category=navbar_categories|first %}
+              {% for cat in navbar_categories %}
+                {% if cat.name == "Women" %}
+                  <a href="{% url 'ComfyCuteApp:products' %}?category={{ cat.slug }}" class="featured-card-btn">Shop Now</a>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
           </div>
         </div>
 
-        <!-- Top Right Card: Baby Girls -->
+        <!-- Top Right Card: Little Girl -->
         <div class="featured-card featured-card-top">
-          <img src="{% static 'images/baby.webp' %}" alt="Baby Girls" class="featured-card-img">
+          <img src="{% static 'images/baby.webp' %}" alt="Little Girl" class="featured-card-img">
           <div class="featured-card-overlay">
             <span class="featured-card-tag">Tiny Trends</span>
-            <h3 class="featured-card-title">Baby Girls</h3>
+            <h3 class="featured-card-title">Little Girl</h3>
             <p class="featured-card-desc">Softness meeting style for the littlest ones.</p>
-            <a href="{% url 'ComfyCuteApp:products' %}" class="featured-card-btn">Shop Collection</a>
+            {% for cat in navbar_categories %}
+              {% if cat.name == "Girl" %}
+                <a href="{% url 'ComfyCuteApp:products' %}?category={{ cat.slug }}" class="featured-card-btn">Shop Collection</a>
+              {% endif %}
+            {% endfor %}
           </div>
         </div>
 
-        <!-- Bottom Left Card: Baby Boys -->
+        <!-- Bottom Left Card: Little Boys -->
         <div class="featured-card featured-card-bottom">
-          <img src="{% static 'images/babyboy.webp' %}" alt="Baby Boys" class="featured-card-img">
+          <img src="{% static 'images/babyboy.webp' %}" alt="Little Boys" class="featured-card-img">
           <div class="featured-card-overlay">
             <span class="featured-card-tag">Little Gentleman</span>
-            <h3 class="featured-card-title">Baby Boys</h3>
+            <h3 class="featured-card-title">Little Boys</h3>
             <p class="featured-card-desc">Comfortable cotton for playful days ahead.</p>
-            <a href="{% url 'ComfyCuteApp:products' %}" class="featured-card-btn">Explore</a>
+            {% for cat in navbar_categories %}
+              {% if cat.name == "Boy" %}
+                <a href="{% url 'ComfyCuteApp:products' %}?category={{ cat.slug }}" class="featured-card-btn">Explore</a>
+              {% endif %}
+            {% endfor %}
           </div>
         </div>
 
-        <!-- Bottom Right Card: Party Wear -->
+        <!-- Bottom Right Card: Baby Wears -->
         <div class="featured-card featured-card-bottom">
-          <img src="{% static 'images/partywear.webp' %}" alt="Party Wear" class="featured-card-img">
+          <img src="{% static 'images/partywear.webp' %}" alt="Baby Wears" class="featured-card-img">
           <div class="featured-card-overlay">
-            <span class="featured-card-tag">Celebration Mode</span>
-            <h3 class="featured-card-title">Party Wear</h3>
-            <p class="featured-card-desc">Add sparkle to special occasions effortlessly.</p>
-            <a href="{% url 'ComfyCuteApp:products' %}" class="featured-card-btn">View All</a>
+            <span class="featured-card-tag">Caring & Cute</span>
+            <h3 class="featured-card-title">Baby Wears</h3>
+            <p class="featured-card-desc">Caring for your baby with soft,cute & affordable clothes.</p>
+            {% for cat in navbar_categories %}
+              {% if cat.name == "Baby" %}
+                <a href="{% url 'ComfyCuteApp:products' %}?category={{ cat.slug }}" class="featured-card-btn">View All</a>
+              {% endif %}
+            {% endfor %}
           </div>
         </div>
       </div>
