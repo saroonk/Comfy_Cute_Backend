@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.utils.text import slugify
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 class CustomUserManager(UserManager):
@@ -504,22 +505,22 @@ class Product(models.Model):
         decimal_places=2,
         help_text='Current selling price (required)'
     )
-    full_description = models.TextField(
+    full_description = RichTextUploadingField(
         blank=True,
         null=True,
         help_text='Detailed product description'
     )
-    fabric_and_care = models.TextField(
+    fabric_and_care = RichTextUploadingField(
         blank=True,
         null=True,
         help_text='Fabric information and care instructions'
     )
-    shipping_and_returns = models.TextField(
+    shipping_and_returns = RichTextUploadingField(
         blank=True,
         null=True,
         help_text='Shipping and returns information'
     )
-    manufactured_by = models.TextField(
+    manufactured_by = RichTextUploadingField(
         blank=True,
         null=True,
         help_text='Manufacturing information'

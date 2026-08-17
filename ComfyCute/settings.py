@@ -14,6 +14,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ckeditor',
+    'ckeditor_uploader',
     'ComfyCuteApp',
 ]
 
@@ -111,3 +113,26 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = 'ComfyCuteApp:login'
 LOGIN_REDIRECT_URL = 'ComfyCuteApp:home'
 LOGOUT_REDIRECT_URL = 'ComfyCuteApp:home'
+
+# CKEditor Configuration
+CKEDITOR_BASEPATH = '/static/ckeditor/ckeditor/'
+CKEDITOR_UPLOAD_PATH = 'uploads/ckeditor/'
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+CKEDITOR_RESTRICT_BY_USER = False
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'toolbar_full': [
+            ['Styles', 'Format', 'Bold', 'Italic', 'Underline', 'Strike', 'SpellChecker', 'Undo', 'Redo'],
+            ['NumberedList', 'BulletedList', 'Outdent', 'Indent', 'Blockquote'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink', 'Anchor', 'Image', 'Table', 'HorizontalRule'],
+            ['Source', 'Maximize', 'ShowBlocks'],
+        ],
+        'height': 300,
+        'width': 'auto',
+        'tabSpaces': 4,
+        'extraPlugins': 'codesnippet',
+    }
+}
