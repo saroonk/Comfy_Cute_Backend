@@ -8,7 +8,10 @@ from django.utils import timezone
 from datetime import timedelta
 import threading
 import logging
-from .models import HeroBanner, ContactSubmission, Testimonial, Product, Category
+from .models import (
+    HeroBanner, ContactSubmission, Testimonial, Product, Category, SubCategory,
+    Fabric, Size, VariantSizeStock
+)
 from .forms import ContactSubmissionForm, RegistrationForm, EmailAuthenticationForm
 
 logger = logging.getLogger(__name__)
@@ -55,16 +58,182 @@ def home(request):
     }
     return render(request, 'index.html', context)
 
+
+
 def products(request):
     """
-    Display products listing page.
+    Display products listing page with dynamic filtering, sorting, and pagination.
 
-    Fetches all active products from the database.
+    Supports:
+    - Category and Subcategory filtering
+    - Price range filtering (min_price, max_price)
+    - Size filtering (through product variants)
+    - Fabric filtering
+    - Availability filtering (in-stock/out-of-stock)
+    - Sorting (price_low, price_high, newest, oldest)
+    - Pagination
     """
-    products = Product.objects.filter(is_active=True).order_by('-created_at')
+    from django.db.models import Q, Min, Exists, OuterRef
+    from django.core.paginator import Paginator
+
+    # Start with active products
+    products_qs = Product.objects.filter(is_active=True)
+
+    # Get all categories and sizes for filter options
+    categories = Category.objects.all()
+    sizes = Size.objects.all()
+    fabrics = Fabric.objects.all()
+
+    # Get initial subcategories (will be filtered by category selection)
+    # IMPORTANT: This must be restored from the CURRENT request, not stale values
+    selected_category_id = request.GET.get('category', '').strip() if request.GET.get('category') else None
+
+    if selected_category_id:
+        try:
+            # Ensure category_id is valid before filtering
+            category_exists = Category.objects.filter(id=selected_category_id).exists()
+            if category_exists:
+                subcategories = SubCategory.objects.filter(category_id=selected_category_id).order_by('name')
+                products_qs = products_qs.filter(category_id=selected_category_id)
+            else:
+                # Invalid category ID, ignore it
+                subcategories = SubCategory.objects.all().order_by('name')
+                selected_category_id = None
+        except (ValueError, TypeError):
+            # Error converting category ID, load all subcategories
+            subcategories = SubCategory.objects.all().order_by('name')
+            selected_category_id = None
+    else:
+        # No category selected, show all subcategories
+        subcategories = SubCategory.objects.all().order_by('name')
+
+    # Apply Subcategory filter (must belong to selected category if category is selected)
+    selected_subcategory_id = request.GET.get('subcategory')
+    if selected_subcategory_id:
+        try:
+            # Validate that subcategory belongs to selected category (if category is selected)
+            if selected_category_id:
+                # Verify subcategory belongs to this category
+                subcategory_obj = SubCategory.objects.filter(
+                    id=selected_subcategory_id,
+                    category_id=selected_category_id
+                ).first()
+                if subcategory_obj:
+                    products_qs = products_qs.filter(subcategory_id=selected_subcategory_id)
+                # else: subcategory doesn't belong to selected category, ignore it
+            else:
+                # No category selected, apply subcategory filter directly
+                products_qs = products_qs.filter(subcategory_id=selected_subcategory_id)
+        except (ValueError, TypeError):
+            pass
+
+    # Apply Price filters
+    min_price = request.GET.get('min_price', '').strip() if request.GET.get('min_price') else None
+    max_price = request.GET.get('max_price', '').strip() if request.GET.get('max_price') else None
+
+    if min_price:
+        try:
+            min_price_float = float(min_price)
+            if min_price_float > 0:  # Only apply if value is positive
+                products_qs = products_qs.filter(selling_price__gte=min_price_float)
+        except (ValueError, TypeError):
+            min_price = None
+
+    if max_price:
+        try:
+            max_price_float = float(max_price)
+            if max_price_float > 0:  # Only apply if value is positive
+                products_qs = products_qs.filter(selling_price__lte=max_price_float)
+        except (ValueError, TypeError):
+            max_price = None
+
+    # Apply Fabric filter
+    selected_fabric = request.GET.get('fabric')
+    if selected_fabric:
+        products_qs = products_qs.filter(fabric__slug=selected_fabric)
+
+    # Apply Size filter (through variants and size stocks)
+    selected_size = request.GET.get('size')
+    if selected_size:
+        # Get variants that have this size
+        from .models import VariantSizeStock
+        size_stocks_exist = VariantSizeStock.objects.filter(
+            variant__product=OuterRef('pk'),
+            size__slug=selected_size
+        )
+        products_qs = products_qs.annotate(
+            has_size=Exists(size_stocks_exist)
+        ).filter(has_size=True)
+
+    # Apply Availability filter
+    availability = request.GET.get('availability')
+    if availability:
+        from .models import VariantSizeStock
+        if availability == 'available':
+            # Products with at least one variant/size combo with stock > 0
+            has_stock = VariantSizeStock.objects.filter(
+                variant__product=OuterRef('pk'),
+                stock__gt=0
+            )
+            products_qs = products_qs.annotate(
+                in_stock=Exists(has_stock)
+            ).filter(in_stock=True)
+        elif availability == 'out-of-stock':
+            # Products with no stock or no variants
+            has_no_stock = VariantSizeStock.objects.filter(
+                variant__product=OuterRef('pk'),
+                stock__gt=0
+            )
+            products_qs = products_qs.annotate(
+                has_inventory=Exists(has_no_stock)
+            ).filter(has_inventory=False)
+
+    # Apply Sorting
+    sort_by = request.GET.get('sort', 'newest')
+    if sort_by == 'price_low':
+        products_qs = products_qs.order_by('selling_price')
+    elif sort_by == 'price_high':
+        products_qs = products_qs.order_by('-selling_price')
+    elif sort_by == 'oldest':
+        products_qs = products_qs.order_by('created_at')
+    else:  # 'newest' or default
+        products_qs = products_qs.order_by('-created_at')
+
+    # Get product count before pagination
+    total_products = products_qs.count()
+
+    # Apply Pagination
+    paginator = Paginator(products_qs, 12)  # 12 products per page
+    page_number = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.page(page_number)
+    except:
+        page_obj = paginator.page(1)
+
+    # Prepare context
     context = {
-        'products': products,
+        'products': page_obj.object_list,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'total_products': total_products,
+
+        # Filter options
+        'categories': categories,
+        'subcategories': subcategories,
+        'sizes': sizes,
+        'fabrics': fabrics,
+
+        # Selected values (for maintaining state)
+        'selected_category': selected_category_id,
+        'selected_subcategory': selected_subcategory_id,
+        'selected_size': selected_size,
+        'selected_fabric': selected_fabric,
+        'selected_availability': availability,
+        'selected_sort': sort_by,
+        'selected_min_price': min_price,
+        'selected_max_price': max_price,
     }
+
     return render(request, 'products.html', context)
 
 def product_detail(request, slug):

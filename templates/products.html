@@ -299,7 +299,7 @@
           <div class="products-hero-label">COMFY CUTE COLLECTION</div>
           <h1 class="products-hero-heading">Women's Collection</h1>
           <p class="products-hero-desc">Discover timeless styles crafted from premium fabrics designed for everyday comfort and effortless elegance.</p>
-          <button class="btn btn-editorial">
+          <button class="btn btn-editorial" onclick="scrollToProducts()">
             <span>Explore Collection</span>
             <i class="fa-solid fa-arrow-right editorial-btn-arrow"></i>
           </button>
@@ -344,18 +344,11 @@
             <div class="filter-group">
               <h6 class="filter-group-title">Categories</h6>
               <div class="filter-checkboxes">
+                {% for category in categories %}
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="baby" class="category-checkbox"> Baby
+                  <input type="checkbox" name="category" value="{{ category.id }}" class="category-checkbox" {% if selected_category == category.id|stringformat:'s' %}checked{% endif %}> {{ category.name }}
                 </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="girl" class="category-checkbox"> Girl
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="boy" class="category-checkbox"> Boy
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="category" value="women" class="category-checkbox"> Women
-                </label>
+                {% endfor %}
               </div>
             </div>
 
@@ -363,7 +356,15 @@
             <div class="filter-group">
               <h6 class="filter-group-title">Subcategories</h6>
               <div class="filter-checkboxes" id="subcategoryFilters">
-                <p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>
+                {% if subcategories %}
+                  {% for subcategory in subcategories %}
+                  <label class="filter-checkbox">
+                    <input type="checkbox" name="subcategory" value="{{ subcategory.id }}" {% if selected_subcategory == subcategory.id|stringformat:'s' %}checked{% endif %}> {{ subcategory.name }}
+                  </label>
+                  {% endfor %}
+                {% else %}
+                  <p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>
+                {% endif %}
               </div>
             </div>
 
@@ -372,11 +373,10 @@
               <h6 class="filter-group-title">Price</h6>
               <div class="price-range-container">
                 <div class="price-inputs">
-                  <input type="number" class="price-input" id="priceMin" placeholder="Min" min="0">
+                  <input type="number" class="price-input" id="priceMin" placeholder="Min" min="0" value="{% if selected_min_price %}{{ selected_min_price }}{% endif %}">
                   <span class="price-separator">-</span>
-                  <input type="number" class="price-input" id="priceMax" placeholder="Max" min="0">
+                  <input type="number" class="price-input" id="priceMax" placeholder="Max" min="0" value="{% if selected_max_price %}{{ selected_max_price }}{% endif %}">
                 </div>
-                <!-- <input type="range" class="price-slider" id="priceSlider" min="0" max="10000" step="100"> -->
               </div>
             </div>
 
@@ -384,24 +384,11 @@
             <div class="filter-group">
               <h6 class="filter-group-title">Size</h6>
               <div class="filter-checkboxes">
+                {% for size in sizes %}
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="size" value="xs"> XS
+                  <input type="checkbox" name="size" value="{{ size.slug }}" {% if selected_size == size.slug %}checked{% endif %}> {{ size.name }}
                 </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="size" value="s"> S
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="size" value="m"> M
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="size" value="l"> L
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="size" value="xl"> XL
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="size" value="xxl"> XXL
-                </label>
+                {% endfor %}
               </div>
             </div>
 
@@ -410,21 +397,11 @@
             <div class="filter-group">
               <h6 class="filter-group-title">Fabric</h6>
               <div class="filter-checkboxes">
+                {% for fabric in fabrics %}
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="fabric" value="cotton"> Cotton
+                  <input type="checkbox" name="fabric" value="{{ fabric.slug }}" {% if selected_fabric == fabric.slug %}checked{% endif %}> {{ fabric.name }}
                 </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="fabric" value="linen"> Linen
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="fabric" value="silk"> Silk
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="fabric" value="rayon"> Rayon
-                </label>
-                <label class="filter-checkbox">
-                  <input type="checkbox" name="fabric" value="blend"> Blend
-                </label>
+                {% endfor %}
               </div>
             </div>
 
@@ -433,10 +410,10 @@
               <h6 class="filter-group-title">Availability</h6>
               <div class="filter-checkboxes">
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="availability" value="in-stock"> In Stock
+                  <input type="checkbox" name="availability" value="available" {% if selected_availability == 'available' %}checked{% endif %}> In Stock
                 </label>
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="availability" value="out-stock"> Out of Stock
+                  <input type="checkbox" name="availability" value="out-of-stock" {% if selected_availability == 'out-of-stock' %}checked{% endif %}> Out of Stock
                 </label>
               </div>
             </div>
@@ -457,17 +434,16 @@
           <!-- TOOLBAR -->
           <div class="products-toolbar">
             <div class="toolbar-left">
-              <span class="product-count">{{ products|length }} Products</span>
+              <span class="product-count">{{ total_products }} Products</span>
             </div>
             <div class="toolbar-right">
               <!-- Sort Dropdown -->
               <div class="sort-wrapper">
                 <select class="sort-select" id="sortSelect" onchange="changeSortOrder(this.value)">
-                  <option value="recommended">Recommended</option>
-                  <option value="newest">Newest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="best-selling">Best Selling</option>
+                  <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                  <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                  <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option>
+                  <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest</option>
                 </select>
               </div>
 
@@ -530,12 +506,28 @@
           <div class="pagination-wrapper">
             <nav aria-label="Page navigation">
               <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#prev"><i class="fa-solid fa-chevron-left"></i><span class="pagination-text">Prev</span></a></li>
-                <li class="page-item active"><a class="page-link" href="#page-1">1</a></li>
-                <li class="page-item"><a class="page-link" href="#page-2">2</a></li>
-                <li class="page-item"><a class="page-link" href="#page-3">3</a></li>
-                <li class="page-item"><a class="page-link" href="#page-4">4</a></li>
-                <li class="page-item"><a class="page-link" href="#next"><span class="pagination-text">Next</span><i class="fa-solid fa-chevron-right"></i></a></li>
+                <!-- Previous Page -->
+                {% if page_obj.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory }}{% endif %}{% if selected_min_price %}&min_price={{ selected_min_price }}{% endif %}{% if selected_max_price %}&max_price={{ selected_max_price }}{% endif %}{% if selected_fabric %}&fabric={{ selected_fabric }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}"><i class="fa-solid fa-chevron-left"></i><span class="pagination-text">Prev</span></a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-chevron-left"></i><span class="pagination-text">Prev</span></span></li>
+                {% endif %}
+
+                <!-- Page Numbers -->
+                {% for num in paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory }}{% endif %}{% if selected_min_price %}&min_price={{ selected_min_price }}{% endif %}{% if selected_max_price %}&max_price={{ selected_max_price }}{% endif %}{% if selected_fabric %}&fabric={{ selected_fabric }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">{{ num }}</a></li>
+                  {% endif %}
+                {% endfor %}
+
+                <!-- Next Page -->
+                {% if page_obj.has_next %}
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory }}{% endif %}{% if selected_min_price %}&min_price={{ selected_min_price }}{% endif %}{% if selected_max_price %}&max_price={{ selected_max_price }}{% endif %}{% if selected_fabric %}&fabric={{ selected_fabric }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}"><span class="pagination-text">Next</span><i class="fa-solid fa-chevron-right"></i></a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link"><span class="pagination-text">Next</span><i class="fa-solid fa-chevron-right"></i></span></li>
+                {% endif %}
               </ul>
             </nav>
           </div>
@@ -562,18 +554,11 @@
       <div class="filter-group">
         <h6 class="filter-group-title">Categories</h6>
         <div class="filter-checkboxes">
+          {% for category in categories %}
           <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="baby" class="category-checkbox"> Baby
+            <input type="checkbox" name="category" value="{{ category.id }}" class="category-checkbox" {% if selected_category == category.id|stringformat:'s' %}checked{% endif %}> {{ category.name }}
           </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="girl" class="category-checkbox"> Girl
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="boy" class="category-checkbox"> Boy
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="category" value="women" class="category-checkbox"> Women
-          </label>
+          {% endfor %}
         </div>
       </div>
 
@@ -581,7 +566,15 @@
       <div class="filter-group">
         <h6 class="filter-group-title">Subcategories</h6>
         <div class="filter-checkboxes" id="subcategoryFiltersMobile">
-          <p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>
+          {% if subcategories %}
+            {% for subcategory in subcategories %}
+            <label class="filter-checkbox">
+              <input type="checkbox" name="subcategory" value="{{ subcategory.id }}" {% if selected_subcategory == subcategory.id|stringformat:'s' %}checked{% endif %}> {{ subcategory.name }}
+            </label>
+            {% endfor %}
+          {% else %}
+            <p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>
+          {% endif %}
         </div>
       </div>
 
@@ -590,8 +583,8 @@
         <h6 class="filter-group-title">Price</h6>
         <div class="price-range-container">
           <div class="price-inputs">
-            <input type="number" class="price-input" id="priceMinMobile" placeholder="Minimum Price" min="0">
-            <input type="number" class="price-input" id="priceMaxMobile" placeholder="Maximum Price" min="0">
+            <input type="number" class="price-input" id="priceMinMobile" placeholder="Minimum Price" min="0" value="{% if selected_min_price %}{{ selected_min_price }}{% endif %}">
+            <input type="number" class="price-input" id="priceMaxMobile" placeholder="Maximum Price" min="0" value="{% if selected_max_price %}{{ selected_max_price }}{% endif %}">
           </div>
         </div>
       </div>
@@ -600,24 +593,11 @@
       <div class="filter-group">
         <h6 class="filter-group-title">Size</h6>
         <div class="filter-checkboxes">
+          {% for size in sizes %}
           <label class="filter-checkbox">
-            <input type="checkbox" name="size" value="xs"> XS
+            <input type="checkbox" name="size" value="{{ size.slug }}" {% if selected_size == size.slug %}checked{% endif %}> {{ size.name }}
           </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="size" value="s"> S
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="size" value="m"> M
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="size" value="l"> L
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="size" value="xl"> XL
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="size" value="xxl"> XXL
-          </label>
+          {% endfor %}
         </div>
       </div>
 
@@ -625,21 +605,11 @@
       <div class="filter-group">
         <h6 class="filter-group-title">Fabric</h6>
         <div class="filter-checkboxes">
+          {% for fabric in fabrics %}
           <label class="filter-checkbox">
-            <input type="checkbox" name="fabric" value="cotton"> Cotton
+            <input type="checkbox" name="fabric" value="{{ fabric.slug }}" {% if selected_fabric == fabric.slug %}checked{% endif %}> {{ fabric.name }}
           </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="fabric" value="linen"> Linen
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="fabric" value="silk"> Silk
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="fabric" value="rayon"> Rayon
-          </label>
-          <label class="filter-checkbox">
-            <input type="checkbox" name="fabric" value="blend"> Blend
-          </label>
+          {% endfor %}
         </div>
       </div>
 
@@ -648,10 +618,10 @@
         <h6 class="filter-group-title">Availability</h6>
         <div class="filter-checkboxes">
           <label class="filter-checkbox">
-            <input type="checkbox" name="availability" value="in-stock"> In Stock
+            <input type="checkbox" name="availability" value="available" {% if selected_availability == 'available' %}checked{% endif %}> In Stock
           </label>
           <label class="filter-checkbox">
-            <input type="checkbox" name="availability" value="out-stock"> Out of Stock
+            <input type="checkbox" name="availability" value="out-of-stock" {% if selected_availability == 'out-of-stock' %}checked{% endif %}> Out of Stock
           </label>
         </div>
       </div>
@@ -777,92 +747,9 @@
   <script src="{% static 'js/products.js' %}"></script>
 
   <!-- Subcategory Filter Script -->
-  <script>
-    // Category to Subcategory mapping based on navbar structure
-    const categorySubcategories = {
-      baby: [
-        'Baby Boy',
-        'Baby Girl',
-        'Night Wear',
-        'Essentials',
-        'Gift Sets'
-      ],
-      girl: [
-        'Co-Ord Sets - Pants',
-        'Co-Ord Sets - Shorts',
-        'Frocks',
-        'Cotton Dresses',
-        'T-Shirts',
-        'Pants',
-        'Shorts',
-        'Pajama Sets'
-      ],
-      boy: [
-        'Co-Ord Sets - Pants',
-        'Co-Ord Sets - Shorts',
-        'Cotton Dresses',
-        'T-Shirts',
-        'Pants',
-        'Shorts'
-      ],
-      women: [
-        'Cotton Churidar',
-        'Night Wear'
-      ]
-    };
-
-    // Initialize subcategory filters
-    function updateSubcategoryFilters() {
-      const desktopContainer = document.getElementById('subcategoryFilters');
-      const mobileContainer = document.getElementById('subcategoryFiltersMobile');
-
-      // Get selected categories
-      const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
-
-      // Get all available subcategories for selected categories
-      const availableSubcategories = new Set();
-      selectedCategories.forEach(category => {
-        if (categorySubcategories[category]) {
-          categorySubcategories[category].forEach(subcat => {
-            availableSubcategories.add(subcat);
-          });
-        }
-      });
-
-      // Clear incompatible subcategories
-      document.querySelectorAll('input[name="subcategory"]').forEach(checkbox => {
-        if (!availableSubcategories.has(checkbox.value)) {
-          checkbox.checked = false;
-        }
-      });
-
-      // Generate subcategory HTML
-      if (availableSubcategories.size === 0) {
-        const emptyText = '<p style="font-size: 12px; color: #999; padding: 8px 0;">Select a category above to see subcategories</p>';
-        desktopContainer.innerHTML = emptyText;
-        mobileContainer.innerHTML = emptyText;
-      } else {
-        const subcategoryHTML = Array.from(availableSubcategories).sort().map(subcat => `
-          <label class="filter-checkbox">
-            <input type="checkbox" name="subcategory" value="${subcat}"> ${subcat}
-          </label>
-        `).join('');
-
-        desktopContainer.innerHTML = subcategoryHTML;
-        mobileContainer.innerHTML = subcategoryHTML;
-      }
-    }
-
-    // Add event listeners to category checkboxes
-    document.querySelectorAll('.category-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('change', updateSubcategoryFilters);
-    });
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      updateSubcategoryFilters();
-    });
-  </script>
+  <!-- Category/Subcategory filtering is handled server-side via Django
+       The Django template renders subcategories based on the selected category
+       from the current request parameters. No static data is used. -->
 
 </body>
 </html>
