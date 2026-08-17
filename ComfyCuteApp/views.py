@@ -273,3 +273,49 @@ def logout_view(request):
     """
     auth_logout(request)
     return redirect('ComfyCuteApp:home')
+
+
+# ==========================================
+# ADMIN API ENDPOINTS
+# ==========================================
+
+@require_http_methods(["GET"])
+def admin_api_subcategories(request):
+    """
+    API endpoint for Product admin dependent dropdown.
+    Returns subcategories filtered by category_id.
+
+    Query parameters:
+    - category_id: ID of the category to get subcategories for
+    - all: If 'true', returns all categories with their subcategories
+    """
+    from .models import Category, SubCategory
+
+    category_id = request.GET.get('category_id')
+    all_data = request.GET.get('all', 'false').lower() == 'true'
+
+    if all_data:
+        # Return all categories with their subcategories
+        categories = []
+        for category in Category.objects.all():
+            cat_data = {
+                'id': category.id,
+                'name': category.name,
+                'subcategories': list(
+                    category.subcategories.values('id', 'name').order_by('name')
+                )
+            }
+            categories.append(cat_data)
+        return JsonResponse({'categories': categories})
+
+    if not category_id:
+        return JsonResponse({'error': 'category_id parameter required'}, status=400)
+
+    try:
+        category = Category.objects.get(id=category_id)
+        subcategories = list(
+            category.subcategories.values('id', 'name').order_by('name')
+        )
+        return JsonResponse({'subcategories': subcategories})
+    except Category.DoesNotExist:
+        return JsonResponse({'error': 'Category not found'}, status=404)

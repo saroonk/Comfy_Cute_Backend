@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.db import IntegrityError
+from django import forms
+from django.db.models import Q
 from .models import (
     HeroBanner, ContactSubmission, Testimonial, User, Announcement,
     Category, SubCategory, Product, ProductVariant, ProductVariantImage,
     VariantSizeStock, Collection, Fabric, Color, Size
 )
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline, StackedInline
 
 
 @admin.register(Announcement)
@@ -277,8 +279,8 @@ class SizeAdmin(ModelAdmin):
     ordering = ['display_order', 'name']
 
 
-# Nested inlines for complete product workflow
-class VariantSizeStockInline(admin.TabularInline):
+# Nested inlines for complete product workflow using Django Unfold
+class VariantSizeStockInline(TabularInline):
     """Inline admin for VariantSizeStock - manages size and stock for each variant."""
     model = VariantSizeStock
     extra = 1
@@ -287,7 +289,7 @@ class VariantSizeStockInline(admin.TabularInline):
     verbose_name_plural = 'Sizes & Stock'
 
 
-class ProductVariantImageInline(admin.TabularInline):
+class ProductVariantImageInline(TabularInline):
     """Inline admin for ProductVariantImage - manages images for each variant."""
     model = ProductVariantImage
     extra = 1
@@ -297,7 +299,7 @@ class ProductVariantImageInline(admin.TabularInline):
     verbose_name_plural = 'Variant Images'
 
 
-class ProductVariantInline(admin.StackedInline):
+class ProductVariantInline(StackedInline):
     """Inline admin for ProductVariant with nested images and sizes."""
     model = ProductVariant
     extra = 1
@@ -305,8 +307,6 @@ class ProductVariantInline(admin.StackedInline):
     inlines = [ProductVariantImageInline, VariantSizeStockInline]
     verbose_name = 'Variant'
     verbose_name_plural = 'Variants'
-
-
 @admin.register(Product)
 class ProductAdmin(ModelAdmin):
     list_display = ['name', 'category', 'subcategory', 'fabric', 'selling_price', 'is_active', 'created_at']
@@ -340,28 +340,18 @@ class ProductAdmin(ModelAdmin):
     )
     ordering = ['-created_at']
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
         """
-        Customize subcategory field to show only subcategories for the selected category.
-        This filters the dropdown based on the category selected in the form.
+        Customize Collection field to use a cleaner multi-select widget.
         """
-        if db_field.name == 'subcategory':
-            # Default: show all subcategories ordered by category
-            kwargs['queryset'] = SubCategory.objects.all().order_by('category', 'name')
+        if db_field.name == 'collections':
+            # Use a simple select multiple widget instead of filter_horizontal
+            kwargs['widget'] = forms.CheckboxSelectMultiple
 
-            # If editing an existing product, filter to only that product's category's subcategories
-            object_id = request.resolver_match.kwargs.get('object_id')
-            if object_id:
-                try:
-                    product = Product.objects.get(pk=object_id)
-                    kwargs['queryset'] = product.category.subcategories.all()
-                except (Product.DoesNotExist, AttributeError, TypeError):
-                    pass
-
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     class Media:
-        js = ('admin/js/product_admin_filter.js',)
+        js = ('admin/js/category_subcategory_filter.js',)
 
 
 @admin.register(ProductVariant)

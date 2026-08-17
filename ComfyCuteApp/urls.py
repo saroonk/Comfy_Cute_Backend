@@ -22,4 +22,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+
+    # Admin API endpoints
+    path('api/product-subcategories/', views.admin_api_subcategories, name='admin_api_subcategories'),
 ]
