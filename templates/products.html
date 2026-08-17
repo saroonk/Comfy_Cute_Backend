@@ -701,29 +701,7 @@
   <!-- ==========================================
        CART DRAWER (EXACT FROM HOMEPAGE)
        ========================================== -->
-  <div class="offcanvas offcanvas-end cart-drawer" tabindex="-1" id="cartDrawer" aria-labelledby="cartDrawerLabel">
-    <div class="cart-drawer-header d-flex justify-content-between align-items-center">
-      <h5 class="cart-drawer-title" id="cartDrawerLabel">My Shopping Bag</h5>
-      <button type="button" class="cart-drawer-close" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-    <div class="offcanvas-body cart-drawer-body">
-      <div class="cart-items-container">
-        <!-- Cart items rendered by JS -->
-      </div>
-    </div>
-    <div class="cart-drawer-footer">
-      <div class="cart-subtotal">
-        <span>Subtotal:</span>
-        <span class="cart-subtotal-price">₹0</span>
-      </div>
-      <div class="cart-action-buttons">
-        <button class="btn btn-cart-checkout" onclick="alert('Proceeding to Checkout!');">Proceed to Checkout</button>
-        <button class="btn btn-cart-continue" data-bs-dismiss="offcanvas">Continue Shopping</button>
-      </div>
-    </div>
-  </div>
+  {% include "cart.html" %}
 
   <!-- ==========================================
        SEARCH OVERLAY (EXACT FROM HOMEPAGE)
