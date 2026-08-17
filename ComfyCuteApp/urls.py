@@ -6,7 +6,6 @@ app_name = 'ComfyCuteApp'
 urlpatterns = [
     path('', views.home, name='home'),
     path('products/', views.products, name='products'),
-    path('product-detail/', views.product_detail, name='product_detail'),
     path('contact/', views.contact, name='contact'),
     path('about/', views.about_us, name='about_us'),
     path('wishlist/', views.wishlist, name='wishlist'),
@@ -25,4 +24,7 @@ urlpatterns = [
 
     # Admin API endpoints
     path('api/product-subcategories/', views.admin_api_subcategories, name='admin_api_subcategories'),
+
+    # Product Detail page
+    path('products/<slug:slug>/', views.product_detail, name='product_detail'),
 ]

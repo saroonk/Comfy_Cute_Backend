@@ -422,149 +422,37 @@
 
       <div class="new-arrivals-grid">
 
-        <!-- Product 1 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop" alt="Popees Baby Girls Soft Infla..." class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
+        {% for product in new_arrivals %}
+        <!-- Product {{ forloop.counter }} -->
+        <a href="{% url 'ComfyCuteApp:product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+          <div class="arrival-product-card">
+            <div class="arrival-img-container">
+              {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="arrival-product-img">
+              {% else %}
+                <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop" alt="{{ product.name }}" class="arrival-product-img">
+              {% endif %}
+              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
+                <i class="fa-regular fa-heart"></i>
+              </button>
+            </div>
+            <h3 class="arrival-product-name">{{ product.name }}</h3>
+            <div class="arrival-price">
+              {% if product.old_price %}
+                <span style="text-decoration: line-through; color: #999;">Rs. {{ product.old_price }}</span>
+                <span style="margin-left: 10px;">Rs. {{ product.selling_price }}</span>
+              {% else %}
+                Rs. {{ product.selling_price }}
+              {% endif %}
+            </div>
           </div>
-          <h3 class="arrival-product-name">Popees Baby Girls Soft Infla...</h3>
-          <div class="arrival-price">Rs. 649.00</div>
+        </a>
+        {% empty %}
+        <!-- No New Arrivals Message -->
+        <div style="text-align: center; grid-column: 1 / -1; padding: 40px 0; color: #999;">
+          <p>No new products available at the moment.</p>
         </div>
-
-        <!-- Product 2 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1522771935878-f35f1f9e99e4?q=80&w=500&auto=format&fit=crop" alt="Popees Baby Girls Premium C..." class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Popees Baby Girls Premium C...</h3>
-          <div class="arrival-price">Rs. 1,149.00</div>
-        </div>
-
-        <!-- Product 3 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=500&auto=format&fit=crop" alt="Popees Baby Boys Cotton T-S..." class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Popees Baby Boys Cotton T-S...</h3>
-          <div class="arrival-price">Rs. 999.00</div>
-        </div>
-
-        <!-- Product 4 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1495553900851-4d4bcac435ca?q=80&w=500&auto=format&fit=crop" alt="Organic Cotton Romper Suit" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Organic Cotton Romper Suit</h3>
-          <div class="arrival-price">Rs. 1,299.00</div>
-        </div>
-
-        <!-- Product 5 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=500&auto=format&fit=crop" alt="Elegant Frilled Party Dress" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Elegant Frilled Party Dress</h3>
-          <div class="arrival-price">Rs. 1,599.00</div>
-        </div>
-
-        <!-- Product 6 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=500&auto=format&fit=crop" alt="Soft Cotton Dungarees Set" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Soft Cotton Dungarees Set</h3>
-          <div class="arrival-price">Rs. 1,449.00</div>
-        </div>
-
-        <!-- Product 7 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=500&auto=format&fit=crop" alt="Classic Cotton Kurti" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Classic Cotton Kurti</h3>
-          <div class="arrival-price">Rs. 1,799.00</div>
-        </div>
-
-        <!-- Product 8 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=500&auto=format&fit=crop" alt="Premium Linen Dress" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Premium Linen Dress</h3>
-          <div class="arrival-price">Rs. 2,499.00</div>
-        </div>
-
-        <!-- Product 9 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=500&auto=format&fit=crop" alt="Knit Pastel Sweater" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Knit Pastel Sweater</h3>
-          <div class="arrival-price">Rs. 1,899.00</div>
-        </div>
-
-        <!-- Product 10 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=500&auto=format&fit=crop" alt="Soft Sleepwear Set" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Soft Sleepwear Set</h3>
-          <div class="arrival-price">Rs. 1,349.00</div>
-        </div>
-
-        <!-- Product 11 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=500&auto=format&fit=crop" alt="Linen Wide Leg Pants" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Linen Wide Leg Pants</h3>
-          <div class="arrival-price">Rs. 1,699.00</div>
-        </div>
-
-        <!-- Product 12 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=500&auto=format&fit=crop" alt="Minimalist Cotton Top" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Minimalist Cotton Top</h3>
-          <div class="arrival-price">Rs. 899.00</div>
-        </div>
+        {% endfor %}
 
       </div>
 
@@ -662,101 +550,37 @@
 
       <div class="womens-collection-grid">
 
-        <!-- Product 1 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=500&auto=format&fit=crop" alt="Premium Linen Summer Dress" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
+        {% for product in women_products %}
+        <!-- Product {{ forloop.counter }} -->
+        <a href="{% url 'ComfyCuteApp:product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+          <div class="arrival-product-card">
+            <div class="arrival-img-container">
+              {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="arrival-product-img">
+              {% else %}
+                <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=500&auto=format&fit=crop" alt="{{ product.name }}" class="arrival-product-img">
+              {% endif %}
+              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
+                <i class="fa-regular fa-heart"></i>
+              </button>
+            </div>
+            <h3 class="arrival-product-name">{{ product.name }}</h3>
+            <div class="arrival-price">
+              {% if product.old_price %}
+                <span style="text-decoration: line-through; color: #999;">Rs. {{ product.old_price }}</span>
+                <span style="margin-left: 10px;">Rs. {{ product.selling_price }}</span>
+              {% else %}
+                Rs. {{ product.selling_price }}
+              {% endif %}
+            </div>
           </div>
-          <h3 class="arrival-product-name">Premium Linen Summer Dress</h3>
-          <div class="arrival-price">Rs. 2,499.00</div>
+        </a>
+        {% empty %}
+        <!-- No Women's Products Message -->
+        <div style="text-align: center; grid-column: 1 / -1; padding: 40px 0; color: #999;">
+          <p>No women's products available at the moment.</p>
         </div>
-
-        <!-- Product 2 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=500&auto=format&fit=crop" alt="Elegant Linen Shirt" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Elegant Linen Shirt</h3>
-          <div class="arrival-price">Rs. 1,799.00</div>
-        </div>
-
-        <!-- Product 3 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=500&auto=format&fit=crop" alt="Knit Pastel Sweater" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Knit Pastel Sweater</h3>
-          <div class="arrival-price">Rs. 2,299.00</div>
-        </div>
-
-        <!-- Product 4 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=500&auto=format&fit=crop" alt="Modern Linen Wide Leg Pants" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Modern Linen Wide Leg Pants</h3>
-          <div class="arrival-price">Rs. 2,199.00</div>
-        </div>
-
-        <!-- Product 5 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=500&auto=format&fit=crop" alt="Comfortable Cotton Loungewear" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Comfortable Cotton Loungewear</h3>
-          <div class="arrival-price">Rs. 1,599.00</div>
-        </div>
-
-        <!-- Product 6 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=500&auto=format&fit=crop" alt="Minimalist Cotton Top" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Minimalist Cotton Top</h3>
-          <div class="arrival-price">Rs. 1,299.00</div>
-        </div>
-
-        <!-- Product 7 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=500&auto=format&fit=crop" alt="Soft Sleepwear Set" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Soft Sleepwear Set</h3>
-          <div class="arrival-price">Rs. 1,899.00</div>
-        </div>
-
-        <!-- Product 8 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=500&auto=format&fit=crop" alt="Classic Cotton Kurti" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Classic Cotton Kurti</h3>
-          <div class="arrival-price">Rs. 1,699.00</div>
-        </div>
+        {% endfor %}
 
       </div>
 
@@ -779,107 +603,43 @@
 
       <div class="baby-collection-grid">
 
-        <!-- Product 1 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop" alt="Soft Cotton Romper" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
+        {% for product in kids_products %}
+        <!-- Product {{ forloop.counter }} -->
+        <a href="{% url 'ComfyCuteApp:product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+          <div class="arrival-product-card">
+            <div class="arrival-img-container">
+              {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="arrival-product-img">
+              {% else %}
+                <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop" alt="{{ product.name }}" class="arrival-product-img">
+              {% endif %}
+              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
+                <i class="fa-regular fa-heart"></i>
+              </button>
+            </div>
+            <h3 class="arrival-product-name">{{ product.name }}</h3>
+            <div class="arrival-price">
+              {% if product.old_price %}
+                <span style="text-decoration: line-through; color: #999;">Rs. {{ product.old_price }}</span>
+                <span style="margin-left: 10px;">Rs. {{ product.selling_price }}</span>
+              {% else %}
+                Rs. {{ product.selling_price }}
+              {% endif %}
+            </div>
           </div>
-          <h3 class="arrival-product-name">Soft Cotton Romper</h3>
-          <div class="arrival-price">Rs. 1,249.00</div>
+        </a>
+        {% empty %}
+        <!-- No Kids Products Message -->
+        <div style="text-align: center; grid-column: 1 / -1; padding: 40px 0; color: #999;">
+          <p>No kids' products available at the moment.</p>
         </div>
-
-        <!-- Product 2 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1522771935878-f35f1f9e99e4?q=80&w=500&auto=format&fit=crop" alt="Matching Sibling Set" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Matching Sibling Set</h3>
-          <div class="arrival-price">Rs. 2,499.00</div>
-        </div>
-
-        <!-- Product 3 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=500&auto=format&fit=crop" alt="Ruffled Party Frock" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Ruffled Party Frock</h3>
-          <div class="arrival-price">Rs. 1,599.00</div>
-        </div>
-
-        <!-- Product 4 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=500&auto=format&fit=crop" alt="Denim Dungaree Suit" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Denim Dungaree Suit</h3>
-          <div class="arrival-price">Rs. 1,799.00</div>
-        </div>
-
-        <!-- Product 5 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=500&auto=format&fit=crop" alt="Printed Cotton Dress" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Printed Cotton Dress</h3>
-          <div class="arrival-price">Rs. 1,399.00</div>
-        </div>
-
-        <!-- Product 6 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1495553900851-4d4bcac435ca?q=80&w=500&auto=format&fit=crop" alt="Organic Baby Rompers" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Organic Baby Rompers</h3>
-          <div class="arrival-price">Rs. 999.00</div>
-        </div>
-
-        <!-- Product 7 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=500&auto=format&fit=crop" alt="Cute Graphic Tee" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Cute Graphic Tee</h3>
-          <div class="arrival-price">Rs. 849.00</div>
-        </div>
-
-        <!-- Product 8 -->
-        <div class="arrival-product-card">
-          <div class="arrival-img-container">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=500&auto=format&fit=crop" alt="Soft Sleepwear Combo" class="arrival-product-img">
-            <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-              <i class="fa-regular fa-heart"></i>
-            </button>
-          </div>
-          <h3 class="arrival-product-name">Soft Sleepwear Combo</h3>
-          <div class="arrival-price">Rs. 1,149.00</div>
-        </div>
+        {% endfor %}
 
       </div>
 
       <!-- Explore Button -->
       <div class="text-center mt-5">
-        <a href="#baby-collection" class="btn btn-premium btn-view-all">Explore Baby Collection</a>
+        <a href="#baby-collection" class="btn btn-premium btn-view-all">Explore Kids Collection</a>
       </div>
     </div>
   </section>

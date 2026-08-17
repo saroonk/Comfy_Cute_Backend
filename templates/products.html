@@ -457,7 +457,7 @@
           <!-- TOOLBAR -->
           <div class="products-toolbar">
             <div class="toolbar-left">
-              <span class="product-count">126 Products</span>
+              <span class="product-count">{{ products|length }} Products</span>
             </div>
             <div class="toolbar-right">
               <!-- Sort Dropdown -->
@@ -493,7 +493,37 @@
 
           <!-- PRODUCT GRID -->
           <div class="products-grid" id="productsGrid">
-            <!-- Products will be rendered here by JS -->
+            {% for product in products %}
+              <!-- Product Card -->
+              <a href="{% url 'ComfyCuteApp:product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+                <div class="arrival-product-card">
+                  <div class="arrival-img-container">
+                    {% if product.main_image %}
+                      <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="arrival-product-img">
+                    {% else %}
+                      <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop" alt="{{ product.name }}" class="arrival-product-img">
+                    {% endif %}
+                    <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
+                      <i class="fa-regular fa-heart"></i>
+                    </button>
+                  </div>
+                  <h3 class="arrival-product-name">{{ product.name }}</h3>
+                  <div class="arrival-price">
+                    {% if product.old_price %}
+                      <span style="text-decoration: line-through; color: #999;">Rs. {{ product.old_price }}</span>
+                      <span style="margin-left: 10px;">Rs. {{ product.selling_price }}</span>
+                    {% else %}
+                      Rs. {{ product.selling_price }}
+                    {% endif %}
+                  </div>
+                </div>
+              </a>
+            {% empty %}
+              <!-- No Products Message -->
+              <div style="text-align: center; grid-column: 1 / -1; padding: 40px 0; color: #999;">
+                <p>No products available at the moment.</p>
+              </div>
+            {% endfor %}
           </div>
 
           <!-- PAGINATION -->

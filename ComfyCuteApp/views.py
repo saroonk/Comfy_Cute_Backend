@@ -4,27 +4,83 @@ from django.views.decorators.http import require_http_methods
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.utils import timezone
+from datetime import timedelta
 import threading
 import logging
-from .models import HeroBanner, ContactSubmission, Testimonial
+from .models import HeroBanner, ContactSubmission, Testimonial, Product, Category
 from .forms import ContactSubmissionForm, RegistrationForm, EmailAuthenticationForm
 
 logger = logging.getLogger(__name__)
 
 def home(request):
+    # Fetch hero banners and testimonials
     hero_banners = HeroBanner.objects.filter(is_active=True).order_by('order')
     testimonials = Testimonial.objects.filter(is_active=True)
+
+    # Fetch New Arrivals (products created in the last 24 hours)
+    twenty_four_hours_ago = timezone.now() - timedelta(hours=24)
+    new_arrivals = Product.objects.filter(
+        is_active=True,
+        created_at__gte=twenty_four_hours_ago
+    ).order_by('-created_at')[:12]
+
+    # Fetch Women's Collection (Category = Woman)
+    try:
+        woman_category = Category.objects.get(name='Women')
+        women_products = Product.objects.filter(
+            is_active=True,
+            category=woman_category
+        ).order_by('-created_at')[:8]
+    except Category.DoesNotExist:
+        women_products = []
+
+    # Fetch Kids Collection (Category = Girl OR Boy, excluding Baby)
+    try:
+        girl_category = Category.objects.get(name='Girl')
+        boy_category = Category.objects.get(name='Boy')
+        kids_products = Product.objects.filter(
+            is_active=True,
+            category__in=[girl_category, boy_category]
+        ).order_by('-created_at')[:8]
+    except Category.DoesNotExist:
+        kids_products = []
+
     context = {
         'hero_banners': hero_banners,
         'testimonials': testimonials,
+        'new_arrivals': new_arrivals,
+        'women_products': women_products,
+        'kids_products': kids_products,
     }
     return render(request, 'index.html', context)
 
 def products(request):
-    return render(request, 'products.html')
+    """
+    Display products listing page.
 
-def product_detail(request):
-    return render(request, 'product-detail.html')
+    Fetches all active products from the database.
+    """
+    products = Product.objects.filter(is_active=True).order_by('-created_at')
+    context = {
+        'products': products,
+    }
+    return render(request, 'products.html', context)
+
+def product_detail(request, slug):
+    """
+    Display detailed information for a specific product.
+
+    Only active products are displayed.
+    Uses product slug for URL identification.
+    """
+    from django.shortcuts import get_object_or_404
+
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    context = {
+        'product': product,
+    }
+    return render(request, 'product-detail.html', context)
 
 def send_contact_notification_email(contact_submission):
     """
