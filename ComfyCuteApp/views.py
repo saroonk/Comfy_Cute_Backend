@@ -257,12 +257,40 @@ def product_detail(request, slug):
 
     Only active products are displayed.
     Uses product slug for URL identification.
+    Includes variants, related products, and all dynamic content.
     """
     from django.shortcuts import get_object_or_404
+    from django.db.models import Prefetch
 
+    # Get the product by slug
     product = get_object_or_404(Product, slug=slug, is_active=True)
+
+    # Get all active variants for this product with related data
+    variants = product.variants.filter(is_active=True).prefetch_related(
+        'images',
+        'size_stocks__size',
+        'color'
+    )
+
+    # Get default variant or first active variant
+    default_variant = product.get_default_variant()
+    if not default_variant and variants.exists():
+        default_variant = variants.first()
+
+    # Get related products from the same category (excluding current product)
+    # Order by newest first
+    related_products = Product.objects.filter(
+        category=product.category,
+        is_active=True
+    ).exclude(
+        id=product.id
+    ).order_by('-created_at')[:6]
+
     context = {
         'product': product,
+        'variants': variants,
+        'default_variant': default_variant,
+        'related_products': related_products,
     }
     return render(request, 'product-detail.html', context)
 

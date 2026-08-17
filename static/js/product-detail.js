@@ -2,9 +2,13 @@
 // PRODUCT DETAIL PAGE - FUNCTIONALITY
 // ====================================
 
-let selectedSize = 'M';
-let selectedVariant = 'Sage Green';
+let selectedSize = '';
+let selectedVariantId = null;
+let selectedVariant = '';
 let quantity = 1;
+
+// Store variant data passed from Django template
+let variantsData = {};
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
@@ -102,13 +106,28 @@ function goToSlide(index) {
 
 // Initialize product detail interactions
 function initializeProductDetail() {
-  // Size button selection
+  // Initialize size selection from default variant
   const sizeButtons = document.querySelectorAll('.size-btn');
+
+  // Set first non-disabled size as selected
+  if (sizeButtons.length > 0) {
+    for (let btn of sizeButtons) {
+      if (!btn.disabled) {
+        btn.classList.add('active');
+        selectedSize = btn.dataset.size;
+        break;
+      }
+    }
+  }
+
+  // Size button click handler
   sizeButtons.forEach(btn => {
     btn.addEventListener('click', function () {
-      sizeButtons.forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      selectedSize = this.dataset.size.toUpperCase();
+      if (!this.disabled) {
+        sizeButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedSize = this.dataset.size;
+      }
     });
   });
 }
@@ -124,18 +143,161 @@ function selectVariant(element) {
   // Then add active class only to the clicked element
   element.classList.add('active');
 
-  // Update selected variant
+  // Get variant ID and name from the clicked element
+  selectedVariantId = element.dataset.variantId;
   selectedVariant = element.dataset.variant;
   const selectedLabel = document.getElementById('selectedVariant');
   if (selectedLabel) {
     selectedLabel.textContent = selectedVariant;
   }
 
-  // Navigate carousel to corresponding variant index
-  const variantIndex = Array.from(allVariantBtns).indexOf(element);
-  if (variantIndex >= 0) {
-    goToSlide(variantIndex);
+  // Update carousel images for the selected variant
+  updateCarouselForVariant(selectedVariantId);
+
+  // Update sizes based on the selected variant
+  updateSizesForVariant(selectedVariantId);
+}
+
+// Update carousel images for selected variant
+function updateCarouselForVariant(variantId) {
+  const variantData = window.variantsData && window.variantsData[variantId];
+  if (!variantData || !variantData.images || variantData.images.length === 0) {
+    return;
   }
+
+  const $carousel = jQuery('#productCarousel');
+  if ($carousel.length === 0) return;
+
+  try {
+    // Destroy existing carousel
+    const carouselData = $carousel.data('owl.carousel');
+    if (carouselData) {
+      $carousel.trigger('destroy.owl.carousel');
+    }
+
+    // Clear carousel items
+    $carousel.empty();
+
+    // Add new images to carousel
+    variantData.images.forEach(imageUrl => {
+      $carousel.append(`
+        <div class="carousel-item">
+          <img src="${imageUrl}" alt="Variant Image" data-variant-id="${variantId}">
+        </div>
+      `);
+    });
+
+    // Reinitialize carousel
+    $carousel.owlCarousel({
+      items: 1,
+      loop: false,
+      dots: false,
+      nav: false,
+      autoplay: false,
+      margin: 0,
+      smartSpeed: 500,
+      lazyLoad: false
+    });
+
+    // Reset carousel to first image
+    $carousel.trigger('to.owl.carousel', [0, 500]);
+    setTimeout(updateThumbnails, 100);
+
+    // Update thumbnails for this variant
+    updateThumbnailsForVariant(variantId);
+
+    console.log(`Carousel updated for variant ${variantId} with ${variantData.images.length} images`);
+  } catch (error) {
+    console.error('Error updating carousel:', error);
+  }
+}
+
+// Update thumbnail gallery for selected variant
+function updateThumbnailsForVariant(variantId) {
+  const variantData = window.variantsData && window.variantsData[variantId];
+  if (!variantData || !variantData.images || variantData.images.length === 0) {
+    return;
+  }
+
+  const thumbnailsContainer = document.querySelector('.gallery-thumbnails');
+  if (!thumbnailsContainer) return;
+
+  // Clear existing thumbnails
+  thumbnailsContainer.innerHTML = '';
+
+  // Add new thumbnails for variant images
+  variantData.images.forEach((imageUrl, index) => {
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = `Variant Image ${index + 1}`;
+    img.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+    img.dataset.index = index;
+    img.dataset.variantId = variantId;
+    img.onclick = () => goToSlide(index);
+    thumbnailsContainer.appendChild(img);
+  });
+
+  console.log(`Thumbnails updated for variant ${variantId} with ${variantData.images.length} images`);
+}
+
+// Update sizes based on selected variant
+function updateSizesForVariant(variantId) {
+  const variantData = window.variantsData && window.variantsData[variantId];
+  if (!variantData) {
+    console.error(`Variant data not found for ID: ${variantId}`);
+    return;
+  }
+
+  const sizeContainer = document.querySelector('.size-options');
+  if (!sizeContainer) return;
+
+  // Clear existing size buttons
+  sizeContainer.innerHTML = '';
+
+  // Add size buttons from variant data
+  if (variantData.sizes && variantData.sizes.length > 0) {
+    variantData.sizes.forEach((sizeInfo, index) => {
+      const isFirstAvailable = index === 0 && sizeInfo.stock > 0;
+      const isOutOfStock = sizeInfo.stock === 0;
+
+      const button = document.createElement('button');
+      button.className = `size-btn ${isFirstAvailable ? 'active' : ''}`;
+      button.dataset.size = sizeInfo.slug;
+      button.dataset.sizeId = sizeInfo.id;
+      button.dataset.stock = sizeInfo.stock;
+
+      if (isOutOfStock) {
+        button.disabled = true;
+        button.textContent = `${sizeInfo.name} (Out of Stock)`;
+        button.style.opacity = '0.5';
+      } else {
+        button.textContent = sizeInfo.name;
+      }
+
+      button.addEventListener('click', function () {
+        if (!this.disabled) {
+          // Remove active class from all size buttons
+          sizeContainer.querySelectorAll('.size-btn').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          // Add active class to clicked button
+          this.classList.add('active');
+          selectedSize = this.dataset.size;
+        }
+      });
+
+      sizeContainer.appendChild(button);
+    });
+
+    // Set first available size as selected
+    const firstAvailableBtn = sizeContainer.querySelector('.size-btn:not([disabled])');
+    if (firstAvailableBtn) {
+      firstAvailableBtn.classList.add('active');
+      selectedSize = firstAvailableBtn.dataset.size;
+    }
+  }
+
+  console.log(`Sizes updated for variant ${variantId}`);
 }
 
 // Quantity functions
@@ -155,12 +317,21 @@ function decreaseQty() {
 
 // Add to cart
 function addToCart() {
-  const productName = 'Elegant Linen Blend Midi Dress';
-  const price = 2499;
+  // Get product information from the page
+  const productName = document.querySelector('.product-title')?.textContent || 'Product';
+  const priceText = document.querySelector('.price-current')?.textContent || '₹0';
+  const price = parseInt(priceText.replace(/[^0-9]/g, '')) || 0;
   const qty = quantity;
 
+  // Get product image from carousel
   const $carousel = jQuery('#productCarousel');
   const currentImg = $carousel.find('.owl-item.active img').attr('src');
+
+  // Require size and variant selection
+  if (!selectedSize || !selectedVariant) {
+    alert('Please select a variant and size before adding to cart.');
+    return;
+  }
 
   const cartItem = {
     id: Date.now(),
@@ -169,6 +340,7 @@ function addToCart() {
     quantity: qty,
     size: selectedSize,
     variant: selectedVariant,
+    variantId: selectedVariantId,
     image: currentImg || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=150&auto=format&fit=crop'
   };
 
@@ -176,7 +348,8 @@ function addToCart() {
   const existingItem = cart.find(item =>
     item.name === productName &&
     item.size === selectedSize &&
-    item.variant === selectedVariant
+    item.variant === selectedVariant &&
+    item.variantId === selectedVariantId
   );
 
   if (existingItem) {
@@ -205,7 +378,9 @@ function toggleWishlist() {
   btn.classList.toggle('active');
 
   let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  const productId = 'elegant-linen-dress';
+  // Use the product name and variant as unique identifier
+  const productName = document.querySelector('.product-title')?.textContent || 'product';
+  const productId = `${productName}-${selectedVariant || 'default'}`.toLowerCase().replace(/\s+/g, '-');
 
   if (btn.classList.contains('active')) {
     if (!wishlist.includes(productId)) {
@@ -373,7 +548,7 @@ function initializeRelatedProductsCarousel() {
   try {
     $carousel.owlCarousel({
       items: 4,
-      loop: true,
+      loop: false,
       dots: false,
       nav: false,
       autoplay: false,

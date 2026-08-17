@@ -4,11 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elegant Linen Blend Midi Dress | COMFY CUTE | Premium Women's Fashion</title>
+  <title>{{ product.name }} | COMFY CUTE | Premium Clothing</title>
 
   <!-- Meta Tags for SEO -->
-  <meta name="description" content="Shop the Elegant Linen Blend Midi Dress at COMFY CUTE. Premium linen blend fabric, effortless elegance, and everyday comfort. Free shipping above ₹999.">
-  <meta name="keywords" content="linen dress, midi dress, premium clothing, women fashion, organic cotton">
+  <meta name="description" content="Shop {{ product.name }} at COMFY CUTE. {{ product.short_description }}">
+  <meta name="keywords" content="{{ product.name }}, {{ product.category.name }}, {{ product.subcategory.name }}, premium clothing">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -294,9 +294,9 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb-list">
           <li class="breadcrumb-item"><a href="{% url 'ComfyCuteApp:home' %}">Home</a></li>
-          <li class="breadcrumb-item"><a href="#women">Women</a></li>
-          <li class="breadcrumb-item"><a href="#apparel">Apparel</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Elegant Linen Blend Dress</li>
+          <li class="breadcrumb-item"><a href="{% url 'ComfyCuteApp:products' %}?category={{ product.category.slug }}">{{ product.category.name }}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'ComfyCuteApp:products' %}?category={{ product.category.slug }}&subcategory={{ product.subcategory.slug }}">{{ product.subcategory.name }}</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
         </ol>
       </nav>
     </div>
@@ -311,24 +311,38 @@
         <!-- Left: Product Gallery (50%) -->
         <div class="col-lg-6">
           <div class="product-gallery-wrapper">
-          <!-- Main Carousel -->
+          <!-- Main Carousel (Dynamic - Variant Images) -->
           <div class="main-carousel-container">
             <div class="main-carousel owl-carousel" id="productCarousel">
+              {% if default_variant %}
+                {% for image in default_variant.images.all %}
+                <div class="carousel-item">
+                  <img src="{{ image.image.url }}" alt="{{ image.image.name }}" data-variant-id="{{ default_variant.id }}">
+                </div>
+                {% empty %}
+                <!-- Fallback: Use product main image if variant has no images -->
+                <div class="carousel-item">
+                  {% if product.main_image %}
+                    <img src="{{ product.main_image.url }}" alt="{{ product.name }}" data-variant-id="{{ default_variant.id }}">
+                  {% else %}
+                    <div class="carousel-placeholder" style="width: 100%; height: 500px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                      <p>No image available</p>
+                    </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+              <!-- Fallback: Use product main image -->
               <div class="carousel-item">
-                <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop" alt="View 1">
+                {% if product.main_image %}
+                  <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                {% else %}
+                  <div class="carousel-placeholder" style="width: 100%; height: 500px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    <p>No image available</p>
+                  </div>
+                {% endif %}
               </div>
-              <div class="carousel-item">
-                <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=800&auto=format&fit=crop" alt="View 2">
-              </div>
-              <div class="carousel-item">
-                <img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800&auto=format&fit=crop" alt="View 3">
-              </div>
-              <div class="carousel-item">
-                <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=800&auto=format&fit=crop" alt="View 4">
-              </div>
-              <div class="carousel-item">
-                <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=800&auto=format&fit=crop" alt="View 5">
-              </div>
+              {% endif %}
             </div>
             <button class="carousel-nav carousel-prev" id="carouselPrev">
               <i class="fa-solid fa-chevron-left"></i>
@@ -338,13 +352,23 @@
             </button>
           </div>
 
-          <!-- Thumbnail Gallery -->
+          <!-- Thumbnail Gallery (Dynamic - Variant Images) -->
           <div class="gallery-thumbnails">
-            <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=150&auto=format&fit=crop" alt="View 1" class="thumbnail active" data-index="0" onclick="goToSlide(0)">
-            <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=150&auto=format&fit=crop" alt="View 2" class="thumbnail" data-index="1" onclick="goToSlide(1)">
-            <img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=150&auto=format&fit=crop" alt="View 3" class="thumbnail" data-index="2" onclick="goToSlide(2)">
-            <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=150&auto=format&fit=crop" alt="View 4" class="thumbnail" data-index="3" onclick="goToSlide(3)">
-            <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=150&auto=format&fit=crop" alt="View 5" class="thumbnail" data-index="4" onclick="goToSlide(4)">
+            {% if default_variant %}
+              {% for image in default_variant.images.all %}
+              <img src="{{ image.image.url }}" alt="{{ image.image.name }}" class="thumbnail {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-variant-id="{{ default_variant.id }}" onclick="goToSlide({{ forloop.counter0 }})">
+              {% empty %}
+              <!-- Fallback: Use product main image thumbnail -->
+              {% if product.main_image %}
+              <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="thumbnail active" data-index="0" onclick="goToSlide(0)">
+              {% endif %}
+              {% endfor %}
+            {% else %}
+            <!-- Fallback: Use product main image thumbnail -->
+            {% if product.main_image %}
+            <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="thumbnail active" data-index="0" onclick="goToSlide(0)">
+            {% endif %}
+            {% endif %}
           </div>
         </div>
         </div>
@@ -355,65 +379,74 @@
 
           <!-- Badges -->
           <div class="product-badges">
-            <span class="badge badge-category">Woman</span>
-            <span class="badge badge-type">Kurtis</span>
+            <span class="badge badge-category">{{ product.category.name }}</span>
+            <span class="badge badge-type">{{ product.subcategory.name }}</span>
           </div>
 
           <!-- Title -->
-          <h1 class="product-title">Elegant Linen Blend Midi Dress</h1>
+          <h1 class="product-title">{{ product.name }}</h1>
 
           <!-- Price -->
           <div class="product-price">
-            <span class="price-current">₹2,499</span>
-            <span class="price-original">₹3,180</span>
+            <span class="price-current">₹{{ product.selling_price|floatformat:0 }}</span>
+            {% if product.old_price %}
+            <span class="price-original">₹{{ product.old_price|floatformat:0 }}</span>
+            {% endif %}
           </div>
 
           <!-- Description -->
-          <p class="product-description">A timeless silhouette crafted from premium, breathable linen blend fabric for effortless elegance and all-day comfort. Designed with a soft drape and minimalist lines.</p>
+          <p class="product-description">{{ product.short_description }}</p>
 
           <!-- Product Options -->
           <div class="product-options">
 
-            <!-- Variant Selection -->
+            <!-- Variant Selection (Dynamic) -->
+            {% if variants.exists %}
             <div class="option-group">
               <label class="variant-label">
                 <span class="variant-title">Variant</span>
-                <span class="variant-value" id="selectedVariant">Sage Green</span>
+                <span class="variant-value" id="selectedVariant">{% if default_variant %}{{ default_variant.color.name }}{% endif %}</span>
               </label>
               <div class="variant-selector">
-                <button class="variant-btn active" data-variant="Sage Green" onclick="selectVariant(this)">
-                  <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=100&auto=format&fit=crop" alt="Sage Green">
-                  <span>Sage Green</span>
+                {% for variant in variants %}
+                <button class="variant-btn {% if variant == default_variant %}active{% endif %}"
+                        data-variant-id="{{ variant.id }}"
+                        data-variant="{{ variant.color.name }}"
+                        onclick="selectVariant(this)">
+                  {% if variant.images.exists %}
+                    <img src="{{ variant.images.first.image.url }}" alt="{{ variant.color.name }}">
+                  {% elif variant.color.hex_code %}
+                    <div class="variant-color-swatch" style="background-color: {{ variant.color.hex_code }};"></div>
+                  {% else %}
+                    <div class="variant-color-swatch" style="background-color: #f0f0f0;"></div>
+                  {% endif %}
+                  <span>{{ variant.color.name }}</span>
                 </button>
-                <button class="variant-btn" data-variant="Cream" onclick="selectVariant(this)">
-                  <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=100&auto=format&fit=crop" alt="Cream">
-                  <span>Cream</span>
-                </button>
-                <button class="variant-btn" data-variant="Peach" onclick="selectVariant(this)">
-                  <img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=100&auto=format&fit=crop" alt="Peach">
-                  <span>Peach</span>
-                </button>
-                <button class="variant-btn" data-variant="Navy Blue" onclick="selectVariant(this)">
-                  <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=100&auto=format&fit=crop" alt="Navy Blue">
-                  <span>Navy Blue</span>
-                </button>
+                {% endfor %}
               </div>
             </div>
+            {% endif %}
 
-            <!-- Size Selection -->
+            <!-- Size Selection (Dynamic) -->
+            {% if default_variant and default_variant.size_stocks.exists %}
             <div class="option-group">
               <div class="size-header">
                 <label class="option-title">Size</label>
                 <a href="#size-guide" class="size-guide-link">Size Guide</a>
               </div>
               <div class="size-options">
-                <button class="size-btn" data-size="xs">XS</button>
-                <button class="size-btn" data-size="s">S</button>
-                <button class="size-btn active" data-size="m">M</button>
-                <button class="size-btn" data-size="l">L</button>
-                <button class="size-btn" data-size="xl">XL</button>
+                {% for size_stock in default_variant.size_stocks.all %}
+                <button class="size-btn {% if forloop.first %}active{% endif %}"
+                        data-size="{{ size_stock.size.slug }}"
+                        data-size-id="{{ size_stock.size.id }}"
+                        data-stock="{{ size_stock.stock }}"
+                        {% if size_stock.stock == 0 %}disabled{% endif %}>
+                  {{ size_stock.size.name }}
+                </button>
+                {% endfor %}
               </div>
             </div>
+            {% endif %}
 
             <!-- Purchase Row: Quantity + Add to Cart + Wishlist -->
             <div class="purchase-row">
@@ -486,62 +519,45 @@
           <div class="tab-pane fade show active" id="tab-description" role="tabpanel" aria-labelledby="tab-description-btn">
             <div class="tab-content-inner">
               <h3>Product Description</h3>
-              <p>This elegant midi dress is crafted from premium linen blend fabric that ensures breathability and comfort throughout the day. The minimalist design features a flattering silhouette with a soft drape, making it perfect for both casual and semi-formal occasions.</p>
-              <h4>Key Features:</h4>
-              <ul class="feature-list">
-                <li>Breathable linen blend fabric</li>
-                <li>Soft, natural drape</li>
-                <li>Midi length for versatile styling</li>
-                <li>Timeless, minimalist design</li>
-                <li>Available in 4 sophisticated colors</li>
-                <li>True to size fit</li>
-              </ul>
+              {% if product.full_description %}
+                {{ product.full_description|safe }}
+              {% else %}
+                <p>{{ product.short_description }}</p>
+              {% endif %}
             </div>
           </div>
 
           <!-- Fabric & Care Tab -->
           <div class="tab-pane fade" id="tab-fabric" role="tabpanel" aria-labelledby="tab-fabric-btn">
             <div class="tab-content-inner">
-              <h3>Fabric Information</h3>
-              <p><strong>Material:</strong> 100% Linen Blend</p>
-              <p><strong>Weight:</strong> Medium weight</p>
-              <p><strong>Feel:</strong> Soft, smooth, and breathable</p>
-
-              <h3>Care Instructions</h3>
-              <ul class="care-list">
-                <li>Machine wash in cold water with similar colors</li>
-                <li>Use mild detergent</li>
-                <li>Remove promptly after washing</li>
-                <li>Hang dry or lay flat to dry</li>
-                <li>Iron on medium heat if needed</li>
-                <li>Do not bleach or dry clean</li>
-              </ul>
+              <h3>Fabric & Care Information</h3>
+              {% if product.fabric_and_care %}
+                {{ product.fabric_and_care|safe }}
+              {% else %}
+                <p><strong>Fabric:</strong> {{ product.fabric.name }}</p>
+              {% endif %}
             </div>
           </div>
 
           <!-- Shipping & Returns Tab -->
           <div class="tab-pane fade" id="tab-shipping" role="tabpanel" aria-labelledby="tab-shipping-btn">
             <div class="tab-content-inner">
-              <h3>Shipping Information</h3>
-              <p><strong>Shipping Time:</strong> 3-5 business days</p>
-              <p><strong>Shipping Cost:</strong> Free for orders above ₹999</p>
-              <p>We ship across India with secure packaging to ensure your dress arrives in perfect condition.</p>
-
-              <h3>Returns & Exchange</h3>
-              <p><strong>Return Window:</strong> 15 days from delivery</p>
-              <p>We offer hassle-free returns and exchanges. The item must be unused and in original condition with tags attached. Return shipping is free for defective items.</p>
-              <p>For return requests, please contact our customer service team at hello@comfycute.com</p>
+              {% if product.shipping_and_returns %}
+                {{ product.shipping_and_returns|safe }}
+              {% else %}
+                <p>Shipping and return information not available.</p>
+              {% endif %}
             </div>
           </div>
 
           <!-- Manufactured By Tab -->
           <div class="tab-pane fade" id="tab-manufactured" role="tabpanel" aria-labelledby="tab-manufactured-btn">
             <div class="tab-content-inner">
-              <h3>About COMFY CUTE</h3>
-              <p>COMFY CUTE is a premium fashion brand dedicated to creating timeless, comfortable clothing for women and babies. Our collections feature sustainable, organic materials with minimalist designs.</p>
-              <p><strong>Location:</strong> Bengaluru, India</p>
-              <p><strong>Specialization:</strong> Premium linen wear, organic cotton collections, and minimalist luxury fashion</p>
-              <p>Every piece is crafted with attention to detail and a commitment to quality, ensuring that you feel comfortable and confident in what you wear.</p>
+              {% if product.manufactured_by %}
+                {{ product.manufactured_by|safe }}
+              {% else %}
+                <p>Manufacturing information not available.</p>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -561,77 +577,24 @@
 
       <div class="related-products-carousel-wrapper">
         <div class="related-products-carousel owl-carousel" id="relatedProductsCarousel">
-          <!-- Product 1 -->
-          <div class="arrival-product-card">
-            <div class="arrival-img-container">
-              <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=500&auto=format&fit=crop" alt="Linen Summer Dress" class="arrival-product-img">
-              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-                <i class="fa-regular fa-heart"></i>
-              </button>
+          {% for related_product in related_products %}
+          <a href="{% url 'ComfyCuteApp:product_detail' related_product.slug %}" style="text-decoration: none; color: inherit;">
+            <div class="arrival-product-card">
+              <div class="arrival-img-container">
+                {% if related_product.main_image %}
+                  <img src="{{ related_product.main_image.url }}" alt="{{ related_product.name }}" class="arrival-product-img">
+                {% else %}
+                  <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=500&auto=format&fit=crop" alt="{{ related_product.name }}" class="arrival-product-img">
+                {% endif %}
+                <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
+                  <i class="fa-regular fa-heart"></i>
+                </button>
+              </div>
+              <h3 class="arrival-product-name">{{ related_product.name }}</h3>
+              <div class="arrival-price">₹{{ related_product.selling_price|floatformat:0 }}</div>
             </div>
-            <h3 class="arrival-product-name">Linen Summer Dress</h3>
-            <div class="arrival-price">₹2,499</div>
-          </div>
-
-          <!-- Product 2 -->
-          <div class="arrival-product-card">
-            <div class="arrival-img-container">
-              <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=500&auto=format&fit=crop" alt="Organic Cotton Kurti" class="arrival-product-img">
-              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-                <i class="fa-regular fa-heart"></i>
-              </button>
-            </div>
-            <h3 class="arrival-product-name">Organic Cotton Kurti</h3>
-            <div class="arrival-price">₹1,899</div>
-          </div>
-
-          <!-- Product 3 -->
-          <div class="arrival-product-card">
-            <div class="arrival-img-container">
-              <img src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=500&auto=format&fit=crop" alt="Premium Silk Top" class="arrival-product-img">
-              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-                <i class="fa-regular fa-heart"></i>
-              </button>
-            </div>
-            <h3 class="arrival-product-name">Premium Silk Top</h3>
-            <div class="arrival-price">₹1,599</div>
-          </div>
-
-          <!-- Product 4 -->
-          <div class="arrival-product-card">
-            <div class="arrival-img-container">
-              <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=500&auto=format&fit=crop" alt="Casual Linen Shirt" class="arrival-product-img">
-              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-                <i class="fa-regular fa-heart"></i>
-              </button>
-            </div>
-            <h3 class="arrival-product-name">Casual Linen Shirt</h3>
-            <div class="arrival-price">₹1,799</div>
-          </div>
-
-          <!-- Product 5 -->
-          <div class="arrival-product-card">
-            <div class="arrival-img-container">
-              <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=500&auto=format&fit=crop" alt="Comfortable Jersey Dress" class="arrival-product-img">
-              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-                <i class="fa-regular fa-heart"></i>
-              </button>
-            </div>
-            <h3 class="arrival-product-name">Comfortable Jersey Dress</h3>
-            <div class="arrival-price">₹1,299</div>
-          </div>
-
-          <!-- Product 6 -->
-          <div class="arrival-product-card">
-            <div class="arrival-img-container">
-              <img src="https://images.unsplash.com/photo-1514886281-ce4ecb5a0f39?q=80&w=500&auto=format&fit=crop" alt="Classic Cotton Blend Dress" class="arrival-product-img">
-              <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
-                <i class="fa-regular fa-heart"></i>
-              </button>
-            </div>
-            <h3 class="arrival-product-name">Classic Cotton Blend Dress</h3>
-            <div class="arrival-price">₹2,199</div>
-          </div>
+          </a>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -657,50 +620,45 @@
   <!-- ==========================================
        MOBILE STICKY BOTTOM NAVIGATION
        ========================================== -->
-  <nav class="mobile-bottom-nav d-lg-none" id="mobileBottomNav">
-    <a href="{% url 'ComfyCuteApp:home' %}" class="bottom-nav-item" title="Home">
+  <div class="mobile-bottom-nav">
+    <a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-item">
       <i class="fa-solid fa-house"></i>
       <span>Home</span>
     </a>
-    <button class="bottom-nav-item" id="mobileSearchBtn" title="Search">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <span>Search</span>
-    </button>
-    <button class="bottom-nav-item" id="mobileAccountBtn" title="Account">
-      <i class="fa-solid fa-user"></i>
+    <a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-item">
+      <i class="fa-solid fa-grip-vertical"></i>
+      <span>Shop</span>
+    </a>
+    <a href="{% url 'ComfyCuteApp:wishlist' %}" class="mobile-nav-item">
+      <i class="fa-regular fa-heart"></i>
+      <span class="mobile-nav-badge wishlist-badge">0</span>
+      <span>Wishlist</span>
+    </a>
+    <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer">
+      <i class="fa-solid fa-bag-shopping"></i>
+      <span class="mobile-nav-badge cart-badge">0</span>
+      <span>Cart</span>
+    </a>
+    <button type="button" class="mobile-nav-item" id="mobileAccountBtn" aria-label="Account">
+      <i class="fa-regular fa-user"></i>
       <span>Account</span>
     </button>
-    <a href="{% url 'ComfyCuteApp:wishlist' %}" class="bottom-nav-item" title="Wishlist">
-      <i class="fa-regular fa-heart"></i>
-      <span>Wishlist</span>
-      <span class="bottom-nav-badge wishlist-badge">0</span>
-    </a>
-    <button class="bottom-nav-item" id="mobileCartBtn" title="Cart">
-      <i class="fa-solid fa-bag-shopping"></i>
-      <span>Cart</span>
-      <span class="bottom-nav-badge cart-badge">0</span>
-    </button>
-  </nav>
-
-  <!-- ==========================================
-       MOBILE ACCOUNT POPUP
-       ========================================== -->
-  <div class="mobile-account-popup" id="mobileAccountPopup">
-    <div class="popup-header">
-      <h5 class="popup-title">Account</h5>
-      <button class="popup-close" aria-label="Close">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-    <div class="popup-body">
+    <div class="mobile-account-popup" id="mobileAccountPopup">
       {% if request.user.is_authenticated %}
-        <a href="{% url 'ComfyCuteApp:logout' %}" class="popup-link"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        <a href="{% url 'ComfyCuteApp:logout' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </a>
       {% else %}
-        <a href="{% url 'ComfyCuteApp:login' %}" class="popup-link"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login / Register</a>
+        <a href="{% url 'ComfyCuteApp:login' %}" class="mobile-account-popup-item">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Login / Register</span>
+        </a>
       {% endif %}
-      <a href="{% url 'ComfyCuteApp:track_order' %}" class="popup-link"><i class="fa-solid fa-box-archive"></i> Track Orders</a>
-      <a href="{% url 'ComfyCuteApp:wishlist' %}" class="popup-link"><i class="fa-solid fa-heart"></i> My Wishlist</a>
-      <a href="{% url 'ComfyCuteApp:contact' %}" class="popup-link"><i class="fa-solid fa-circle-question"></i> Help</a>
+      <a href="{% url 'ComfyCuteApp:track_order' %}" class="mobile-account-popup-item">
+        <i class="fa-solid fa-box-archive"></i>
+        <span>Track Your Order</span>
+      </a>
     </div>
   </div>
 
@@ -730,16 +688,27 @@
   <!-- ==========================================
        CART DRAWER (Offcanvas)
        ========================================== -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="cartDrawer" aria-labelledby="cartDrawerLabel">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="cartDrawerLabel">Shopping Cart</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  <div class="offcanvas offcanvas-end cart-drawer" tabindex="-1" id="cartDrawer" aria-labelledby="cartDrawerLabel">
+    <div class="cart-drawer-header d-flex justify-content-between align-items-center">
+      <h5 class="cart-drawer-title id" id="cartDrawerLabel">My Shopping Bag</h5>
+      <button type="button" class="cart-drawer-close" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
-    <div class="offcanvas-body">
-      <div class="cart-empty-state">
-        <i class="fa-solid fa-bag-shopping"></i>
-        <p>Your cart is empty</p>
-        <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-primary">Continue Shopping</a>
+    <div class="offcanvas-body cart-drawer-body">
+      <!-- Cart items container (updated via JS) -->
+      <div class="cart-items-container">
+        <!-- Rendered by main.js -->
+      </div>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal">
+        <span>Subtotal:</span>
+        <span class="cart-subtotal-price">₹0</span>
+      </div>
+      <div class="cart-action-buttons">
+        <button class="btn btn-cart-checkout" onclick="alert('Proceeding to Checkout!');">Proceed to Checkout</button>
+        <button class="btn btn-cart-continue" data-bs-dismiss="offcanvas">Continue Shopping</button>
       </div>
     </div>
   </div>
@@ -758,6 +727,33 @@
 
   <!-- Main JS -->
   <script src="{% static 'js/main.js' %}"></script>
+
+  <!-- Variant Data for Dynamic Switching -->
+  <script>
+    window.variantsData = {
+      {% for variant in variants %}
+      {{ variant.id }}: {
+        id: {{ variant.id }},
+        colorName: "{{ variant.color.name }}",
+        images: [
+          {% for image in variant.images.all %}
+          "{{ image.image.url }}",
+          {% endfor %}
+        ],
+        sizes: [
+          {% for size_stock in variant.size_stocks.all %}
+          {
+            id: {{ size_stock.size.id }},
+            name: "{{ size_stock.size.name }}",
+            slug: "{{ size_stock.size.slug }}",
+            stock: {{ size_stock.stock }}
+          },
+          {% endfor %}
+        ]
+      },
+      {% endfor %}
+    };
+  </script>
 
   <!-- Product Detail JS -->
   <script src="{% static 'js/product-detail.js' %}"></script>
