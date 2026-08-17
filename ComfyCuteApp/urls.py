@@ -16,7 +16,7 @@ urlpatterns = [
     path('refund-policy/', views.refund_policy, name='refund_policy'),
     path('shipping-policy/', views.shipping_policy, name='shipping_policy'),
     path('return-exchange/', views.return_exchange, name='return_exchange'),
-    path('c/', views.c_page, name='c_page'),
+    path('checkout/', views.checkout, name='checkout'),
 
     # Authentication URLs
     path('register/', views.register, name='register'),

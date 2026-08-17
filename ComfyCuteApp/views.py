@@ -194,8 +194,15 @@ def shipping_policy(request):
 def return_exchange(request):
     return render(request, 'return-exchange.html')
 
-def c_page(request):
-    return render(request, 'c.html')
+
+
+def checkout(request):
+    """
+    Checkout page view.
+    Displays the checkout form where users can enter their billing and shipping information.
+    Cart data is handled client-side via JavaScript and localStorage.
+    """
+    return render(request, 'checkout.html')
 
 
 # ==========================================
