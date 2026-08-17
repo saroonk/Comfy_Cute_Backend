@@ -147,29 +147,35 @@ def products(request):
         except (ValueError, TypeError):
             max_price = None
 
-    # Apply Fabric filter
-    selected_fabric = request.GET.get('fabric')
-    if selected_fabric:
-        products_qs = products_qs.filter(fabric__slug=selected_fabric)
+    # Apply Fabric filter (supporting multiple selections)
+    selected_fabrics = request.GET.getlist('fabric')
+    selected_fabrics = [f.strip() for f in selected_fabrics if f.strip()]
+    if selected_fabrics:
+        products_qs = products_qs.filter(fabric__slug__in=selected_fabrics)
 
-    # Apply Size filter (through variants and size stocks)
-    selected_size = request.GET.get('size')
-    if selected_size:
-        # Get variants that have this size
+    # Apply Size filter (supporting multiple selections through variants and size stocks)
+    selected_sizes = request.GET.getlist('size')
+    selected_sizes = [s.strip() for s in selected_sizes if s.strip()]
+    if selected_sizes:
+        # Get variants that have any of these sizes
         from .models import VariantSizeStock
         size_stocks_exist = VariantSizeStock.objects.filter(
             variant__product=OuterRef('pk'),
-            size__slug=selected_size
+            size__slug__in=selected_sizes
         )
         products_qs = products_qs.annotate(
             has_size=Exists(size_stocks_exist)
         ).filter(has_size=True)
 
-    # Apply Availability filter
-    availability = request.GET.get('availability')
-    if availability:
+    # Apply Availability filter (supporting multiple selections)
+    selected_availabilities = request.GET.getlist('availability')
+    selected_availabilities = [a.strip() for a in selected_availabilities if a.strip()]
+    if selected_availabilities:
         from .models import VariantSizeStock
-        if availability == 'available':
+        if 'available' in selected_availabilities and 'out-of-stock' in selected_availabilities:
+            # Both options selected, no filtering needed
+            pass
+        elif 'available' in selected_availabilities:
             # Products with at least one variant/size combo with stock > 0
             has_stock = VariantSizeStock.objects.filter(
                 variant__product=OuterRef('pk'),
@@ -178,7 +184,7 @@ def products(request):
             products_qs = products_qs.annotate(
                 in_stock=Exists(has_stock)
             ).filter(in_stock=True)
-        elif availability == 'out-of-stock':
+        elif 'out-of-stock' in selected_availabilities:
             # Products with no stock or no variants
             has_no_stock = VariantSizeStock.objects.filter(
                 variant__product=OuterRef('pk'),
@@ -210,6 +216,12 @@ def products(request):
     except:
         page_obj = paginator.page(1)
 
+    # Construct query string for pagination links
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        del query_params['page']
+    filter_query = query_params.urlencode()
+
     # Prepare context
     context = {
         'products': page_obj.object_list,
@@ -226,12 +238,16 @@ def products(request):
         # Selected values (for maintaining state)
         'selected_category': selected_category_id,
         'selected_subcategory': selected_subcategory_id,
-        'selected_size': selected_size,
-        'selected_fabric': selected_fabric,
-        'selected_availability': availability,
+        'selected_sizes': selected_sizes,
+        'selected_fabrics': selected_fabrics,
+        'selected_availabilities': selected_availabilities,
         'selected_sort': sort_by,
         'selected_min_price': min_price,
         'selected_max_price': max_price,
+        'selected_size': selected_sizes[0] if selected_sizes else '',
+        'selected_fabric': selected_fabrics[0] if selected_fabrics else '',
+        'selected_availability': selected_availabilities[0] if selected_availabilities else '',
+        'filter_query': filter_query,
     }
 
     return render(request, 'products.html', context)

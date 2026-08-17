@@ -386,7 +386,7 @@
               <div class="filter-checkboxes">
                 {% for size in sizes %}
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="size" value="{{ size.slug }}" {% if selected_size == size.slug %}checked{% endif %}> {{ size.name }}
+                  <input type="checkbox" name="size" value="{{ size.slug }}" {% if size.slug in selected_sizes %}checked{% endif %}> {{ size.name }}
                 </label>
                 {% endfor %}
               </div>
@@ -399,7 +399,7 @@
               <div class="filter-checkboxes">
                 {% for fabric in fabrics %}
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="fabric" value="{{ fabric.slug }}" {% if selected_fabric == fabric.slug %}checked{% endif %}> {{ fabric.name }}
+                  <input type="checkbox" name="fabric" value="{{ fabric.slug }}" {% if fabric.slug in selected_fabrics %}checked{% endif %}> {{ fabric.name }}
                 </label>
                 {% endfor %}
               </div>
@@ -410,10 +410,10 @@
               <h6 class="filter-group-title">Availability</h6>
               <div class="filter-checkboxes">
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="availability" value="available" {% if selected_availability == 'available' %}checked{% endif %}> In Stock
+                  <input type="checkbox" name="availability" value="available" {% if 'available' in selected_availabilities %}checked{% endif %}> In Stock
                 </label>
                 <label class="filter-checkbox">
-                  <input type="checkbox" name="availability" value="out-of-stock" {% if selected_availability == 'out-of-stock' %}checked{% endif %}> Out of Stock
+                  <input type="checkbox" name="availability" value="out-of-stock" {% if 'out-of-stock' in selected_availabilities %}checked{% endif %}> Out of Stock
                 </label>
               </div>
             </div>
@@ -508,7 +508,7 @@
               <ul class="pagination">
                 <!-- Previous Page -->
                 {% if page_obj.has_previous %}
-                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory }}{% endif %}{% if selected_min_price %}&min_price={{ selected_min_price }}{% endif %}{% if selected_max_price %}&max_price={{ selected_max_price }}{% endif %}{% if selected_fabric %}&fabric={{ selected_fabric }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}"><i class="fa-solid fa-chevron-left"></i><span class="pagination-text">Prev</span></a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filter_query %}&{{ filter_query }}{% endif %}"><i class="fa-solid fa-chevron-left"></i><span class="pagination-text">Prev</span></a></li>
                 {% else %}
                   <li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-chevron-left"></i><span class="pagination-text">Prev</span></span></li>
                 {% endif %}
@@ -518,13 +518,13 @@
                   {% if page_obj.number == num %}
                     <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                   {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory }}{% endif %}{% if selected_min_price %}&min_price={{ selected_min_price }}{% endif %}{% if selected_max_price %}&max_price={{ selected_max_price }}{% endif %}{% if selected_fabric %}&fabric={{ selected_fabric }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}">{{ num }}</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if filter_query %}&{{ filter_query }}{% endif %}">{{ num }}</a></li>
                   {% endif %}
                 {% endfor %}
 
                 <!-- Next Page -->
                 {% if page_obj.has_next %}
-                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_subcategory %}&subcategory={{ selected_subcategory }}{% endif %}{% if selected_min_price %}&min_price={{ selected_min_price }}{% endif %}{% if selected_max_price %}&max_price={{ selected_max_price }}{% endif %}{% if selected_fabric %}&fabric={{ selected_fabric }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_availability %}&availability={{ selected_availability }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}"><span class="pagination-text">Next</span><i class="fa-solid fa-chevron-right"></i></a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filter_query %}&{{ filter_query }}{% endif %}"><span class="pagination-text">Next</span><i class="fa-solid fa-chevron-right"></i></a></li>
                 {% else %}
                   <li class="page-item disabled"><span class="page-link"><span class="pagination-text">Next</span><i class="fa-solid fa-chevron-right"></i></span></li>
                 {% endif %}
@@ -595,7 +595,7 @@
         <div class="filter-checkboxes">
           {% for size in sizes %}
           <label class="filter-checkbox">
-            <input type="checkbox" name="size" value="{{ size.slug }}" {% if selected_size == size.slug %}checked{% endif %}> {{ size.name }}
+            <input type="checkbox" name="size" value="{{ size.slug }}" {% if size.slug in selected_sizes %}checked{% endif %}> {{ size.name }}
           </label>
           {% endfor %}
         </div>
@@ -607,7 +607,7 @@
         <div class="filter-checkboxes">
           {% for fabric in fabrics %}
           <label class="filter-checkbox">
-            <input type="checkbox" name="fabric" value="{{ fabric.slug }}" {% if selected_fabric == fabric.slug %}checked{% endif %}> {{ fabric.name }}
+            <input type="checkbox" name="fabric" value="{{ fabric.slug }}" {% if fabric.slug in selected_fabrics %}checked{% endif %}> {{ fabric.name }}
           </label>
           {% endfor %}
         </div>
@@ -618,10 +618,10 @@
         <h6 class="filter-group-title">Availability</h6>
         <div class="filter-checkboxes">
           <label class="filter-checkbox">
-            <input type="checkbox" name="availability" value="available" {% if selected_availability == 'available' %}checked{% endif %}> In Stock
+            <input type="checkbox" name="availability" value="available" {% if 'available' in selected_availabilities %}checked{% endif %}> In Stock
           </label>
           <label class="filter-checkbox">
-            <input type="checkbox" name="availability" value="out-of-stock" {% if selected_availability == 'out-of-stock' %}checked{% endif %}> Out of Stock
+            <input type="checkbox" name="availability" value="out-of-stock" {% if 'out-of-stock' in selected_availabilities %}checked{% endif %}> Out of Stock
           </label>
         </div>
       </div>

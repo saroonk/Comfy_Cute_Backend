@@ -193,23 +193,47 @@ function applyFilters() {
   const baseUrl = window.location.origin + window.location.pathname;
   const url = new URL(baseUrl);
 
-  // Category (single select)
-  const categoryChecked = document.querySelector('input[name="category"]:checked');
-  const category = categoryChecked ? categoryChecked.value.trim() : '';
-  if (category) {
-    url.searchParams.set('category', category);
+  // Determine if we should read from mobile filter modal or desktop sidebar
+  const isMobile = window.innerWidth < 992;
+  const container = document.querySelector(isMobile ? '#mobileFilterModal' : '.products-sidebar');
+
+  if (container) {
+    // Category (single select)
+    const categoryChecked = container.querySelector('input[name="category"]:checked');
+    const category = categoryChecked ? categoryChecked.value.trim() : '';
+    if (category) {
+      url.searchParams.set('category', category);
+    }
+
+    // Subcategory (single select)
+    const subcategoryChecked = container.querySelector('input[name="subcategory"]:checked');
+    const subcategory = subcategoryChecked ? subcategoryChecked.value.trim() : '';
+    if (subcategory) {
+      url.searchParams.set('subcategory', subcategory);
+    }
+
+    // Fabric (can be multiple selections)
+    const fabricCheckboxes = container.querySelectorAll('input[name="fabric"]:checked');
+    fabricCheckboxes.forEach(checkbox => {
+      url.searchParams.append('fabric', checkbox.value.trim());
+    });
+
+    // Size (can be multiple selections)
+    const sizeCheckboxes = container.querySelectorAll('input[name="size"]:checked');
+    sizeCheckboxes.forEach(checkbox => {
+      url.searchParams.append('size', checkbox.value.trim());
+    });
+
+    // Availability (can be multiple selections)
+    const availabilityCheckboxes = container.querySelectorAll('input[name="availability"]:checked');
+    availabilityCheckboxes.forEach(checkbox => {
+      url.searchParams.append('availability', checkbox.value.trim());
+    });
   }
 
-  // Subcategory (single select)
-  const subcategoryChecked = document.querySelector('input[name="subcategory"]:checked');
-  const subcategory = subcategoryChecked ? subcategoryChecked.value.trim() : '';
-  if (subcategory) {
-    url.searchParams.set('subcategory', subcategory);
-  }
-
-  // Price filters - only if field has non-empty value
-  const priceMinEl = document.getElementById('priceMin') || document.getElementById('priceMinMobile');
-  const priceMaxEl = document.getElementById('priceMax') || document.getElementById('priceMaxMobile');
+  // Price filters - read from the correct elements based on container/viewport
+  const priceMinEl = isMobile ? document.getElementById('priceMinMobile') : document.getElementById('priceMin');
+  const priceMaxEl = isMobile ? document.getElementById('priceMaxMobile') : document.getElementById('priceMax');
 
   const minPrice = priceMinEl?.value?.trim() || '';
   const maxPrice = priceMaxEl?.value?.trim() || '';
@@ -220,27 +244,6 @@ function applyFilters() {
 
   if (maxPrice && !isNaN(maxPrice) && maxPrice !== '0') {
     url.searchParams.set('max_price', maxPrice);
-  }
-
-  // Fabric (single select)
-  const fabricChecked = document.querySelector('input[name="fabric"]:checked');
-  const fabric = fabricChecked ? fabricChecked.value.trim() : '';
-  if (fabric) {
-    url.searchParams.set('fabric', fabric);
-  }
-
-  // Size (single select)
-  const sizeChecked = document.querySelector('input[name="size"]:checked');
-  const size = sizeChecked ? sizeChecked.value.trim() : '';
-  if (size) {
-    url.searchParams.set('size', size);
-  }
-
-  // Availability (single select)
-  const availabilityChecked = document.querySelector('input[name="availability"]:checked');
-  const availability = availabilityChecked ? availabilityChecked.value.trim() : '';
-  if (availability) {
-    url.searchParams.set('availability', availability);
   }
 
   // Sorting - preserve current sort if present, default to newest
