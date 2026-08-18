@@ -747,3 +747,213 @@ class Wishlist(models.Model):
     def __str__(self):
         owner = self.user.email if self.user else f"Session {self.session_id}"
         return f"{owner} - {self.product.name}"
+
+
+# ==========================================
+# CART MODELS
+# ==========================================
+
+class Cart(models.Model):
+    """
+    Model for shopping carts.
+    Supports both authenticated users and anonymous sessions.
+
+    A cart can belong to either:
+    - An authenticated user (user is set, session_id is NULL)
+    - An anonymous session (session_id is set, user is NULL)
+
+    One active cart per owner is recommended but not enforced at database level
+    to allow for cart history/restoration scenarios.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='carts',
+        null=True,
+        blank=True,
+        help_text='Authenticated user (NULL for anonymous sessions)'
+    )
+    session_id = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        help_text='Session ID for anonymous users (NULL for authenticated users)'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'Cart'
+        verbose_name_plural = 'Carts'
+        # Enforce ownership constraints
+        constraints = [
+            models.UniqueConstraint(
+                condition=models.Q(user__isnull=False),
+                fields=['user'],
+                name='unique_user_active_cart',
+            ),
+            models.UniqueConstraint(
+                condition=models.Q(session_id__isnull=False),
+                fields=['session_id'],
+                name='unique_session_active_cart',
+            ),
+            # Prevent carts with both user and session_id
+            models.CheckConstraint(
+                check=models.Q(user__isnull=False, session_id__isnull=True)
+                | models.Q(user__isnull=True, session_id__isnull=False),
+                name='cart_must_have_owner',
+            ),
+        ]
+
+    def __str__(self):
+        owner = self.user.email if self.user else f"Session {self.session_id}"
+        return f"Cart - {owner}"
+
+    @property
+    def total_quantity(self):
+        """Get total number of items in cart (sum of all quantities)."""
+        from django.db.models import Sum
+        result = self.items.aggregate(total=Sum('quantity'))
+        return result['total'] or 0
+
+    @property
+    def subtotal(self):
+        """Get cart subtotal (sum of all item subtotals)."""
+        from decimal import Decimal
+        total = Decimal('0.00')
+        for item in self.items.all():
+            total += item.subtotal
+        return total
+
+    @property
+    def is_empty(self):
+        """Check if cart has any items."""
+        return self.items.count() == 0
+
+    @property
+    def item_count(self):
+        """Get number of distinct CartItems (different from total_quantity)."""
+        return self.items.count()
+
+
+class CartItem(models.Model):
+    """
+    Model for individual items in a cart.
+    Represents a specific product/variant/size combination.
+
+    A CartItem must identify the exact purchasable product selection:
+    - Product (required)
+    - ProductVariant/Color (required - the specific color variant)
+    - Size (required - the specific size)
+    - Quantity (required, >= 1)
+
+    Stock is validated against VariantSizeStock.stock at the time of operations.
+    Price is fetched from ProductVariant (with override) or Product at the time of operations.
+    """
+    cart = models.ForeignKey(
+        Cart,
+        on_delete=models.CASCADE,
+        related_name='items',
+        help_text='Parent cart'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        help_text='Product'
+    )
+    variant = models.ForeignKey(
+        ProductVariant,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        help_text='Product variant (color)'
+    )
+    size = models.ForeignKey(
+        Size,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        help_text='Selected size'
+    )
+    quantity = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        help_text='Quantity (must be >= 1)'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Cart Item'
+        verbose_name_plural = 'Cart Items'
+        # Prevent duplicate product/variant/size combinations in same cart
+        constraints = [
+            models.UniqueConstraint(
+                fields=['cart', 'product', 'variant', 'size'],
+                name='unique_cart_product_variant_size'
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.cart} - {self.product.name} ({self.variant.color.name}, {self.size.name}) x{self.quantity}"
+
+    def get_variant_size_stock(self):
+        """
+        Get the VariantSizeStock object for this cart item.
+        Returns the database record that holds the actual available stock.
+        """
+        from django.core.exceptions import ObjectDoesNotExist
+        try:
+            return VariantSizeStock.objects.get(variant=self.variant, size=self.size)
+        except ObjectDoesNotExist:
+            return None
+
+    @property
+    def available_stock(self):
+        """
+        Get currently available stock for this product/variant/size.
+        Returns 0 if the combination doesn't exist in inventory.
+        """
+        vss = self.get_variant_size_stock()
+        return vss.stock if vss else 0
+
+    def has_sufficient_stock(self):
+        """
+        Check if there is enough stock to fulfill this cart item's quantity.
+        Returns True if available_stock >= quantity, False otherwise.
+        """
+        return self.available_stock >= self.quantity
+
+    def validate_stock(self):
+        """
+        Validate that sufficient stock is available.
+        Raises ValidationError if stock is insufficient.
+        """
+        from django.core.exceptions import ValidationError
+        if not self.has_sufficient_stock():
+            raise ValidationError(
+                f"Insufficient stock for {self.product.name} ({self.variant.color.name}, "
+                f"{self.size.name}). Requested: {self.quantity}, Available: {self.available_stock}"
+            )
+
+    def get_unit_price(self):
+        """
+        Get the current selling price for this item.
+        Uses variant override if available, falls back to product price.
+        Returns a Decimal value.
+        """
+        return self.variant.get_selling_price()
+
+    @property
+    def unit_price(self):
+        """Convenience property for unit price."""
+        return self.get_unit_price()
+
+    @property
+    def subtotal(self):
+        """
+        Calculate subtotal for this cart item.
+        subtotal = unit_price × quantity
+        """
+        return self.unit_price * self.quantity

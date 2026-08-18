@@ -6,7 +6,8 @@ from django.db.models import Q
 from .models import (
     HeroBanner, ContactSubmission, Testimonial, User, Announcement,
     Category, SubCategory, Product, ProductVariant, ProductVariantImage,
-    VariantSizeStock, Collection, Fabric, Color, Size, Wishlist
+    VariantSizeStock, Collection, Fabric, Color, Size, Wishlist,
+    Cart, CartItem
 )
 from unfold.admin import ModelAdmin, TabularInline, StackedInline
 
@@ -437,4 +438,145 @@ class WishlistAdmin(ModelAdmin):
 
     def has_add_permission(self, request):
         # Wishlist items are typically added via frontend, not admin
+        return False
+
+
+# ==========================================
+# CART ADMIN
+# ==========================================
+
+class CartItemInline(TabularInline):
+    """Inline admin for CartItem - manages items in a cart."""
+    model = CartItem
+    extra = 0
+    fields = ['product', 'variant', 'size', 'quantity', 'unit_price_display', 'subtotal_display']
+    readonly_fields = ['unit_price_display', 'subtotal_display', 'product', 'variant', 'size']
+    can_delete = True
+    verbose_name = 'Cart Item'
+    verbose_name_plural = 'Cart Items'
+
+    def unit_price_display(self, obj):
+        """Display the unit price for this item."""
+        return f"₹{obj.unit_price}"
+    unit_price_display.short_description = 'Unit Price'
+
+    def subtotal_display(self, obj):
+        """Display the subtotal for this item."""
+        return f"₹{obj.subtotal}"
+    subtotal_display.short_description = 'Subtotal'
+
+
+@admin.register(Cart)
+class CartAdmin(ModelAdmin):
+    list_display = ['owner_display', 'item_count_display', 'total_quantity_display', 'subtotal_display', 'updated_at']
+    list_filter = ['updated_at', 'created_at']
+    search_fields = ['user__email', 'session_id']
+    readonly_fields = ['created_at', 'updated_at', 'session_id', 'total_quantity_display', 'subtotal_display', 'item_count_display']
+    inlines = [CartItemInline]
+
+    fieldsets = (
+        ('Cart Owner', {
+            'fields': ('user', 'session_id')
+        }),
+        ('Cart Summary', {
+            'fields': ('item_count_display', 'total_quantity_display', 'subtotal_display')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-updated_at']
+
+    def owner_display(self, obj):
+        """Display the owner of the cart (user or session)."""
+        if obj.user:
+            return f"User: {obj.user.email}"
+        return f"Session: {obj.session_id[:8]}..." if obj.session_id else "Unknown"
+    owner_display.short_description = 'Owner'
+
+    def item_count_display(self, obj):
+        """Display the number of distinct cart items."""
+        return obj.item_count
+    item_count_display.short_description = 'Items'
+
+    def total_quantity_display(self, obj):
+        """Display the total quantity of products in cart."""
+        return obj.total_quantity
+    total_quantity_display.short_description = 'Total Quantity'
+
+    def subtotal_display(self, obj):
+        """Display the cart subtotal."""
+        return f"₹{obj.subtotal}"
+    subtotal_display.short_description = 'Subtotal'
+
+    def has_add_permission(self, request):
+        # Carts are typically created via frontend, not admin
+        return False
+
+
+@admin.register(CartItem)
+class CartItemAdmin(ModelAdmin):
+    list_display = ['cart_owner_display', 'product', 'variant_color_display', 'size', 'quantity', 'unit_price_display', 'subtotal_display', 'stock_status_display']
+    list_filter = ['cart__user', 'product', 'created_at']
+    search_fields = ['cart__user__email', 'cart__session_id', 'product__name', 'variant__color__name', 'size__name']
+    readonly_fields = ['created_at', 'updated_at', 'unit_price_display', 'subtotal_display', 'available_stock_display', 'stock_status_display']
+
+    fieldsets = (
+        ('Cart Reference', {
+            'fields': ('cart',)
+        }),
+        ('Product Selection', {
+            'fields': ('product', 'variant', 'size', 'quantity')
+        }),
+        ('Pricing', {
+            'fields': ('unit_price_display', 'subtotal_display')
+        }),
+        ('Stock Information', {
+            'fields': ('available_stock_display', 'stock_status_display')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-created_at']
+
+    def cart_owner_display(self, obj):
+        """Display the cart owner."""
+        if obj.cart.user:
+            return f"User: {obj.cart.user.email}"
+        return f"Session: {obj.cart.session_id[:8]}..." if obj.cart.session_id else "Unknown"
+    cart_owner_display.short_description = 'Cart Owner'
+
+    def variant_color_display(self, obj):
+        """Display variant color."""
+        return obj.variant.color.name if obj.variant else "N/A"
+    variant_color_display.short_description = 'Variant (Color)'
+
+    def unit_price_display(self, obj):
+        """Display the unit price."""
+        return f"₹{obj.unit_price}"
+    unit_price_display.short_description = 'Unit Price'
+
+    def subtotal_display(self, obj):
+        """Display the subtotal."""
+        return f"₹{obj.subtotal}"
+    subtotal_display.short_description = 'Subtotal'
+
+    def available_stock_display(self, obj):
+        """Display available stock for this size/variant."""
+        stock = obj.available_stock
+        return f"{stock} units"
+    available_stock_display.short_description = 'Available Stock'
+
+    def stock_status_display(self, obj):
+        """Display stock status (sufficient/insufficient)."""
+        if obj.has_sufficient_stock():
+            return "✓ Sufficient"
+        return f"✗ Insufficient (need {obj.quantity}, have {obj.available_stock})"
+    stock_status_display.short_description = 'Stock Status'
+
+    def has_add_permission(self, request):
+        # Cart items are typically added via frontend, not admin
         return False
