@@ -76,7 +76,8 @@ function toggleWishlist(productId, button) {
         updateWishlistCount(data.wishlist_count);
 
         // Store the updated state in sessionStorage for cross-page synchronization
-        storeWishlistStateChange(productId, data.wishlisted);
+        // Include both the product state and the total wishlist count
+        storeWishlistStateChange(productId, data.wishlisted, data.wishlist_count);
       } else {
         console.error('Wishlist toggle failed:', data.message);
       }
@@ -166,14 +167,26 @@ function updateWishlistIconStates() {
  * Store a wishlist state change in sessionStorage for cross-page synchronization
  * @param {number} productId - The product ID
  * @param {boolean} isWishlisted - Whether the product is now wishlisted
+ * @param {number} wishlistCount - The total wishlist count from backend
  */
-function storeWishlistStateChange(productId, isWishlisted) {
+function storeWishlistStateChange(productId, isWishlisted, wishlistCount) {
   try {
     // Get or create the wishlist state object
-    let wishlistState = JSON.parse(sessionStorage.getItem('wishlistState')) || {};
+    let wishlistState = JSON.parse(sessionStorage.getItem('wishlistState')) || {
+      products: {},
+      count: 0
+    };
+
+    // Ensure products object exists
+    if (!wishlistState.products) {
+      wishlistState.products = {};
+    }
 
     // Update the product's state
-    wishlistState[productId] = isWishlisted;
+    wishlistState.products[productId] = isWishlisted;
+
+    // Update the total count
+    wishlistState.count = wishlistCount;
 
     // Store back in sessionStorage
     sessionStorage.setItem('wishlistState', JSON.stringify(wishlistState));
@@ -183,25 +196,37 @@ function storeWishlistStateChange(productId, isWishlisted) {
 }
 
 /**
- * Synchronize wishlist button states based on stored changes in sessionStorage
+ * Synchronize wishlist button states AND navbar count based on stored changes in sessionStorage
  * This handles the case where the user navigated away and came back
  * (e.g., product detail → back to products page)
  */
 function syncWishlistStateFromStorage() {
   try {
-    const wishlistState = JSON.parse(sessionStorage.getItem('wishlistState')) || {};
+    const wishlistState = JSON.parse(sessionStorage.getItem('wishlistState'));
 
+    if (!wishlistState) {
+      return;
+    }
+
+    // Sync product-level states
+    const products = wishlistState.products || {};
     const wishlistButtons = document.querySelectorAll('[data-wishlist-toggle]');
 
     wishlistButtons.forEach(button => {
       const productId = parseInt(button.getAttribute('data-wishlist-toggle'));
 
       // If this product has a stored state change, apply it
-      if (wishlistState.hasOwnProperty(productId)) {
-        const isWishlisted = wishlistState[productId];
+      if (products.hasOwnProperty(productId)) {
+        const isWishlisted = products[productId];
         updateButtonState(button, isWishlisted);
       }
     });
+
+    // Sync the navbar count
+    // This is the key fix for cross-page count synchronization
+    if (wishlistState.hasOwnProperty('count')) {
+      updateWishlistCount(wishlistState.count);
+    }
   } catch (error) {
     console.error('Error syncing wishlist state:', error);
   }
@@ -246,6 +271,27 @@ function getCsrfToken() {
  */
 function initializeWishlistContext(productIds, count) {
   window.wishlistProductIds = productIds || [];
-  updateWishlistCount(count || 0);
+  const actualCount = count || 0;
+  updateWishlistCount(actualCount);
   updateWishlistIconStates();
+
+  // Store the server-provided count in sessionStorage for cross-page synchronization
+  // This ensures the latest server state is available when navigating between pages
+  try {
+    let wishlistState = JSON.parse(sessionStorage.getItem('wishlistState')) || {
+      products: {},
+      count: 0
+    };
+
+    // Ensure products object exists
+    if (!wishlistState.products) {
+      wishlistState.products = {};
+    }
+
+    // Update count from server context processor
+    wishlistState.count = actualCount;
+    sessionStorage.setItem('wishlistState', JSON.stringify(wishlistState));
+  } catch (error) {
+    console.error('Error initializing wishlist state in storage:', error);
+  }
 }
