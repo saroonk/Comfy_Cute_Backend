@@ -23,7 +23,7 @@ def navbar_categories(request):
         'Baby': [
             '0–3 Months',
             '3–6 Months',
-            '6–9 Months',
+            '6–12 Months',
         ],
         'Girl': [
             '0–2 Years',
