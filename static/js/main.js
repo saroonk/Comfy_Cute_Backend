@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // ==========================================
   // 4. MOCK DATA & CART/WISHLIST STATE
   // ==========================================
-  // Sample products database for quick view and cart
+  // Sample products database for quick view (NOT for cart - cart uses backend API)
   const products = {
     "prod-1": {
       id: "prod-1",
@@ -251,17 +251,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  let cart = [
-    {
-      id: "prod-1",
-      title: "Premium Linen Summer Dress",
-      price: 2499,
-      image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&auto=format&fit=crop",
-      size: "M",
-      color: "Mint Green",
-      qty: 1
-    }
-  ];
+  // ==========================================
+  // CART NOW USES BACKEND API (Phase 2)
+  // The cart data is fetched from /api/cart/get/
+  // This variable is NO LONGER USED for cart data
+  // ==========================================
+  let cart = [];  // Empty - cart data comes from backend only
 
   let wishlist = new Set(["prod-2"]);
 
@@ -271,9 +266,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const cartDrawerItems = document.querySelector('.cart-items-container');
   const cartSubtotalText = document.querySelector('.cart-subtotal-price');
 
-  // Initialize UI counts
+  // Initialize UI counts - now from backend
   updateCartUI();
   updateWishlistUI();
+
+  // Listen for cart drawer open to refresh cart data
+  const cartDrawer = document.getElementById('cartDrawer');
+  if (cartDrawer) {
+    cartDrawer.addEventListener('show.bs.offcanvas', function () {
+      updateCartUI();
+    });
+  }
 
   // WISHLIST TOGGLE ACTION
   document.addEventListener('click', function (e) {
@@ -314,89 +317,222 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // CART STATE UPDATING
+  // CART STATE UPDATING — NOW FETCHES FROM BACKEND
   function updateCartUI() {
-    // Badges update
-    const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-    cartBadges.forEach(badge => {
-      badge.textContent = totalItems;
-      if (totalItems === 0) {
-        badge.style.display = 'none';
-      } else {
-        badge.style.display = 'flex';
-      }
-    });
+    // Fetch current cart from backend API
+    fetch('/api/cart/get/')
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          console.error('Error fetching cart:', data.message);
+          return;
+        }
 
-    // Subtotal calculation
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    if (cartSubtotalText) {
-      cartSubtotalText.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-    }
+        const items = data.items || [];
+        const cartTotal = data.cart_total || '₹0';
+        const cartCount = data.cart_count || 0;
 
-    // Render items in mini cart drawer
-    if (cartDrawerItems) {
-      if (cart.length === 0) {
-        cartDrawerItems.innerHTML = `
-          <div class="text-center py-5">
-            <i class="fa-solid fa-bag-shopping mb-3" style="font-size: 3rem; color: var(--color-border)"></i>
-            <h5 class="mb-2">Your cart is empty</h5>
-            <p class="text-muted mb-4 small">Looks like you haven't added anything yet.</p>
-            <button class="btn btn-premium btn-premium-primary btn-sm" data-bs-dismiss="offcanvas">Shop Now</button>
-          </div>
-        `;
-      } else {
-        cartDrawerItems.innerHTML = cart.map(item => `
-          <div class="cart-item">
-            <img src="${item.image}" alt="${item.title}" class="cart-item-img">
-            <div class="cart-item-info">
-              <h6 class="cart-item-title">${item.title}</h6>
-              <div class="cart-item-meta">Size: ${item.size} | Color: ${item.color}</div>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="cart-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</span>
-                <div class="cart-item-qty">
-                  <button class="cart-qty-btn qty-minus" data-id="${item.id}" data-size="${item.size}">-</button>
-                  <span class="cart-qty-val">${item.qty}</span>
-                  <button class="cart-qty-btn qty-plus" data-id="${item.id}" data-size="${item.size}">+</button>
-                </div>
+        // Update badges
+        cartBadges.forEach(badge => {
+          badge.textContent = cartCount;
+          if (cartCount === 0) {
+            badge.style.display = 'none';
+          } else {
+            badge.style.display = 'flex';
+          }
+        });
+
+        // Update subtotal
+        if (cartSubtotalText) {
+          cartSubtotalText.textContent = cartTotal;
+        }
+
+        // Render items in cart drawer
+        if (cartDrawerItems) {
+          if (items.length === 0) {
+            cartDrawerItems.innerHTML = `
+              <div class="text-center py-5">
+                <i class="fa-solid fa-bag-shopping mb-3" style="font-size: 3rem; color: var(--color-border)"></i>
+                <h5 class="mb-2">Your cart is empty</h5>
+                <p class="text-muted mb-4 small">Looks like you haven't added anything yet.</p>
+                <button class="btn btn-premium btn-premium-primary btn-sm" data-bs-dismiss="offcanvas">Shop Now</button>
               </div>
+            `;
+          } else {
+            cartDrawerItems.innerHTML = items.map(item => `
+              <div class="cart-item">
+                <img src="${item.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=150&auto=format&fit=crop'}" alt="${item.product_name}" class="cart-item-img">
+                <div class="cart-item-info">
+                  <h6 class="cart-item-title">${item.product_name}</h6>
+                  <div class="cart-item-meta">Size: ${item.size_name} | Variant: ${item.variant_name}</div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="cart-item-price">₹${item.subtotal}</span>
+                    <div class="cart-item-qty">
+                      <button class="cart-qty-btn qty-minus" data-id="${item.id}">-</button>
+                      <span class="cart-qty-val">${item.quantity}</span>
+                      <button class="cart-qty-btn qty-plus" data-id="${item.id}">+</button>
+                    </div>
+                  </div>
+                </div>
+                <button class="cart-item-remove" data-id="${item.id}">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            `).join('');
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error updating cart UI:', error);
+        // Show empty cart on error
+        if (cartDrawerItems) {
+          cartDrawerItems.innerHTML = `
+            <div class="text-center py-5">
+              <i class="fa-solid fa-bag-shopping mb-3" style="font-size: 3rem; color: var(--color-border)"></i>
+              <h5 class="mb-2">Your cart</h5>
+              <p class="text-muted mb-4 small">Unable to load cart. Please refresh the page.</p>
             </div>
-            <button class="cart-item-remove" data-id="${item.id}" data-size="${item.size}">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        `).join('');
+          `;
+        }
+      });
+  }
+
+  // Get CSRF token helper
+  function getCsrfToken() {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
       }
     }
+    return cookieValue;
   }
 
   // Cart Qty Modifiers & Remove buttons inside drawer
   if (cartDrawerItems) {
     cartDrawerItems.addEventListener('click', function (e) {
       const target = e.target;
-      const itemId = target.dataset.id;
-      const itemSize = target.dataset.size;
+      const itemId = parseInt(target.dataset.id);
 
       if (!itemId) return;
 
-      const itemIdx = cart.findIndex(item => item.id === itemId && item.size === itemSize);
-
-      if (itemIdx === -1) return;
-
       if (target.classList.contains('qty-plus')) {
-        cart[itemIdx].qty += 1;
-        updateCartUI();
+        // Get current quantity from displayed text
+        const qtySpan = target.previousElementSibling;
+        const currentQty = parseInt(qtySpan.textContent) || 1;
+        const newQty = currentQty + 1;
+
+        // Call backend API to update
+        fetch('/api/cart/update/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+          },
+          body: JSON.stringify({
+            cart_item_id: itemId,
+            quantity: newQty
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updateCartUI();
+            showToast('Cart updated', 'success');
+          } else {
+            showToast('Error: ' + (data.message || 'Could not update cart'), 'info');
+          }
+        })
+        .catch(error => {
+          console.error('Error updating cart:', error);
+          showToast('Error updating cart', 'info');
+        });
+
       } else if (target.classList.contains('qty-minus')) {
-        if (cart[itemIdx].qty > 1) {
-          cart[itemIdx].qty -= 1;
+        const qtySpan = target.nextElementSibling;
+        const currentQty = parseInt(qtySpan.textContent) || 1;
+        const newQty = currentQty - 1;
+
+        if (newQty < 1) {
+          // Remove item
+          fetch('/api/cart/remove/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({ cart_item_id: itemId })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              updateCartUI();
+              showToast('Item removed from cart', 'info');
+            } else {
+              showToast('Error: ' + (data.message || 'Could not remove item'), 'info');
+            }
+          })
+          .catch(error => {
+            console.error('Error removing from cart:', error);
+            showToast('Error removing item', 'info');
+          });
         } else {
-          cart.splice(itemIdx, 1);
-          showToast("Item removed from cart", "info");
+          // Update quantity
+          fetch('/api/cart/update/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({
+              cart_item_id: itemId,
+              quantity: newQty
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              updateCartUI();
+              showToast('Cart updated', 'success');
+            } else {
+              showToast('Error: ' + (data.message || 'Could not update cart'), 'info');
+            }
+          })
+          .catch(error => {
+            console.error('Error updating cart:', error);
+            showToast('Error updating cart', 'info');
+          });
         }
-        updateCartUI();
+
       } else if (target.closest('.cart-item-remove')) {
-        cart.splice(itemIdx, 1);
-        showToast("Item removed from cart", "info");
-        updateCartUI();
+        // Remove item
+        fetch('/api/cart/remove/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+          },
+          body: JSON.stringify({ cart_item_id: itemId })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updateCartUI();
+            showToast('Item removed from cart', 'info');
+          } else {
+            showToast('Error: ' + (data.message || 'Could not remove item'), 'info');
+          }
+        })
+        .catch(error => {
+          console.error('Error removing from cart:', error);
+          showToast('Error removing item', 'info');
+        });
       }
     });
   }

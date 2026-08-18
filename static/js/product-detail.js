@@ -315,61 +315,131 @@ function decreaseQty() {
   }
 }
 
-// Add to cart
+// Get product ID from the page (from window.variantsData if available)
+function getProductId() {
+  if (window.variantsData && Object.keys(window.variantsData).length > 0) {
+    const variantId = Object.keys(window.variantsData)[0];
+    const variantData = window.variantsData[variantId];
+    // Extract product ID from variant data if available
+    // For now, we'll get it from the first variant's context
+    // The product ID should be available from the page context
+  }
+  // Fallback: parse from URL or look for a data attribute
+  const productIdElem = document.querySelector('[data-product-id]');
+  if (productIdElem) {
+    return parseInt(productIdElem.dataset.productId);
+  }
+  // As a last resort, we'll get it from variantsData structure
+  return null;
+}
+
+// Get CSRF token from cookie for API requests
+function getCsrfToken() {
+  const name = 'csrftoken';
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Add to cart with backend API
 function addToCart() {
-  // Get product information from the page
-  const productName = document.querySelector('.product-title')?.textContent || 'Product';
-  const priceText = document.querySelector('.price-current')?.textContent || '₹0';
-  const price = parseInt(priceText.replace(/[^0-9]/g, '')) || 0;
-  const qty = quantity;
-
-  // Get product image from carousel
-  const $carousel = jQuery('#productCarousel');
-  const currentImg = $carousel.find('.owl-item.active img').attr('src');
-
   // Require size and variant selection
-  if (!selectedSize || !selectedVariant) {
+  if (!selectedSize || !selectedVariant || !selectedVariantId) {
     alert('Please select a variant and size before adding to cart.');
     return;
   }
 
-  const cartItem = {
-    id: Date.now(),
-    name: productName,
-    price: price,
-    quantity: qty,
-    size: selectedSize,
-    variant: selectedVariant,
-    variantId: selectedVariantId,
-    image: currentImg || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=150&auto=format&fit=crop'
-  };
-
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existingItem = cart.find(item =>
-    item.name === productName &&
-    item.size === selectedSize &&
-    item.variant === selectedVariant &&
-    item.variantId === selectedVariantId
-  );
-
-  if (existingItem) {
-    existingItem.quantity += qty;
-  } else {
-    cart.push(cartItem);
+  // Get size ID from the selected size button
+  const selectedSizeBtn = document.querySelector('.size-btn.active');
+  if (!selectedSizeBtn) {
+    alert('Please select a size.');
+    return;
   }
 
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartBadge();
+  const sizeId = parseInt(selectedSizeBtn.dataset.sizeId);
+  if (!sizeId) {
+    alert('Invalid size selection.');
+    return;
+  }
+
+  // We need the product ID from the page context
+  // Since we have variantsData with variant information, we can extract it
+  // The product ID is needed for the API call
+  const productBtn = document.querySelector('[data-product-id]');
+  let productId = productBtn ? parseInt(productBtn.dataset.productId) : null;
+
+  // Alternative: Try to get product ID from URL or meta tag
+  if (!productId) {
+    const metaTag = document.querySelector('meta[data-product-id]');
+    if (metaTag) {
+      productId = parseInt(metaTag.dataset.productId);
+    }
+  }
+
+  // If still no product ID, we'll need to extract it from the page context
+  // For now, we'll use a workaround by getting it from the window object if it exists
+  if (!productId && window.productId) {
+    productId = window.productId;
+  }
+
+  if (!productId) {
+    alert('Product ID not found. Please refresh the page.');
+    return;
+  }
 
   const btn = document.querySelector('.btn-add-to-cart');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '<i class="fa-solid fa-check"></i> Added to Cart';
-  btn.style.backgroundColor = 'var(--color-primary-hover)';
+  btn.disabled = true;
 
-  setTimeout(() => {
-    btn.innerHTML = originalText;
-    btn.style.backgroundColor = '';
-  }, 2000);
+  // Send add to cart request to backend API
+  fetch('/api/cart/add/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken(),
+    },
+    body: JSON.stringify({
+      product_id: productId,
+      variant_id: selectedVariantId,
+      size_id: sizeId,
+      quantity: quantity
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Show success message
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Added to Cart';
+      btn.style.backgroundColor = 'var(--color-primary-hover)';
+
+      // Update cart badge and drawer
+      updateCartBadgeFromResponse(data);
+      renderCartItemsFromResponse(data.items);
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.backgroundColor = '';
+        btn.disabled = false;
+      }, 2000);
+    } else {
+      alert('Error: ' + (data.message || 'Could not add to cart'));
+      btn.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error adding to cart:', error);
+    alert('Error adding to cart. Please try again.');
+    btn.disabled = false;
+  });
 }
 
 // Toggle wishlist
@@ -394,21 +464,31 @@ function toggleWishlist() {
   updateWishlistBadge();
 }
 
-// Update cart badge
-function updateCartBadge() {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const count = cart.reduce((total, item) => total + item.quantity, 0);
+// Update cart badge from API response
+function updateCartBadgeFromResponse(cartData) {
+  const count = cartData.cart_count || 0;
   document.querySelectorAll('.cart-badge').forEach(badge => {
     badge.textContent = count;
   });
 }
 
+// Update cart badge (legacy - loads from API)
+function updateCartBadge() {
+  // Fetch current cart data from backend
+  fetch('/api/cart/get/')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        updateCartBadgeFromResponse(data);
+      }
+    })
+    .catch(error => console.error('Error fetching cart:', error));
+}
+
 // Update wishlist badge
 function updateWishlistBadge() {
-  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  document.querySelectorAll('.wishlist-badge').forEach(badge => {
-    badge.textContent = wishlist.length;
-  });
+  // Note: Wishlist badge is now handled by wishlist-system.js
+  // This function kept for compatibility
 }
 
 // Search functionality
@@ -449,67 +529,160 @@ function setupCart() {
   }
 }
 
-// Render cart items
-function renderCartItems() {
+// Render cart items from API response
+function renderCartItemsFromResponse(items) {
   const container = document.querySelector('.cart-items-container');
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-  if (cart.length === 0) {
+  if (!items || items.length === 0) {
     container.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--color-text);">Your cart is empty</div>';
     return;
   }
 
-  container.innerHTML = cart.map((item, index) => `
+  container.innerHTML = items.map((item) => `
     <div class="cart-item" style="display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--color-border);">
-      <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+      <img src="${item.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=150&auto=format&fit=crop'}" alt="${item.product_name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
       <div style="flex: 1;">
-        <h6 style="margin: 0 0 4px 0; font-weight: 600;">${item.name}</h6>
-        <p style="margin: 0; font-size: 0.85rem; color: var(--color-text);">Size: ${item.size} | Variant: ${item.variant}</p>
-        <p style="margin: 8px 0 0 0; font-weight: 600;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</p>
+        <h6 style="margin: 0 0 4px 0; font-weight: 600;">${item.product_name}</h6>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--color-text);">Size: ${item.size_name} | Variant: ${item.variant_name}</p>
+        <p style="margin: 8px 0 0 0; font-weight: 600;">₹${item.subtotal}</p>
         <div style="display: flex; gap: 8px; margin-top: 8px;">
-          <button style="padding: 4px 8px; border: 1px solid var(--color-border); background: white; cursor: pointer; border-radius: 4px; font-size: 0.8rem;" onclick="updateCartQty(${index}, -1)">−</button>
+          <button style="padding: 4px 8px; border: 1px solid var(--color-border); background: white; cursor: pointer; border-radius: 4px; font-size: 0.8rem;" onclick="updateCartQtyBackend(${item.id}, ${item.quantity - 1})">−</button>
           <span style="padding: 4px 8px;">${item.quantity}</span>
-          <button style="padding: 4px 8px; border: 1px solid var(--color-border); background: white; cursor: pointer; border-radius: 4px; font-size: 0.8rem;" onclick="updateCartQty(${index}, 1)">+</button>
-          <button style="padding: 4px 8px; border: 1px solid #e74c3c; background: white; color: #e74c3c; cursor: pointer; border-radius: 4px; font-size: 0.8rem; margin-left: auto;" onclick="removeFromCart(${index})">Remove</button>
+          <button style="padding: 4px 8px; border: 1px solid var(--color-border); background: white; cursor: pointer; border-radius: 4px; font-size: 0.8rem;" onclick="updateCartQtyBackend(${item.id}, ${item.quantity + 1})">+</button>
+          <button style="padding: 4px 8px; border: 1px solid #e74c3c; background: white; color: #e74c3c; cursor: pointer; border-radius: 4px; font-size: 0.8rem; margin-left: auto;" onclick="removeFromCartBackend(${item.id})">Remove</button>
         </div>
       </div>
     </div>
   `).join('');
 
-  updateCartSubtotal();
+  updateCartSubtotalFromResponse();
 }
 
-// Update cart quantity
-function updateCartQty(index, change) {
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
-  cart[index].quantity += change;
+// Render cart items (legacy - fetches from backend)
+function renderCartItems() {
+  const container = document.querySelector('.cart-items-container');
+  if (!container) return;
 
-  if (cart[index].quantity <= 0) {
-    cart.splice(index, 1);
+  fetch('/api/cart/get/')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        renderCartItemsFromResponse(data.items);
+      }
+    })
+    .catch(error => console.error('Error fetching cart:', error));
+}
+
+// Update cart quantity via backend API
+function updateCartQtyBackend(cartItemId, newQuantity) {
+  if (newQuantity < 1) {
+    removeFromCartBackend(cartItemId);
+    return;
   }
 
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartBadge();
-  renderCartItems();
+  fetch('/api/cart/update/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken(),
+    },
+    body: JSON.stringify({
+      cart_item_id: cartItemId,
+      quantity: newQuantity
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      updateCartBadgeFromResponse(data);
+      renderCartItemsFromResponse(data.items);
+    } else {
+      alert('Error: ' + (data.message || 'Could not update cart'));
+    }
+  })
+  .catch(error => {
+    console.error('Error updating cart:', error);
+    alert('Error updating cart. Please try again.');
+  });
 }
 
-// Remove from cart
-function removeFromCart(index) {
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
-  cart.splice(index, 1);
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartBadge();
-  renderCartItems();
+// Remove from cart via backend API
+function removeFromCartBackend(cartItemId) {
+  fetch('/api/cart/remove/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken(),
+    },
+    body: JSON.stringify({
+      cart_item_id: cartItemId
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      updateCartBadgeFromResponse(data);
+      renderCartItemsFromResponse(data.items);
+    } else {
+      alert('Error: ' + (data.message || 'Could not remove item'));
+    }
+  })
+  .catch(error => {
+    console.error('Error removing from cart:', error);
+    alert('Error removing from cart. Please try again.');
+  });
 }
 
-// Update cart subtotal
-function updateCartSubtotal() {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+// Update cart subtotal from API response data stored in cart drawer
+function updateCartSubtotalFromResponse() {
   const subtotalElement = document.querySelector('.cart-subtotal-price');
   if (subtotalElement) {
-    subtotalElement.textContent = '₹' + subtotal.toLocaleString('en-IN');
+    // The subtotal should already be displayed from renderCartItemsFromResponse
+    // But we can also fetch it fresh if needed
+    fetch('/api/cart/get/')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && subtotalElement) {
+          subtotalElement.textContent = '₹' + data.cart_total;
+        }
+      })
+      .catch(error => console.error('Error fetching cart subtotal:', error));
   }
+}
+
+// Legacy function for compatibility
+function updateCartQty(index, change) {
+  // This function is called from old rendering - we don't have cart item IDs here
+  // Need to fetch cart data first
+  fetch('/api/cart/get/')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.items && data.items[index]) {
+        const cartItem = data.items[index];
+        updateCartQtyBackend(cartItem.id, cartItem.quantity + change);
+      }
+    })
+    .catch(error => console.error('Error fetching cart:', error));
+}
+
+// Legacy function for compatibility
+function removeFromCart(index) {
+  // This function is called from old rendering - we don't have cart item IDs here
+  // Need to fetch cart data first
+  fetch('/api/cart/get/')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.items && data.items[index]) {
+        const cartItem = data.items[index];
+        removeFromCartBackend(cartItem.id);
+      }
+    })
+    .catch(error => console.error('Error fetching cart:', error));
+}
+
+// Legacy function for compatibility
+function updateCartSubtotal() {
+  updateCartSubtotalFromResponse();
 }
 
 // Back to top button

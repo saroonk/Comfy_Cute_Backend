@@ -10,7 +10,7 @@ import threading
 import logging
 from .models import (
     HeroBanner, ContactSubmission, Testimonial, Product, Category, SubCategory,
-    Fabric, Size, VariantSizeStock, Wishlist
+    Fabric, Size, VariantSizeStock, Wishlist, Cart, CartItem, ProductVariant
 )
 from .forms import ContactSubmissionForm, RegistrationForm, EmailAuthenticationForm
 
@@ -671,3 +671,287 @@ def admin_api_subcategories(request):
         category.subcategories.values('id', 'slug', 'name').order_by('name')
     )
     return JsonResponse({'subcategories': subcategories})
+
+
+# ==========================================
+# CART API ENDPOINTS — PHASE 2
+# ==========================================
+
+def get_or_create_user_cart(request):
+    """
+    Get or create a cart for the current user/session.
+
+    Returns:
+        Cart object
+        None if user is not authenticated and session is not set
+    """
+    if request.user.is_authenticated:
+        # Authenticated user - get their cart
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        return cart
+    else:
+        # Anonymous user - use session
+        if not request.session.session_key:
+            request.session.create()
+
+        session_key = request.session.session_key
+        cart, created = Cart.objects.get_or_create(session_id=session_key)
+        return cart
+
+
+def format_cart_response(cart):
+    """
+    Format cart data for JSON response.
+
+    Returns dict with:
+    - cart_count: Total quantity of items
+    - cart_total: Total price of all items
+    - items: List of cart item data
+    """
+    items = []
+    for item in cart.items.all().select_related('product', 'variant', 'size'):
+        items.append({
+            'id': item.id,
+            'product_id': item.product.id,
+            'product_name': item.product.name,
+            'variant_id': item.variant.id,
+            'variant_name': item.variant.color.name,
+            'size_id': item.size.id,
+            'size_name': item.size.name,
+            'quantity': item.quantity,
+            'unit_price': str(item.unit_price),
+            'subtotal': str(item.subtotal),
+            'available_stock': item.available_stock,
+            'image': item.variant.images.first().image.url if item.variant.images.exists() else item.product.main_image.url if item.product.main_image else None,
+        })
+
+    return {
+        'cart_count': cart.total_quantity,
+        'cart_total': str(cart.subtotal),
+        'items': items,
+    }
+
+
+@require_http_methods(["POST"])
+def cart_add(request):
+    """
+    Add a product to the cart or increase quantity if already exists.
+
+    POST Parameters (JSON):
+    - product_id: ID of the product
+    - variant_id: ID of the product variant (color)
+    - size_id: ID of the size
+    - quantity: Quantity to add (default 1)
+
+    Returns JSON with:
+    - success: boolean
+    - message: error/success message
+    - cart_count: updated total quantity
+    - cart_total: updated total price
+    - items: updated cart items
+    """
+    import json
+    from django.core.exceptions import ValidationError
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+    # Get and validate input
+    try:
+        product_id = int(data.get('product_id'))
+        variant_id = int(data.get('variant_id'))
+        size_id = int(data.get('size_id'))
+        quantity = int(data.get('quantity', 1))
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'message': 'Invalid product/variant/size IDs or quantity'}, status=400)
+
+    if quantity < 1:
+        return JsonResponse({'success': False, 'message': 'Quantity must be at least 1'}, status=400)
+
+    try:
+        # Validate product exists
+        product = Product.objects.get(id=product_id, is_active=True)
+    except Product.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Product not found'}, status=404)
+
+    try:
+        # Validate variant exists and belongs to product
+        variant = ProductVariant.objects.get(id=variant_id, product=product, is_active=True)
+    except ProductVariant.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Invalid variant for this product'}, status=404)
+
+    try:
+        # Validate size exists
+        size = Size.objects.get(id=size_id)
+    except Size.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Size not found'}, status=404)
+
+    try:
+        # Validate size/stock record exists for this variant
+        variant_size_stock = VariantSizeStock.objects.get(variant=variant, size=size)
+    except VariantSizeStock.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'This size is not available for this variant'}, status=404)
+
+    # Check stock availability
+    current_stock = variant_size_stock.stock
+
+    # Get or create cart
+    cart = get_or_create_user_cart(request)
+
+    # Check if same product/variant/size already in cart
+    try:
+        existing_item = CartItem.objects.get(
+            cart=cart,
+            product=product,
+            variant=variant,
+            size=size
+        )
+        # Item exists - validate total quantity
+        new_quantity = existing_item.quantity + quantity
+        if new_quantity > current_stock:
+            return JsonResponse({
+                'success': False,
+                'message': f'Only {current_stock} units available. You already have {existing_item.quantity} in cart.'
+            }, status=400)
+
+        # Update quantity
+        existing_item.quantity = new_quantity
+        existing_item.save()
+        cart_item = existing_item
+
+    except CartItem.DoesNotExist:
+        # New item - validate quantity
+        if quantity > current_stock:
+            return JsonResponse({
+                'success': False,
+                'message': f'Only {current_stock} units available'
+            }, status=400)
+
+        # Create new cart item
+        cart_item = CartItem.objects.create(
+            cart=cart,
+            product=product,
+            variant=variant,
+            size=size,
+            quantity=quantity
+        )
+
+    # Return updated cart
+    cart_data = format_cart_response(cart)
+    cart_data['success'] = True
+    cart_data['message'] = 'Product added to cart'
+
+    return JsonResponse(cart_data)
+
+
+@require_http_methods(["POST"])
+def cart_update(request):
+    """
+    Update quantity of an item in the cart.
+
+    POST Parameters (JSON):
+    - cart_item_id: ID of the CartItem to update
+    - quantity: New quantity (must be >= 1)
+
+    Returns JSON with updated cart data
+    """
+    import json
+    from django.core.exceptions import ValidationError
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+    try:
+        cart_item_id = int(data.get('cart_item_id'))
+        quantity = int(data.get('quantity', 1))
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'message': 'Invalid cart_item_id or quantity'}, status=400)
+
+    if quantity < 1:
+        return JsonResponse({'success': False, 'message': 'Quantity must be at least 1'}, status=400)
+
+    # Get current user's cart
+    cart = get_or_create_user_cart(request)
+
+    try:
+        cart_item = CartItem.objects.get(id=cart_item_id, cart=cart)
+    except CartItem.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Cart item not found'}, status=404)
+
+    # Validate stock
+    available_stock = cart_item.available_stock
+    if quantity > available_stock:
+        return JsonResponse({
+            'success': False,
+            'message': f'Only {available_stock} units available'
+        }, status=400)
+
+    # Update quantity
+    cart_item.quantity = quantity
+    cart_item.save()
+
+    # Return updated cart
+    cart_data = format_cart_response(cart)
+    cart_data['success'] = True
+    cart_data['message'] = 'Cart item updated'
+
+    return JsonResponse(cart_data)
+
+
+@require_http_methods(["POST"])
+def cart_remove(request):
+    """
+    Remove an item from the cart.
+
+    POST Parameters (JSON):
+    - cart_item_id: ID of the CartItem to remove
+
+    Returns JSON with updated cart data
+    """
+    import json
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+    try:
+        cart_item_id = int(data.get('cart_item_id'))
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'message': 'Invalid cart_item_id'}, status=400)
+
+    # Get current user's cart
+    cart = get_or_create_user_cart(request)
+
+    try:
+        cart_item = CartItem.objects.get(id=cart_item_id, cart=cart)
+    except CartItem.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Cart item not found'}, status=404)
+
+    # Delete the item
+    cart_item.delete()
+
+    # Return updated cart
+    cart_data = format_cart_response(cart)
+    cart_data['success'] = True
+    cart_data['message'] = 'Item removed from cart'
+
+    return JsonResponse(cart_data)
+
+
+@require_http_methods(["GET"])
+def cart_get(request):
+    """
+    Get current cart data (read-only).
+
+    Returns JSON with current cart items and totals
+    """
+    cart = get_or_create_user_cart(request)
+    cart_data = format_cart_response(cart)
+    cart_data['success'] = True
+
+    return JsonResponse(cart_data)
