@@ -1,4 +1,4 @@
-from .models import Announcement, Category
+from .models import Announcement, Category, Wishlist
 
 
 def announcements(request):
@@ -8,6 +8,47 @@ def announcements(request):
     active_announcements = Announcement.objects.filter(is_active=True).order_by('order')
     return {
         'announcements': active_announcements
+    }
+
+
+def wishlist_context(request):
+    """
+    Context processor to provide wishlist information globally to all templates.
+
+    Handles both authenticated users and anonymous sessions.
+    For authenticated users, uses request.user.
+    For anonymous users, uses request.session.session_key.
+
+    Provides:
+    - wishlist_product_ids: List of product IDs in the current wishlist
+    - wishlist_count: Total count of wishlist items
+    - wishlist_products: QuerySet of wishlisted products (optional, for detailed display)
+    """
+    wishlist_product_ids = []
+    wishlist_count = 0
+    wishlist_products = []
+
+    # Determine owner: authenticated user or session
+    if request.user.is_authenticated:
+        # Authenticated user
+        wishlist_qs = Wishlist.objects.filter(user=request.user).select_related('product')
+    else:
+        # Anonymous user: ensure session exists
+        if not request.session.session_key:
+            request.session.create()
+
+        session_key = request.session.session_key
+        wishlist_qs = Wishlist.objects.filter(session_id=session_key).select_related('product')
+
+    # Extract product IDs and count
+    wishlist_product_ids = list(wishlist_qs.values_list('product_id', flat=True))
+    wishlist_count = wishlist_qs.count()
+    wishlist_products = [item.product for item in wishlist_qs]
+
+    return {
+        'wishlist_product_ids': wishlist_product_ids,
+        'wishlist_count': wishlist_count,
+        'wishlist_products': wishlist_products,
     }
 
 

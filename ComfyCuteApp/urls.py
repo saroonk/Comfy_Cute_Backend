@@ -22,6 +22,9 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
+    # Wishlist API endpoints
+    path('api/wishlist/toggle/<int:product_id>/', views.wishlist_toggle, name='wishlist_toggle'),
+
     # Admin API endpoints
     path('api/product-subcategories/', views.admin_api_subcategories, name='admin_api_subcategories'),
 

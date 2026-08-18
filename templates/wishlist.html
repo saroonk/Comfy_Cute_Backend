@@ -194,7 +194,7 @@
           <!-- Wishlist -->
           <a href="{% url 'ComfyCuteApp:wishlist' %}" class="icon-btn" id="wishlistTrigger">
             <i class="fa-regular fa-heart"></i>
-            <span class="icon-badge wishlist-badge">0</span>
+            <span class="icon-badge wishlist-badge">{{ wishlist_count }}</span>
           </a>
 
           <!-- Account Dropdown -->
@@ -354,7 +354,8 @@
       </div>
 
       <!-- Empty State -->
-      <div class="empty-wishlist-state" id="emptyWishlistState" style="display: none;">
+      {% if wishlist_count == 0 %}
+      <div class="empty-wishlist-state">
         <div class="empty-state-content">
           <div class="empty-state-icon">
             <i class="fa-regular fa-heart"></i>
@@ -364,11 +365,36 @@
           <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-primary-cta">Browse Products</a>
         </div>
       </div>
+      {% else %}
 
       <!-- Products Grid -->
       <div class="products-grid" id="wishlistProductsGrid">
-        <!-- Products will be rendered here by JavaScript -->
+        {% for product in wishlist_products %}
+        <!-- Product {{ forloop.counter }} -->
+        <a href="{% url 'ComfyCuteApp:product_detail' product.slug %}" style="text-decoration: none; color: inherit;">
+          <div class="arrival-product-card">
+            <div class="arrival-img-container">
+              {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" class="arrival-product-img">
+              {% else %}
+                <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=500&auto=format&fit=crop" alt="{{ product.name }}" class="arrival-product-img">
+              {% endif %}
+              <button class="arrival-wishlist-btn" data-wishlist-toggle="{{ product.id }}" aria-label="Remove from wishlist">
+                <i class="fa-solid fa-heart"></i>
+              </button>
+            </div>
+            <div class="arrival-product-name">{{ product.name }}</div>
+            <div class="arrival-price">
+              {% if product.old_price %}
+                <span class="old-price">₹{{ product.old_price|floatformat:0 }}</span>
+              {% endif %}
+              <span class="selling-price">₹{{ product.selling_price|floatformat:0 }}</span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
       </div>
+      {% endif %}
     </div>
   </section>
 
@@ -475,7 +501,15 @@
 
   <!-- Custom JS -->
   <script src="{% static 'js/main.js' %}"></script>
-  <script src="{% static 'js/wishlist.js' %}"></script>
+  <script src="{% static 'js/wishlist-system.js' %}"></script>
+  <script>
+    // Initialize wishlist context from Django template
+    document.addEventListener('DOMContentLoaded', function() {
+      const wishlistProductIds = {{ wishlist_product_ids|safe }};
+      const wishlistCount = {{ wishlist_count }};
+      initializeWishlistContext(wishlistProductIds, wishlistCount);
+    });
+  </script>
 
 </body>
 </html>

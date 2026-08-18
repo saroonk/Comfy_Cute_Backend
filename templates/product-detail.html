@@ -202,7 +202,7 @@
           <!-- Wishlist -->
           <a href="{% url 'ComfyCuteApp:wishlist' %}" class="icon-btn" id="wishlistTrigger">
             <i class="fa-regular fa-heart"></i>
-            <span class="icon-badge wishlist-badge">0</span>
+            <span class="icon-badge wishlist-badge">{{ wishlist_count }}</span>
           </a>
 
           <!-- Account Dropdown -->
@@ -512,7 +512,7 @@
               <button class="btn btn-add-to-cart" onclick="addToCart()">
                 <i class="fa-solid fa-bag-shopping"></i> ADD TO CART
               </button>
-              <button class="btn btn-wishlist-d" id="btn-wishlist" onclick="toggleWishlist()">
+              <button class="btn btn-wishlist-d" id="btn-wishlist" data-wishlist-toggle="{{ product.id }}" aria-label="Add to wishlist">
                 <i class="fa-regular fa-heart"></i>
               </button>
             </div>
@@ -640,7 +640,7 @@
                 {% else %}
                   <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=500&auto=format&fit=crop" alt="{{ related_product.name }}" class="arrival-product-img">
                 {% endif %}
-                <button class="arrival-wishlist-btn" aria-label="Add to wishlist">
+                <button class="arrival-wishlist-btn" data-wishlist-toggle="{{ related_product.id }}" aria-label="Add to wishlist">
                   <i class="fa-regular fa-heart"></i>
                 </button>
               </div>
@@ -788,6 +788,15 @@
 
   <!-- Product Detail JS -->
   <script src="{% static 'js/product-detail.js' %}"></script>
+  <script src="{% static 'js/wishlist-system.js' %}"></script>
+  <script>
+    // Initialize wishlist context from Django template
+    document.addEventListener('DOMContentLoaded', function() {
+      const wishlistProductIds = {{ wishlist_product_ids|safe }};
+      const wishlistCount = {{ wishlist_count }};
+      initializeWishlistContext(wishlistProductIds, wishlistCount);
+    });
+  </script>
 
 </body>
 </html>

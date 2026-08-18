@@ -6,7 +6,7 @@ from django.db.models import Q
 from .models import (
     HeroBanner, ContactSubmission, Testimonial, User, Announcement,
     Category, SubCategory, Product, ProductVariant, ProductVariantImage,
-    VariantSizeStock, Collection, Fabric, Color, Size
+    VariantSizeStock, Collection, Fabric, Color, Size, Wishlist
 )
 from unfold.admin import ModelAdmin, TabularInline, StackedInline
 
@@ -404,3 +404,37 @@ class VariantSizeStockAdmin(ModelAdmin):
     list_filter = ['variant__product', 'size']
     search_fields = ['variant__product__name', 'variant__color__name', 'size__name']
     ordering = ['variant', 'size']
+
+
+# ==========================================
+# WISHLIST ADMIN
+# ==========================================
+
+@admin.register(Wishlist)
+class WishlistAdmin(ModelAdmin):
+    list_display = ['product', 'owner_display', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['product__name', 'user__email', 'session_id']
+    readonly_fields = ['created_at', 'updated_at', 'session_id']
+
+    fieldsets = (
+        ('Wishlist Item', {
+            'fields': ('product', 'user', 'session_id')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-created_at']
+
+    def owner_display(self, obj):
+        """Display the owner of the wishlist item (user or session)."""
+        if obj.user:
+            return f"User: {obj.user.email}"
+        return f"Session: {obj.session_id[:8]}..." if obj.session_id else "Unknown"
+    owner_display.short_description = 'Owner'
+
+    def has_add_permission(self, request):
+        # Wishlist items are typically added via frontend, not admin
+        return False

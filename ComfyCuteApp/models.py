@@ -686,3 +686,64 @@ class VariantSizeStock(models.Model):
 
     def __str__(self):
         return f"{self.variant} - {self.size.name} ({self.stock} units)"
+
+
+# ==========================================
+# WISHLIST MODEL
+# ==========================================
+
+class Wishlist(models.Model):
+    """
+    Model for storing wishlist items.
+    Supports both authenticated users and anonymous sessions.
+
+    A wishlist item can belong to either:
+    - An authenticated user (user is set, session_id is NULL)
+    - An anonymous session (session_id is set, user is NULL)
+
+    The same owner cannot wishlist the same product twice (enforced by constraints).
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='wishlist_items',
+        null=True,
+        blank=True,
+        help_text='Authenticated user (NULL for anonymous sessions)'
+    )
+    session_id = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        help_text='Session ID for anonymous users (NULL for authenticated users)'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='wishlist_entries',
+        help_text='Product in wishlist'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Wishlist Item'
+        verbose_name_plural = 'Wishlist Items'
+        # Enforce uniqueness constraints
+        constraints = [
+            models.UniqueConstraint(
+                condition=models.Q(user__isnull=False),
+                fields=['user', 'product'],
+                name='unique_user_product_wishlist'
+            ),
+            models.UniqueConstraint(
+                condition=models.Q(session_id__isnull=False),
+                fields=['session_id', 'product'],
+                name='unique_session_product_wishlist'
+            ),
+        ]
+
+    def __str__(self):
+        owner = self.user.email if self.user else f"Session {self.session_id}"
+        return f"{owner} - {self.product.name}"

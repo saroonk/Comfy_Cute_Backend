@@ -10,7 +10,7 @@ import threading
 import logging
 from .models import (
     HeroBanner, ContactSubmission, Testimonial, Product, Category, SubCategory,
-    Fabric, Size, VariantSizeStock
+    Fabric, Size, VariantSizeStock, Wishlist
 )
 from .forms import ContactSubmissionForm, RegistrationForm, EmailAuthenticationForm
 
@@ -541,6 +541,79 @@ def logout_view(request):
     """
     auth_logout(request)
     return redirect('ComfyCuteApp:home')
+
+
+# ==========================================
+# WISHLIST ENDPOINTS
+# ==========================================
+
+@require_http_methods(["POST"])
+def wishlist_toggle(request, product_id):
+    """
+    AJAX endpoint for toggling wishlist items.
+
+    Handles both authenticated users and anonymous sessions.
+    - If product is not wishlisted: adds it and returns wishlisted=true
+    - If product is already wishlisted: removes it and returns wishlisted=false
+
+    Returns JSON with:
+    - success: True/False
+    - wishlisted: True/False (current state after toggle)
+    - wishlist_count: Updated count from database
+    """
+    from django.shortcuts import get_object_or_404
+
+    try:
+        # Get the product
+        product = get_object_or_404(Product, id=product_id, is_active=True)
+
+        # Determine owner: authenticated user or session
+        if request.user.is_authenticated:
+            owner_user = request.user
+            owner_session = None
+        else:
+            owner_user = None
+            # Ensure session exists for anonymous users
+            if not request.session.session_key:
+                request.session.create()
+            owner_session = request.session.session_key
+
+        # Check if product is already in wishlist
+        if owner_user:
+            wishlist_item = Wishlist.objects.filter(user=owner_user, product=product).first()
+        else:
+            wishlist_item = Wishlist.objects.filter(session_id=owner_session, product=product).first()
+
+        # Toggle: delete if exists, create if doesn't exist
+        if wishlist_item:
+            wishlist_item.delete()
+            wishlisted = False
+        else:
+            Wishlist.objects.create(
+                user=owner_user,
+                session_id=owner_session,
+                product=product
+            )
+            wishlisted = True
+
+        # Get updated count from database
+        if owner_user:
+            wishlist_count = Wishlist.objects.filter(user=owner_user).count()
+        else:
+            wishlist_count = Wishlist.objects.filter(session_id=owner_session).count()
+
+        return JsonResponse({
+            'success': True,
+            'wishlisted': wishlisted,
+            'wishlist_count': wishlist_count,
+        })
+
+    except Exception as e:
+        logger.error(f"Error toggling wishlist: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'An error occurred while updating your wishlist.',
+        }, status=500)
 
 
 # ==========================================
