@@ -203,7 +203,9 @@
           <!-- Wishlist -->
           <a href="{% url 'ComfyCuteApp:wishlist' %}" class="icon-btn" id="wishlistTrigger">
             <i class="fa-regular fa-heart"></i>
-            <span class="icon-badge wishlist-badge">0</span>
+            {% if wishlist_count > 0 %}
+              <span class="icon-badge wishlist-badge">{{ wishlist_count }}</span>
+            {% endif %}
           </a>
 
           <!-- Account Dropdown -->
@@ -579,7 +581,9 @@
     </a>
     <a href="{% url 'ComfyCuteApp:wishlist' %}" class="mobile-nav-item">
       <i class="fa-regular fa-heart"></i>
-      <span class="mobile-nav-badge wishlist-badge">0</span>
+      {% if wishlist_count > 0 %}
+        <span class="mobile-nav-badge wishlist-badge">{{ wishlist_count }}</span>
+      {% endif %}
       <span>Wishlist</span>
     </a>
     <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer">
@@ -622,6 +626,15 @@
   <!-- Custom JS -->
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/track-order.js' %}"></script>
+  <script src="{% static 'js/wishlist-system.js' %}"></script>
+  <script>
+    // Initialize wishlist context from Django template
+    document.addEventListener('DOMContentLoaded', function() {
+      const wishlistProductIds = {{ wishlist_product_ids|safe }};
+      const wishlistCount = {{ wishlist_count }};
+      initializeWishlistContext(wishlistProductIds, wishlistCount);
+    });
+  </script>
 
 
 </body>
