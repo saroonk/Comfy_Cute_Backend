@@ -194,7 +194,7 @@
           <!-- Wishlist -->
           <a href="{% url 'ComfyCuteApp:wishlist' %}" class="icon-btn" id="wishlistTrigger">
             <i class="fa-regular fa-heart"></i>
-            <span class="icon-badge wishlist-badge">{{ wishlist_count }}</span>
+            {% if wishlist_count > 0 %}<span class="icon-badge wishlist-badge">{{ wishlist_count }}</span>{% endif %}
           </a>
 
           <!-- Account Dropdown -->
@@ -383,12 +383,14 @@
                 <i class="fa-solid fa-heart"></i>
               </button>
             </div>
-            <div class="arrival-product-name">{{ product.name }}</div>
+            <h3 class="arrival-product-name">{{ product.name }}</h3>
             <div class="arrival-price">
               {% if product.old_price %}
-                <span class="old-price">₹{{ product.old_price|floatformat:0 }}</span>
+                <span style="text-decoration: line-through; color: #999;">Rs. {{ product.old_price }}</span>
+                <span style="margin-left: 10px;">Rs. {{ product.selling_price }}</span>
+              {% else %}
+                Rs. {{ product.selling_price }}
               {% endif %}
-              <span class="selling-price">₹{{ product.selling_price|floatformat:0 }}</span>
             </div>
           </div>
         </a>

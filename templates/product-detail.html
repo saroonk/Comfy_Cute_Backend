@@ -202,7 +202,7 @@
           <!-- Wishlist -->
           <a href="{% url 'ComfyCuteApp:wishlist' %}" class="icon-btn" id="wishlistTrigger">
             <i class="fa-regular fa-heart"></i>
-            <span class="icon-badge wishlist-badge">{{ wishlist_count }}</span>
+            {% if wishlist_count > 0 %}<span class="icon-badge wishlist-badge">{{ wishlist_count }}</span>{% endif %}
           </a>
 
           <!-- Account Dropdown -->

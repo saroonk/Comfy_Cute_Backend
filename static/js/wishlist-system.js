@@ -8,6 +8,17 @@
 document.addEventListener('DOMContentLoaded', function () {
   setupWishlistButtons();
   updateWishlistIconStates();
+  // Sync any pending wishlist state changes from other pages
+  syncWishlistStateFromStorage();
+});
+
+// Handle browser back/forward cache
+// When returning to a page via back/forward, sync the latest wishlist state
+window.addEventListener('pageshow', function (event) {
+  if (event.persisted) {
+    // Page was restored from cache, sync the latest state
+    syncWishlistStateFromStorage();
+  }
 });
 
 /**
@@ -63,6 +74,9 @@ function toggleWishlist(productId, button) {
 
         // Update wishlist count in navbar and all badges
         updateWishlistCount(data.wishlist_count);
+
+        // Store the updated state in sessionStorage for cross-page synchronization
+        storeWishlistStateChange(productId, data.wishlisted);
       } else {
         console.error('Wishlist toggle failed:', data.message);
       }
@@ -98,16 +112,26 @@ function updateButtonState(button, isWishlisted) {
  * @param {number} count - The new wishlist count
  */
 function updateWishlistCount(count) {
-  const badges = document.querySelectorAll('.wishlist-badge');
+  const wishlistLinks = document.querySelectorAll('a[href*="wishlist"]');
 
-  badges.forEach(badge => {
-    badge.textContent = count;
+  wishlistLinks.forEach(link => {
+    let badge = link.querySelector('.wishlist-badge');
 
-    // Show/hide badge based on count
     if (count === 0) {
-      badge.style.display = 'none';
+      // Remove the badge if count is 0
+      if (badge) {
+        badge.remove();
+      }
     } else {
-      badge.style.display = 'flex';
+      // Create or update the badge if count > 0
+      if (!badge) {
+        // Badge doesn't exist, create it
+        badge = document.createElement('span');
+        badge.className = link.classList.contains('icon-btn') ? 'icon-badge wishlist-badge' : 'mobile-nav-badge wishlist-badge';
+        link.appendChild(badge);
+      }
+      // Update the count
+      badge.textContent = count;
     }
   });
 }
@@ -136,6 +160,51 @@ function updateWishlistIconStates() {
       button.setAttribute('aria-pressed', 'false');
     }
   });
+}
+
+/**
+ * Store a wishlist state change in sessionStorage for cross-page synchronization
+ * @param {number} productId - The product ID
+ * @param {boolean} isWishlisted - Whether the product is now wishlisted
+ */
+function storeWishlistStateChange(productId, isWishlisted) {
+  try {
+    // Get or create the wishlist state object
+    let wishlistState = JSON.parse(sessionStorage.getItem('wishlistState')) || {};
+
+    // Update the product's state
+    wishlistState[productId] = isWishlisted;
+
+    // Store back in sessionStorage
+    sessionStorage.setItem('wishlistState', JSON.stringify(wishlistState));
+  } catch (error) {
+    console.error('Error storing wishlist state:', error);
+  }
+}
+
+/**
+ * Synchronize wishlist button states based on stored changes in sessionStorage
+ * This handles the case where the user navigated away and came back
+ * (e.g., product detail → back to products page)
+ */
+function syncWishlistStateFromStorage() {
+  try {
+    const wishlistState = JSON.parse(sessionStorage.getItem('wishlistState')) || {};
+
+    const wishlistButtons = document.querySelectorAll('[data-wishlist-toggle]');
+
+    wishlistButtons.forEach(button => {
+      const productId = parseInt(button.getAttribute('data-wishlist-toggle'));
+
+      // If this product has a stored state change, apply it
+      if (wishlistState.hasOwnProperty(productId)) {
+        const isWishlisted = wishlistState[productId];
+        updateButtonState(button, isWishlisted);
+      }
+    });
+  } catch (error) {
+    console.error('Error syncing wishlist state:', error);
+  }
 }
 
 /**
