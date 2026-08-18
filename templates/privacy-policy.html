@@ -81,7 +81,7 @@
                       <ul class="mega-menu-list">
                         {% for subcategory in category.subcategories %}
                         <li>
-                          <a href="#{{ subcategory.slug }}">
+                          <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}&subcategory={{ subcategory.slug }}">
                             {% if subcategory.image %}
                               <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" class="mega-menu-cat-img">
                             {% else %}
@@ -100,7 +100,35 @@
                       <h6 class="mega-menu-title">Shop By Age</h6>
                       <ul class="mega-menu-list">
                         {% for age_range in category.shop_by_age %}
-                        <li><a href="#{{ category.slug }}-age">{{ age_range }}</a></li>
+                        <li>
+                          {% if category.name == 'Baby' %}
+                            {% if '0–3' in age_range or '0-3' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=0-3-months">{{ age_range }}</a>
+                            {% elif '3–6' in age_range or '3-6' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=3-6-months">{{ age_range }}</a>
+                            {% elif '6–9' in age_range or '6-9' in age_range or '6–12' in age_range or '6-12' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=6-12-months">{{ age_range }}</a>
+                            {% else %}
+                              <a href="#{{ category.slug }}-age">{{ age_range }}</a>
+                            {% endif %}
+                          {% elif category.name == 'Girl' or category.name == 'Boy' %}
+                            {% if '0–2' in age_range or '0-2' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=0-2-years">{{ age_range }}</a>
+                            {% elif '3–5' in age_range or '3-5' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=3-5-years">{{ age_range }}</a>
+                            {% elif '6–8' in age_range or '6-8' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=6-8-years">{{ age_range }}</a>
+                            {% elif '9–12' in age_range or '9-12' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=9-12-years">{{ age_range }}</a>
+                            {% elif '13+' in age_range %}
+                              <a href="{% url 'ComfyCuteApp:products' %}?size=13-plus">{{ age_range }}</a>
+                            {% else %}
+                              <a href="#{{ category.slug }}-age">{{ age_range }}</a>
+                            {% endif %}
+                          {% else %}
+                            <a href="#{{ category.slug }}-age">{{ age_range }}</a>
+                          {% endif %}
+                        </li>
                         {% endfor %}
                       </ul>
                     </div>
@@ -114,28 +142,28 @@
                           <div class="mega-menu-promo-overlay">
                             <h5 class="mega-menu-promo-title">Organic Cotton</h5>
                             <p class="mega-menu-promo-subtitle">Soft on baby's skin</p>
-                            <a href="#{{ category.slug }}" class="btn btn-sm-premium">Shop Baby Wear</a>
+                            <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}" class="btn btn-sm-premium">Shop Baby Wear</a>
                           </div>
                         {% elif category.name == 'Girl' %}
                           <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=400&auto=format&fit=crop" alt="Girls Collection">
                           <div class="mega-menu-promo-overlay">
                             <h5 class="mega-menu-promo-title">Girls Collection</h5>
                             <p class="mega-menu-promo-subtitle">Playful & Stylish</p>
-                            <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Explore Now</a>
+                            <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}" class="btn btn-sm-premium">Explore Now</a>
                           </div>
                         {% elif category.name == 'Boy' %}
-                          <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=400&auto=format&fit=crop" alt="Boys Collection">
+                          <img src="{% static 'images/navbarBoys.webp' %}" alt="Boys Collection">
                           <div class="mega-menu-promo-overlay">
                             <h5 class="mega-menu-promo-title">Boys Collection</h5>
                             <p class="mega-menu-promo-subtitle">Comfort & Style</p>
-                            <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Explore Now</a>
+                            <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}" class="btn btn-sm-premium">Explore Now</a>
                           </div>
                         {% elif category.name == 'Women' %}
                           <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop" alt="Women New Collection">
                           <div class="mega-menu-promo-overlay">
                             <h5 class="mega-menu-promo-title">Womens Wear Collections</h5>
                             <p class="mega-menu-promo-subtitle">Lightweight styles made for everyday comfort</p>
-                            <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-sm-premium">Shop New Arrivals</a>
+                            <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}" class="btn btn-sm-premium">Shop New Arrivals</a>
                           </div>
                         {% endif %}
                       </div>
@@ -256,7 +284,7 @@
                 <h6 class="mobile-nav-group-title">Categories</h6>
                 <div class="mobile-nav-cat-list">
                   {% for subcategory in category.subcategories %}
-                  <a href="#{{ subcategory.slug }}" class="mobile-nav-cat-item">
+                  <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}&subcategory={{ subcategory.slug }}" class="mobile-nav-cat-item">
                     {% if subcategory.image %}
                       <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}">
                     {% else %}
@@ -271,7 +299,33 @@
                 <h6 class="mobile-nav-group-title">Shop By Age</h6>
                 <div class="mobile-nav-age-list">
                   {% for age_range in category.shop_by_age %}
-                  <a href="#{{ category.slug }}-age" class="mobile-nav-age-item">{{ age_range }}</a>
+                  {% if category.name == 'Baby' %}
+                    {% if '0–3' in age_range or '0-3' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=0-3-months" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% elif '3–6' in age_range or '3-6' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=3-6-months" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% elif '6–9' in age_range or '6-9' in age_range or '6–12' in age_range or '6-12' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=6-12-months" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% else %}
+                      <a href="#{{ category.slug }}-age" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% endif %}
+                  {% elif category.name == 'Girl' or category.name == 'Boy' %}
+                    {% if '0–2' in age_range or '0-2' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=0-2-years" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% elif '3–5' in age_range or '3-5' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=3-5-years" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% elif '6–8' in age_range or '6-8' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=6-8-years" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% elif '9–12' in age_range or '9-12' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=9-12-years" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% elif '13+' in age_range %}
+                      <a href="{% url 'ComfyCuteApp:products' %}?size=13-plus" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% else %}
+                      <a href="#{{ category.slug }}-age" class="mobile-nav-age-item">{{ age_range }}</a>
+                    {% endif %}
+                  {% else %}
+                    <a href="#{{ category.slug }}-age" class="mobile-nav-age-item">{{ age_range }}</a>
+                  {% endif %}
                   {% endfor %}
                 </div>
                 {% endif %}

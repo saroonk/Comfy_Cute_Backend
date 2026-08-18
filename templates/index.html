@@ -155,7 +155,7 @@
                             <a href="{% url 'ComfyCuteApp:products' %}?category={{ category.slug }}" class="btn btn-sm-premium">Explore Now</a>
                           </div>
                         {% elif category.name == 'Boy' %}
-                          <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=400&auto=format&fit=crop" alt="Boys Collection">
+                          <img src="{% static 'images/navbarBoys.webp' %}" alt="Boys Collection">
                           <div class="mega-menu-promo-overlay">
                             <h5 class="mega-menu-promo-title">Boys Collection</h5>
                             <p class="mega-menu-promo-subtitle">Comfort & Style</p>
