@@ -106,6 +106,13 @@ function goToSlide(index) {
 
 // Initialize product detail interactions
 function initializeProductDetail() {
+  // Initialize default variant if one is already active
+  const activeVariantBtn = document.querySelector('.variant-btn.active');
+  if (activeVariantBtn) {
+    selectedVariantId = parseInt(activeVariantBtn.dataset.variantId);
+    selectedVariant = activeVariantBtn.dataset.variant;
+  }
+
   // Initialize size selection from default variant
   const sizeButtons = document.querySelectorAll('.size-btn');
 

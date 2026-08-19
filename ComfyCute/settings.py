@@ -45,6 +45,7 @@ TEMPLATES = [
                 'ComfyCuteApp.context_processors.announcements',
                 'ComfyCuteApp.context_processors.navbar_categories',
                 'ComfyCuteApp.context_processors.wishlist_context',
+                'ComfyCuteApp.context_processors.cart_context',
             ],
         },
     },

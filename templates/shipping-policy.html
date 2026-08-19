@@ -40,7 +40,7 @@
           <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
 
-        <!-- Hamburger Toggler (Mobile) — plain JS toggle (no Bootstrap Collapse) so the
+        <!-- Hamburger Toggler (Mobile) � plain JS toggle (no Bootstrap Collapse) so the
              drawer opens instantly with no dead-time before its own animation starts -->
         <button class="navbar-toggler" type="button" id="mobileNavToggle" aria-controls="mobileNavDrawer" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fa-solid fa-bars-staggered"></i>
@@ -174,7 +174,7 @@
           </ul>
         </div>
 
-        <!-- Right Side Icons — hidden on mobile (bottom nav handles these) -->
+        <!-- Right Side Icons � hidden on mobile (bottom nav handles these) -->
         <div class="header-icons d-none d-lg-flex">
           <!-- Search -->
           <button class="icon-btn btn-search" aria-label="Search">
@@ -209,7 +209,7 @@
           <!-- Shopping Cart -->
           <button class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer" aria-controls="cartDrawer" aria-label="Cart">
             <i class="fa-solid fa-bag-shopping"></i>
-            <span class="icon-badge cart-badge">0</span>
+            <span class="icon-badge cart-badge" style="display: none;">0</span>
           </button>
         </div>
       </nav>
@@ -224,7 +224,7 @@
        <header>, it can correctly paint above the announcement bar, the
        navbar, and all page content.
        Desktop continues to use the untouched .navbar-nav mega menu
-       inside <header> — this block is mobile-only (d-lg-none).
+       inside <header> � this block is mobile-only (d-lg-none).
        ========================================== -->
   <div class="mobile-nav-drawer d-lg-none" id="mobileNavDrawer">
     <div class="mobile-nav-panels">
@@ -367,8 +367,8 @@
           <h2 class="section-heading">4. Shipping Charges</h2>
           <h3 class="subsection-heading">4.1 Standard Shipping</h3>
           <ul class="policy-list">
-            <li>Orders below â‚¹999: â‚¹99 flat shipping fee</li>
-            <li>Orders â‚¹999 and above: Free shipping</li>
+            <li>Orders below ₹999: ₹99 flat shipping fee</li>
+            <li>Orders ₹999 and above: Free shipping</li>
           </ul>
 
           <h3 class="subsection-heading">4.2 Express Shipping (where available)</h3>
@@ -379,7 +379,7 @@
           <h2 class="section-heading">5. Free Shipping Conditions</h2>
           <p>Free shipping is applicable when:</p>
           <ul class="policy-list">
-            <li>Order value is â‚¹999 or above</li>
+            <li>Order value is ₹999 or above</li>
             <li>Delivery address is within serviceable pincode area</li>
             <li>Promotion code (if applicable) qualifies for free shipping</li>
           </ul>
@@ -471,7 +471,7 @@
     <a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
     <a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-item"><i class="fa-solid fa-grip-vertical"></i><span>Shop</span></a>
     <a href="{% url 'ComfyCuteApp:wishlist' %}" class="mobile-nav-item"><i class="fa-regular fa-heart"></i>{% if wishlist_count > 0 %}<span class="mobile-nav-badge wishlist-badge">{{ wishlist_count }}</span>{% endif %}<span>Wishlist</span></a>
-    <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer"><i class="fa-solid fa-bag-shopping"></i><span class="mobile-nav-badge cart-badge">0</span><span>Cart</span></a>
+    <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer"><i class="fa-solid fa-bag-shopping"></i><span class="mobile-nav-badge cart-badge" style="display: none;">0</span><span>Cart</span></a>
     <button type="button" class="mobile-nav-item" id="mobileAccountBtn" aria-label="Account">
       <i class="fa-regular fa-user"></i>
       <span>Account</span>
@@ -542,6 +542,7 @@
 
 </body>
 </html>
+
 
 
 

@@ -1,4 +1,4 @@
-from .models import Announcement, Category, Wishlist
+from .models import Announcement, Category, Wishlist, Cart
 
 
 def announcements(request):
@@ -49,6 +49,44 @@ def wishlist_context(request):
         'wishlist_product_ids': wishlist_product_ids,
         'wishlist_count': wishlist_count,
         'wishlist_products': wishlist_products,
+    }
+
+
+def cart_context(request):
+    """
+    Context processor to provide cart count globally to all templates.
+
+    Handles both authenticated users and anonymous sessions.
+    For authenticated users, uses request.user.
+    For anonymous users, uses request.session.session_key.
+
+    Provides:
+    - cart_count: Total quantity of items in cart
+    """
+    cart_count = 0
+
+    # Determine owner: authenticated user or session
+    if request.user.is_authenticated:
+        # Authenticated user
+        try:
+            cart = Cart.objects.get(user=request.user)
+            cart_count = cart.total_quantity
+        except Cart.DoesNotExist:
+            cart_count = 0
+    else:
+        # Anonymous user: ensure session exists
+        if not request.session.session_key:
+            request.session.create()
+
+        session_key = request.session.session_key
+        try:
+            cart = Cart.objects.get(session_id=session_key)
+            cart_count = cart.total_quantity
+        except Cart.DoesNotExist:
+            cart_count = 0
+
+    return {
+        'cart_count': cart_count,
     }
 
 

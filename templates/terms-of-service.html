@@ -43,7 +43,7 @@
           <img src="{% static 'images/logo.jpeg' %}" alt="COMFY CUTE Logo" class="navbar-logo-img">
         </a>
 
-        <!-- Hamburger Toggler (Mobile) — plain JS toggle (no Bootstrap Collapse) so the
+        <!-- Hamburger Toggler (Mobile) � plain JS toggle (no Bootstrap Collapse) so the
              drawer opens instantly with no dead-time before its own animation starts -->
         <button class="navbar-toggler" type="button" id="mobileNavToggle" aria-controls="mobileNavDrawer" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fa-solid fa-bars-staggered"></i>
@@ -84,7 +84,9 @@
                       </ul>
                     </div>
 
-                    <!-- Shop By Age Column (if applicable) -->
+
+
+
                     {% if category.shop_by_age %}
                     <div class="col-lg-4 col-6 mb-4 mb-lg-0">
                       <h6 class="mega-menu-title">Shop By Age</h6>
@@ -178,7 +180,7 @@
           </ul>
         </div>
 
-        <!-- Right Side Icons — hidden on mobile (bottom nav handles these) -->
+        <!-- Right Side Icons � hidden on mobile (bottom nav handles these) -->
         <div class="header-icons d-none d-lg-flex">
           <!-- Search -->
           <button class="icon-btn btn-search" aria-label="Search">
@@ -213,7 +215,7 @@
           <!-- Shopping Cart -->
           <button class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer" aria-controls="cartDrawer" aria-label="Cart">
             <i class="fa-solid fa-bag-shopping"></i>
-            <span class="icon-badge cart-badge">0</span>
+            <span class="icon-badge cart-badge" style="display: none;">0</span>
           </button>
         </div>
       </nav>
@@ -227,7 +229,7 @@
        <header>, it can correctly paint above the announcement bar, the
        navbar, and all page content.
        Desktop continues to use the untouched .navbar-nav mega menu
-       inside <header> — this block is mobile-only (d-lg-none).
+       inside <header> � this block is mobile-only (d-lg-none).
        ========================================== -->
   <!-- ==========================================
        MOBILE MULTI-LEVEL NAV DRAWER (mobile-only)
@@ -237,7 +239,7 @@
        <header>, it can correctly paint above the announcement bar, the
        navbar, and all page content.
        Desktop continues to use the untouched .navbar-nav mega menu
-       inside <header> — this block is mobile-only (d-lg-none).
+       inside <header> � this block is mobile-only (d-lg-none).
        ========================================== -->
 
 
@@ -441,7 +443,7 @@
         <div class="policy-section">
           <h2 class="section-heading">5. Pricing and Payment</h2>
           <h3 class="subsection-heading">5.1 Pricing</h3>
-          <p>All prices are in Indian Rupees (â‚¹) and include applicable taxes unless otherwise stated. Prices may change without notice. Price changes do not affect orders already placed.</p>
+          <p>All prices are in Indian Rupees (₹) and include applicable taxes unless otherwise stated. Prices may change without notice. Price changes do not affect orders already placed.</p>
 
           <h3 class="subsection-heading">5.2 Payment Methods</h3>
           <p>We accept various payment methods including credit cards, debit cards, UPI, net banking, and other payment gateways. All payments are processed through secure payment processors.</p>
@@ -471,7 +473,7 @@
           <p>Estimated delivery times are provided for reference only and are not guaranteed. Delays may occur due to factors beyond our control, including weather, carrier delays, and customs processing.</p>
 
           <h3 class="subsection-heading">7.3 Shipping Charges</h3>
-          <p>Shipping charges are calculated based on location and order value. Free shipping is available on orders above â‚¹999 for select locations.</p>
+          <p>Shipping charges are calculated based on location and order value. Free shipping is available on orders above ₹999 for select locations.</p>
         </div>
 
         <div class="policy-section">
@@ -565,7 +567,7 @@
     </a>
     <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer">
       <i class="fa-solid fa-bag-shopping"></i>
-      <span class="mobile-nav-badge cart-badge">0</span>
+      <span class="mobile-nav-badge cart-badge" style="display: none;">0</span>
       <span>Cart</span>
     </a>
     <button type="button" class="mobile-nav-item" id="mobileAccountBtn" aria-label="Account">
@@ -613,6 +615,7 @@
 
 </body>
 </html>
+
 
 
 
