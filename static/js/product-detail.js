@@ -28,20 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Handle browser back/forward cache restoration
-// When page is restored via browser history, resync cart count
-window.addEventListener('pageshow', function (event) {
-  if (event.persisted) {
-    // Page was restored from browser cache, resync cart count
-    fetch('/api/cart/get/')
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          updateCartBadgeFromResponse(data);
-        }
-      })
-      .catch(error => console.error('Error syncing cart on page restore:', error));
-  }
-});
+// Note: This is now handled globally in main.js, which is loaded on this page,
+// to avoid duplicate API calls.
 
 // Initialize Owl Carousel
 function initializeCarousel() {

@@ -271,9 +271,12 @@ function getCsrfToken() {
  */
 function initializeWishlistContext(productIds, count) {
   window.wishlistProductIds = productIds || [];
-  const actualCount = count || 0;
-  updateWishlistCount(actualCount);
   updateWishlistIconStates();
+
+  // Check if page was loaded via back/forward navigation (restored from cache)
+  const navigationEntries = performance.getEntriesByType("navigation");
+  const isBackForward = (navigationEntries.length > 0 && navigationEntries[0].type === "back_forward") || 
+                        (window.performance && window.performance.navigation && window.performance.navigation.type === 2);
 
   // Store the server-provided count in sessionStorage for cross-page synchronization
   // This ensures the latest server state is available when navigating between pages
@@ -288,10 +291,21 @@ function initializeWishlistContext(productIds, count) {
       wishlistState.products = {};
     }
 
-    // Update count from server context processor
-    wishlistState.count = actualCount;
-    sessionStorage.setItem('wishlistState', JSON.stringify(wishlistState));
+    if (isBackForward) {
+      // For back/forward navigation, use the stored wishlist count
+      if (wishlistState.hasOwnProperty('count')) {
+        updateWishlistCount(wishlistState.count);
+      }
+    } else {
+      // For fresh navigation, update the stored count with the fresh server count
+      const actualCount = count || 0;
+      updateWishlistCount(actualCount);
+      wishlistState.count = actualCount;
+      sessionStorage.setItem('wishlistState', JSON.stringify(wishlistState));
+    }
   } catch (error) {
     console.error('Error initializing wishlist state in storage:', error);
+    // Fallback
+    updateWishlistCount(count || 0);
   }
 }

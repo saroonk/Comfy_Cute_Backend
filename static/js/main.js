@@ -322,8 +322,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // CART STATE UPDATING — NOW FETCHES FROM BACKEND
   function updateCartUI() {
-    // Fetch current cart from backend API
-    fetch('/api/cart/get/')
+    // Fetch current cart from backend API with cache-buster to prevent stale responses during navigation
+    fetch('/api/cart/get/?_=' + Date.now())
       .then(response => response.json())
       .then(data => {
         if (!data.success) {
@@ -335,12 +335,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const cartTotal = data.cart_total || '₹0';
         const cartCount = data.cart_count || 0;
 
-        // Update badges
-        cartBadges.forEach(badge => {
-          badge.textContent = cartCount;
+        // Update badges dynamically (creates badge if it doesn't exist yet)
+        const cartButtons = document.querySelectorAll('[data-bs-toggle="offcanvas"][data-bs-target="#cartDrawer"]');
+        cartButtons.forEach(button => {
+          let badge = button.querySelector('.cart-badge');
           if (cartCount === 0) {
-            badge.style.display = 'none';
+            if (badge) {
+              badge.remove();
+            }
           } else {
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = button.classList.contains('icon-btn') ? 'icon-badge cart-badge' : 'mobile-nav-badge cart-badge';
+              button.appendChild(badge);
+            }
+            badge.textContent = cartCount;
             badge.style.display = 'flex';
           }
         });
@@ -1058,13 +1067,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Expose updateCartUI globally inside DOMContentLoaded so pageshow listener can access it
+  window.updateCartUI = updateCartUI;
 });
 
 // Handle browser back/forward cache restoration
 // When page is restored via browser history, resync cart count
 window.addEventListener('pageshow', function (event) {
-  if (event.persisted) {
+  if (event.persisted && typeof window.updateCartUI === 'function') {
     // Page was restored from browser cache, resync cart count
-    updateCartUI();
+    window.updateCartUI();
   }
 });
