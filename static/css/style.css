@@ -778,14 +778,35 @@ header.scrolled .navbar {
 
 
 @media (max-width:576px) {
-  .cart-item-remove {
-  border-radius: 10%;
-  
-  font-size: 0.7rem;
-  
-}
+  .cart-item-img {
+    width: 60px;
+    height: 80px;
+  }
 
-  
+  .cart-item {
+    gap: 10px;
+  }
+
+  .cart-item-title {
+    font-size: 0.85rem;
+  }
+
+  .cart-item-remove {
+    border-radius: 10%;
+    font-size: 0.7rem;
+    padding: 4px 6px;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 5px;
+    right: 0;
+  }
+
+  .cart-item-info {
+    padding-right: 40px;
+  }
 }
 
 .cart-drawer-footer {

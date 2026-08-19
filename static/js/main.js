@@ -418,11 +418,12 @@ document.addEventListener('DOMContentLoaded', function () {
   if (cartDrawerItems) {
     cartDrawerItems.addEventListener('click', function (e) {
       const target = e.target;
-      const itemId = parseInt(target.dataset.id);
 
-      if (!itemId) return;
-
+      // Handle quantity increase
       if (target.classList.contains('qty-plus')) {
+        const itemId = parseInt(target.dataset.id);
+        if (!itemId) return;
+
         // Get current quantity from displayed text
         const qtySpan = target.previousElementSibling;
         const currentQty = parseInt(qtySpan.textContent) || 1;
@@ -454,7 +455,12 @@ document.addEventListener('DOMContentLoaded', function () {
           showToast('Error updating cart', 'info');
         });
 
-      } else if (target.classList.contains('qty-minus')) {
+      }
+      // Handle quantity decrease
+      else if (target.classList.contains('qty-minus')) {
+        const itemId = parseInt(target.dataset.id);
+        if (!itemId) return;
+
         const qtySpan = target.nextElementSibling;
         const currentQty = parseInt(qtySpan.textContent) || 1;
         const newQty = currentQty - 1;
@@ -509,8 +515,13 @@ document.addEventListener('DOMContentLoaded', function () {
             showToast('Error updating cart', 'info');
           });
         }
+      }
+      // Handle delete button (works even when clicking the trash icon inside)
+      else if (target.closest('.cart-item-remove')) {
+        const removeBtn = target.closest('.cart-item-remove');
+        const itemId = parseInt(removeBtn.dataset.id);
+        if (!itemId) return;
 
-      } else if (target.closest('.cart-item-remove')) {
         // Remove item
         fetch('/api/cart/remove/', {
           method: 'POST',
