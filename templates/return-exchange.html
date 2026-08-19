@@ -209,7 +209,7 @@
           <!-- Shopping Cart -->
           <button class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer" aria-controls="cartDrawer" aria-label="Cart">
             <i class="fa-solid fa-bag-shopping"></i>
-            <span class="icon-badge cart-badge" style="display: none;">0</span>
+            {% if cart_count > 0 %}<span class="icon-badge cart-badge">{{ cart_count }}</span>{% endif %}
           </button>
         </div>
       </nav>
@@ -534,7 +534,7 @@
     <a href="{% url 'ComfyCuteApp:home' %}" class="mobile-nav-item"><i class="fa-solid fa-house"></i><span>Home</span></a>
     <a href="{% url 'ComfyCuteApp:products' %}" class="mobile-nav-item"><i class="fa-solid fa-grip-vertical"></i><span>Shop</span></a>
     <a href="{% url 'ComfyCuteApp:wishlist' %}" class="mobile-nav-item"><i class="fa-regular fa-heart"></i>{% if wishlist_count > 0 %}<span class="mobile-nav-badge wishlist-badge">{{ wishlist_count }}</span>{% endif %}<span>Wishlist</span></a>
-    <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer"><i class="fa-solid fa-bag-shopping"></i><span class="mobile-nav-badge cart-badge" style="display: none;">0</span><span>Cart</span></a>
+    <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer"><i class="fa-solid fa-bag-shopping"></i>{% if cart_count > 0 %}<span class="mobile-nav-badge cart-badge">{{ cart_count }}</span>{% endif %}<span>Cart</span></a>
     <button type="button" class="mobile-nav-item" id="mobileAccountBtn" aria-label="Account">
       <i class="fa-regular fa-user"></i>
       <span>Account</span>
@@ -605,6 +605,7 @@
 
 </body>
 </html>
+
 
 
 

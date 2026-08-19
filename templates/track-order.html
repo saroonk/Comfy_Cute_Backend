@@ -230,7 +230,7 @@
           <!-- Shopping Cart -->
           <button class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer" aria-controls="cartDrawer" aria-label="Cart">
             <i class="fa-solid fa-bag-shopping"></i>
-            <span class="icon-badge cart-badge">0</span>
+            {% if cart_count > 0 %}<span class="icon-badge cart-badge">{{ cart_count }}</span>{% endif %}
           </button>
         </div>
       </nav>
@@ -588,7 +588,7 @@
     </a>
     <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer">
       <i class="fa-solid fa-bag-shopping"></i>
-      <span class="mobile-nav-badge cart-badge">0</span>
+      {% if cart_count > 0 %}<span class="mobile-nav-badge cart-badge">{{ cart_count }}</span>{% endif %}
       <span>Cart</span>
     </a>
     <button type="button" class="mobile-nav-item" id="mobileAccountBtn" aria-label="Account">
