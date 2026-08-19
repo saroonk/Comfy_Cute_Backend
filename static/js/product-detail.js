@@ -27,6 +27,22 @@ document.addEventListener('DOMContentLoaded', function () {
   setupBackToTop();
 });
 
+// Handle browser back/forward cache restoration
+// When page is restored via browser history, resync cart count
+window.addEventListener('pageshow', function (event) {
+  if (event.persisted) {
+    // Page was restored from browser cache, resync cart count
+    fetch('/api/cart/get/')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateCartBadgeFromResponse(data);
+        }
+      })
+      .catch(error => console.error('Error syncing cart on page restore:', error));
+  }
+});
+
 // Initialize Owl Carousel
 function initializeCarousel() {
   try {
@@ -505,8 +521,36 @@ function toggleWishlist() {
 // Update cart badge from API response
 function updateCartBadgeFromResponse(cartData) {
   const count = cartData.cart_count || 0;
-  document.querySelectorAll('.cart-badge').forEach(badge => {
-    badge.textContent = count;
+
+  // Find all cart icon elements (desktop and mobile)
+  // Desktop: icon-btn with cart icon
+  const cartButtons = document.querySelectorAll('[data-bs-toggle="offcanvas"][data-bs-target="#cartDrawer"]');
+
+  cartButtons.forEach(button => {
+    let badge = button.querySelector('.cart-badge');
+
+    if (count === 0) {
+      // Remove badge if count is 0
+      if (badge) {
+        badge.remove();
+      }
+    } else {
+      // Create or update badge if count > 0
+      if (!badge) {
+        // Badge doesn't exist, create it
+        badge = document.createElement('span');
+        // Determine class based on parent element type
+        if (button.classList.contains('icon-btn')) {
+          badge.className = 'icon-badge cart-badge';
+        } else {
+          badge.className = 'mobile-nav-badge cart-badge';
+        }
+        button.appendChild(badge);
+      }
+      // Update the count
+      badge.textContent = count;
+      badge.style.display = 'flex';
+    }
   });
 }
 

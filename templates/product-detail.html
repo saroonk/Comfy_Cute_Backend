@@ -10,6 +10,9 @@
   <meta name="description" content="Shop {{ product.name }} at COMFY CUTE. {{ product.short_description }}">
   <meta name="keywords" content="{{ product.name }}, {{ product.category.name }}, {{ product.subcategory.name }}, premium clothing">
 
+  <!-- CSRF Token for AJAX/Fetch requests (needed for anonymous users) -->
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -685,7 +688,7 @@
     </a>
     <a href="{% url 'ComfyCuteApp:wishlist' %}" class="mobile-nav-item">
       <i class="fa-regular fa-heart"></i>
-      <span class="mobile-nav-badge wishlist-badge">0</span>
+      {% if wishlist_count > 0 %}<span class="mobile-nav-badge wishlist-badge">{{ wishlist_count }}</span>{% endif %}
       <span>Wishlist</span>
     </a>
     <a href="#cart" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#cartDrawer">

@@ -267,8 +267,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const cartSubtotalText = document.querySelector('.cart-subtotal-price');
 
   // Initialize UI counts - now from backend
+  // Cart is initialized by updateCartUI()
   updateCartUI();
-  updateWishlistUI();
+  // Wishlist is initialized by wishlist-system.js via initializeWishlistContext()
+  // Do NOT call updateWishlistUI() here as it uses a local Set that conflicts with the proper
+  // wishlist-system.js which syncs with the backend via AJAX
 
   // Listen for cart drawer open to refresh cart data
   const cartDrawer = document.getElementById('cartDrawer');
@@ -344,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Update subtotal
         if (cartSubtotalText) {
-          cartSubtotalText.textContent = cartTotal;
+          cartSubtotalText.textContent = '₹' + cartTotal;
         }
 
         // Render items in cart drawer
@@ -1055,4 +1058,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+});
+
+// Handle browser back/forward cache restoration
+// When page is restored via browser history, resync cart count
+window.addEventListener('pageshow', function (event) {
+  if (event.persisted) {
+    // Page was restored from browser cache, resync cart count
+    updateCartUI();
+  }
 });

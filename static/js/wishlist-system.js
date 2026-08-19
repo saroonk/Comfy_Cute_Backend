@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // When returning to a page via back/forward, sync the latest wishlist state
 window.addEventListener('pageshow', function (event) {
   if (event.persisted) {
-    // Page was restored from cache, sync the latest state
+    // Page was restored from cache, sync the latest state from storage
     syncWishlistStateFromStorage();
   }
 });
