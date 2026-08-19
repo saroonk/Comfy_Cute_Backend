@@ -79,6 +79,15 @@ def products(request):
     # Start with active products
     products_qs = Product.objects.filter(is_active=True)
 
+    # Apply Search filter (case-insensitive, searches name and short_description)
+    search_query = request.GET.get('q', '').strip() if request.GET.get('q') else None
+    if search_query:
+        from django.db.models import Q
+        products_qs = products_qs.filter(
+            Q(name__icontains=search_query) |
+            Q(short_description__icontains=search_query)
+        )
+
     # Get all categories and sizes for filter options
     categories = Category.objects.all()
     sizes = Size.objects.all()
@@ -247,6 +256,7 @@ def products(request):
         'selected_fabric': selected_fabrics[0] if selected_fabrics else '',
         'selected_availability': selected_availabilities[0] if selected_availabilities else '',
         'filter_query': filter_query,
+        'search_query': search_query,  # Pass search query for display and state
     }
 
     return render(request, 'products.html', context)

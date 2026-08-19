@@ -496,26 +496,8 @@
     </div>
   </div>
 
-  <!-- Fullscreen Search Overlay -->
-  <div class="search-overlay">
-    <button class="search-overlay-close" aria-label="Close search overlay">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-    <div class="search-container">
-      <form class="search-input-wrapper" onsubmit="event.preventDefault(); alert('Search submitted!');">
-        <input type="text" class="search-input" placeholder="Search our collection..." aria-label="Search box">
-        <button type="submit" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-      </form>
-      <div class="search-suggestions">
-        <div class="search-suggestions-title">Trending Searches</div>
-        <a href="#suggest-1" class="suggestion-tag">Linen Dress</a>
-        <a href="#suggest-2" class="suggestion-tag">Baby Rompers</a>
-        <a href="#suggest-3" class="suggestion-tag">Kurtis</a>
-        <a href="#suggest-4" class="suggestion-tag">Organic Cotton</a>
-        <a href="#suggest-5" class="suggestion-tag">Sleepwear</a>
-      </div>
-    </div>
-  </div>
+  <!-- Fullscreen Search Overlay (Reusable Component) -->
+  {% include "includes/search.html" %}
 
   <!-- Shopping Cart Drawer -->
   {% include "cart.html" %}

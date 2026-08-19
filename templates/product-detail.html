@@ -720,27 +720,9 @@
   </div>
 
   <!-- ==========================================
-       SEARCH OVERLAY
+       SEARCH OVERLAY (REUSABLE COMPONENT)
        ========================================== -->
-  <div class="search-overlay" id="searchOverlay">
-    <div class="search-container">
-      <div class="search-header">
-        <input type="text" class="search-input" placeholder="Search products...">
-        <button class="search-close" aria-label="Close search">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div class="search-suggestions">
-        <div class="suggestions-group">
-          <h6 class="suggestions-title">Trending</h6>
-          <a href="#" class="suggestion-link">Summer Dresses</a>
-          <a href="#" class="suggestion-link">Linen Wear</a>
-          <a href="#" class="suggestion-link">Organic Cotton</a>
-          <a href="#" class="suggestion-link">Baby Wear</a>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% include "includes/search.html" %}
 
   <!-- ==========================================
        CART DRAWER (Offcanvas)

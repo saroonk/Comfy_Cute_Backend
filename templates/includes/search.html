@@ -1,0 +1,19 @@
+<!-- Fullscreen Search Overlay -->
+<div class="search-overlay">
+  <button class="search-overlay-close" aria-label="Close search overlay">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <div class="search-container">
+    <form class="search-input-wrapper" action="{% url 'ComfyCuteApp:products' %}" method="GET">
+      <input type="text" class="search-input" name="q" placeholder="Search our collection..." aria-label="Search box">
+      <button type="submit" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+    <div class="search-suggestions">
+      <div class="search-suggestions-title">Trending Searches</div>
+      <a href="{% url 'ComfyCuteApp:products' %}?category=baby" class="suggestion-tag">Baby Boy</a>
+      <a href="{% url 'ComfyCuteApp:products' %}?q=cotton%20dress" class="suggestion-tag">Cotton Dress</a>
+      <a href="{% url 'ComfyCuteApp:products' %}?q=pajama%20set" class="suggestion-tag">Pajama Set</a>
+      <a href="{% url 'ComfyCuteApp:products' %}?q=cotton%20suit" class="suggestion-tag">Cotton Suit</a>
+    </div>
+  </div>
+</div>
