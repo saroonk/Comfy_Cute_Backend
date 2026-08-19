@@ -766,6 +766,8 @@
       {{ variant.id }}: {
         id: {{ variant.id }},
         colorName: "{{ variant.color.name }}",
+        sellingPrice: {{ variant.selling_price_override|default:product.selling_price }},
+        oldPrice: {{ variant.old_price_override|default:product.old_price|default:0 }},
         images: [
           {% for image in variant.images.all %}
           "{{ image.image.url }}",

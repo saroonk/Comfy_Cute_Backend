@@ -113,21 +113,14 @@ function initializeProductDetail() {
     selectedVariant = activeVariantBtn.dataset.variant;
   }
 
-  // Initialize size selection from default variant
-  const sizeButtons = document.querySelectorAll('.size-btn');
-
-  // Set first non-disabled size as selected
-  if (sizeButtons.length > 0) {
-    for (let btn of sizeButtons) {
-      if (!btn.disabled) {
-        btn.classList.add('active');
-        selectedSize = btn.dataset.size;
-        break;
-      }
-    }
+  // Initialize price and sizes for the default variant
+  if (selectedVariantId) {
+    updatePriceForVariant(selectedVariantId);
+    updateSizesForVariant(selectedVariantId);
   }
 
-  // Size button click handler
+  // Size button click handler for manual size changes
+  const sizeButtons = document.querySelectorAll('.size-btn');
   sizeButtons.forEach(btn => {
     btn.addEventListener('click', function () {
       if (!this.disabled) {
@@ -158,11 +151,49 @@ function selectVariant(element) {
     selectedLabel.textContent = selectedVariant;
   }
 
+  // Update price for the selected variant
+  updatePriceForVariant(selectedVariantId);
+
   // Update carousel images for the selected variant
   updateCarouselForVariant(selectedVariantId);
 
   // Update sizes based on the selected variant
   updateSizesForVariant(selectedVariantId);
+}
+
+// Update product price for selected variant
+function updatePriceForVariant(variantId) {
+  const variantData = window.variantsData && window.variantsData[variantId];
+  if (!variantData) {
+    return;
+  }
+
+  // Update selling price
+  const priceCurrentEl = document.querySelector('.price-current');
+  if (priceCurrentEl && variantData.sellingPrice) {
+    priceCurrentEl.textContent = '₹' + Math.round(variantData.sellingPrice);
+  }
+
+  // Update old price (if it exists)
+  const priceOriginalEl = document.querySelector('.price-original');
+  if (variantData.oldPrice && variantData.oldPrice > 0) {
+    if (!priceOriginalEl) {
+      // Create the old price element if it doesn't exist
+      const priceDiv = document.querySelector('.product-price');
+      if (priceDiv) {
+        const newPriceEl = document.createElement('span');
+        newPriceEl.className = 'price-original';
+        newPriceEl.textContent = '₹' + Math.round(variantData.oldPrice);
+        priceDiv.appendChild(newPriceEl);
+      }
+    } else {
+      // Update existing old price element
+      priceOriginalEl.textContent = '₹' + Math.round(variantData.oldPrice);
+    }
+  } else if (priceOriginalEl) {
+    // Remove old price element if variant has no old price
+    priceOriginalEl.remove();
+  }
 }
 
 // Update carousel images for selected variant
