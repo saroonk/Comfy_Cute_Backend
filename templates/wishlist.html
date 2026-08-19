@@ -10,6 +10,21 @@
   <meta name="description" content="Browse your COMFY CUTE wishlist. Save your favorite products and add them to cart whenever you're ready. Premium women's and baby fashion collections.">
   <meta name="keywords" content="wishlist, favorites, saved products, comfy cute, fashion shopping">
 
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="My Wishlist | COMFY CUTE">
+  <meta property="og:description" content="Browse your COMFY CUTE wishlist. Save your favorite products and add them to cart whenever you're ready.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="{% static 'images/logo.jpeg' %}">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="My Wishlist | COMFY CUTE">
+  <meta name="twitter:description" content="Save your favorite clothing products at COMFY CUTE.">
+  <meta name="twitter:image" content="{% static 'images/logo.jpeg' %}">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="{% static 'images/favicon.jpeg' %}">
+
   <!-- CSRF Token for AJAX/Fetch requests (needed for anonymous users) -->
   <meta name="csrf-token" content="{{ csrf_token }}">
 
