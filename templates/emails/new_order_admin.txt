@@ -1,0 +1,48 @@
+NEW ORDER RECEIVED
+===================
+
+Order Number: {{ order_number }}
+Order Date: {{ order_date|date:"M d, Y H:i" }}
+Status: {{ order_status }}
+Payment Status: {{ payment_status }}
+
+CUSTOMER INFORMATION
+====================
+
+Name: {{ customer_name }}
+Email: {{ customer_email }}
+Phone: {{ customer_phone }}
+
+DELIVERY ADDRESS
+================
+
+{{ shipping_address }}
+
+ORDER ITEMS
+===========
+
+{% for item in items %}
+{{ item.product_name }}
+  Variant: {{ item.variant_color }}
+  Size: {{ item.size }}
+  Quantity: {{ item.quantity }}
+  Unit Price: ₹{{ item.unit_price }}
+  Total: ₹{{ item.total_price }}
+
+{% endfor %}
+
+ORDER SUMMARY
+=============
+
+Subtotal ({{ item_count }} items): ₹{{ subtotal }}
+Shipping Charge: ₹{{ shipping_charge }}
+---
+Grand Total: ₹{{ total_amount }}
+
+---
+COMFY CUTE - Order Management System
+Log in to the admin panel to process this order.
+https://comfycute.com/admin/
+
+© {% now "Y" %} COMFY CUTE. All rights reserved.
+This is an automated email. Please do not reply directly to this email.

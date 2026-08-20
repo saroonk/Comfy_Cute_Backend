@@ -1,0 +1,125 @@
+{% extends "emails/base_email.html" %}
+
+{% block header_title %}Order Delivered{% endblock %}
+{% block header_subtitle %}{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="email-section">
+    <h2>🎁 Your Order Has Been Delivered!</h2>
+    <p>Wonderful! Your order has arrived. We hope you love what you got from COMFY CUTE!</p>
+
+    <div class="status-badge status-delivered">Order Delivered</div>
+
+    <div class="order-summary">
+        <div class="summary-item">
+            <span class="summary-item-label">Order Number:</span>
+            <span class="summary-item-value">{{ order_number }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Current Status:</span>
+            <span class="summary-item-value">✅ Delivered</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Total Amount:</span>
+            <span class="summary-item-value">₹{{ total_amount }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- What You Received -->
+<div class="email-section">
+    <h2>📦 What You Received</h2>
+    <p>Here's a summary of the items in your delivered order:</p>
+
+    <table class="items-table">
+        <tr>
+            <th>Product</th>
+            <th>Variant</th>
+            <th>Size</th>
+            <th>Qty</th>
+            <th style="text-align: right;">Price</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_color }}</td>
+            <td>{{ item.size }}</td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td style="text-align: right;">₹{{ item.total_price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="order-summary" style="margin-top: 15px;">
+        <div class="summary-item total">
+            <span class="summary-item-label">Order Total:</span>
+            <span class="summary-item-value">₹{{ total_amount }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Next Steps -->
+<div class="email-section">
+    <h2>💭 What's Next?</h2>
+    <div style="margin-top: 15px;">
+        <div style="display: flex; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+            <div style="flex-shrink: 0; width: 30px; color: #8CBDBC; font-weight: bold; font-size: 18px;">1</div>
+            <div style="flex-grow: 1; margin-left: 15px;">
+                <strong>Inspect Your Order</strong><br>
+                <span style="color: #666; font-size: 14px;">Check that all items are correct and in good condition.</span>
+            </div>
+        </div>
+
+        <div style="display: flex; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+            <div style="flex-shrink: 0; width: 30px; color: #8CBDBC; font-weight: bold; font-size: 18px;">2</div>
+            <div style="flex-grow: 1; margin-left: 15px;">
+                <strong>Try It On</strong><br>
+                <span style="color: #666; font-size: 14px;">Enjoy wearing your new COMFY CUTE items!</span>
+            </div>
+        </div>
+
+        <div style="display: flex; padding-bottom: 15px;">
+            <div style="flex-shrink: 0; width: 30px; color: #8CBDBC; font-weight: bold; font-size: 18px;">3</div>
+            <div style="flex-grow: 1; margin-left: 15px;">
+                <strong>Share Your Experience</strong><br>
+                <span style="color: #666; font-size: 14px;">We'd love to hear what you think about your purchase!</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback & Support -->
+<div class="email-section" style="background-color: #FCFEFE; padding: 15px; border-radius: 4px;">
+    <h3 style="margin-bottom: 10px;">💌 We'd Love Your Feedback</h3>
+    <p style="margin: 10px 0; font-size: 14px; color: #666;">
+        Help us improve by sharing your experience with this purchase. Your feedback means the world to us!
+    </p>
+    <div style="margin-top: 15px; text-align: center;">
+        <a href="https://comfycute.com/products/" style="display: inline-block; padding: 12px 30px; background-color: #8CBDBC; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: 600; margin-right: 10px; margin-bottom: 10px;">Shop Again</a>
+        <a href="https://comfycute.com/contact/" style="display: inline-block; padding: 12px 30px; background-color: #A9D6D5; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: 600;">Send Feedback</a>
+    </div>
+</div>
+
+<!-- Return/Exchange Info -->
+<div class="email-section">
+    <h2>❓ Questions About Your Order?</h2>
+    <p>If you have any concerns or need to make a return or exchange, we're here to help!</p>
+
+    <div class="address-block">
+        <h4>Contact Us</h4>
+        <p>Email: <a href="mailto:{{ store_email }}" style="color: #8CBDBC; text-decoration: none;">{{ store_email }}</a></p>
+        <p style="margin-top: 10px;">
+            <a href="https://comfycute.com/return-exchange/" style="color: #8CBDBC; text-decoration: none;">View Our Return & Exchange Policy</a>
+        </p>
+    </div>
+</div>
+
+<!-- Thank You -->
+<div class="email-section" style="text-align: center; padding: 20px; background: linear-gradient(135deg, #8CBDBC 0%, #A9D6D5 100%); border-radius: 4px; color: #ffffff;">
+    <h3 style="margin-bottom: 10px; color: #ffffff;">Thank You! 🙏</h3>
+    <p style="color: #f0f0f0;">
+        Thank you for choosing COMFY CUTE. We truly appreciate your business and look forward to seeing you again soon!
+    </p>
+</div>
+
+{% endblock %}

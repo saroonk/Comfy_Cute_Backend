@@ -109,6 +109,9 @@ EMAIL_HOST_USER = 'saroonsharu@gmail.com'
 EMAIL_HOST_PASSWORD = 'rtpobhetadmayvul'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# Store email for order notifications (admin/store alerts)
+STORE_EMAIL = 'saroonsharu@gmail.com'  # Change this to your store's email address
+
 # Custom User Model Configuration
 AUTH_USER_MODEL = 'ComfyCuteApp.User'
 

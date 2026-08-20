@@ -1,0 +1,63 @@
+YOUR ORDER HAS BEEN SHIPPED!
+============================
+
+Great news! Your order is on its way to you. Your package should arrive within the next few days.
+
+Order Number: {{ order_number }}
+Current Status: 📦 Shipped
+Shipped Date: {{ order_date|date:"M d, Y" }}
+
+TRACK YOUR PACKAGE
+==================
+
+Your order has left our warehouse and is on its way to you.
+
+Tracking information has been sent to your registered email and phone number. You can track your shipment through your carrier's website using the tracking number provided in the shipping email.
+
+Expected Delivery: 5-10 business days depending on your location
+
+WHAT'S IN YOUR PACKAGE?
+=======================
+
+{% for item in items %}
+{{ item.product_name }}
+  Variant: {{ item.variant_color }} | Size: {{ item.size }} | Qty: {{ item.quantity }}
+
+{% endfor %}
+
+YOUR ORDER TIMELINE
+===================
+
+✓ Order Confirmed
+  Payment received and verified
+
+✓ Shipped
+  Your package is on its way
+
+→ In Transit
+  Package is moving towards your location
+
+→ Delivered
+  Your order arrives at your doorstep
+
+DELIVERY ADDRESS
+================
+
+{{ shipping_address }}
+
+TRACK YOUR PACKAGE
+==================
+
+Visit: https://comfycute.com/order-success/?order_id={{ order.id }}
+
+IMPORTANT NOTES
+===============
+
+- Check the tracking number in your shipping email for real-time updates
+- Make sure someone is available to receive the package
+- If you don't receive your order by the expected date, please contact us
+
+Thank you for shopping with COMFY CUTE!
+
+© {% now "Y" %} COMFY CUTE. All rights reserved.
+This is an automated email. Please do not reply directly to this email.

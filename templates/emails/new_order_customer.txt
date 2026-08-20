@@ -1,0 +1,74 @@
+YOUR ORDER IS CONFIRMED
+========================
+
+Thank you for shopping with COMFY CUTE!
+
+Order Number: {{ order_number }}
+Order Date: {{ order_date|date:"M d, Y H:i" }}
+Payment Status: ✅ {{ payment_status }}
+
+---
+
+HI {{ customer_name|upper }},
+
+Your order has been received and confirmed. We're excited to send your purchase to you!
+
+YOUR INFORMATION
+================
+
+Email: {{ customer_email }}
+Phone: {{ customer_phone }}
+
+DELIVERY ADDRESS
+================
+
+{{ shipping_address }}
+
+ORDER ITEMS
+===========
+
+{% for item in items %}
+{{ item.product_name }}
+  Variant: {{ item.variant_color }}
+  Size: {{ item.size }}
+  Quantity: {{ item.quantity }}
+  Unit Price: ₹{{ item.unit_price }}
+  Total: ₹{{ item.total_price }}
+
+{% endfor %}
+
+ORDER TOTAL
+===========
+
+Subtotal ({{ item_count }} items): ₹{{ subtotal }}
+Shipping Charge: ₹{{ shipping_charge }}
+---
+Grand Total: ₹{{ total_amount }}
+
+WHAT'S NEXT?
+============
+
+Your order is being prepared for shipment. You'll receive an email notification as soon as your order is shipped. We typically ship within 2-3 business days.
+
+To track your order status, you can:
+- Visit our website and check track your order page
+- Reply to any of our status notification emails
+- Contact us at {{ store_email }}
+
+INVOICE
+=======
+
+Download your invoice for record keeping:
+https://comfycute.com/order-success/?order_id={{ order.id }}
+
+---
+
+Thank you for shopping with COMFY CUTE!
+We're committed to delivering comfort and style to your doorstep.
+
+View Your Order: https://comfycute.com/order-success/?order_id={{ order.id }}
+Continue Shopping: https://comfycute.com/products/
+Contact Us: https://comfycute.com/contact/
+
+© {% now "Y" %} COMFY CUTE. All rights reserved.
+This is an automated email. Please do not reply directly to this email.

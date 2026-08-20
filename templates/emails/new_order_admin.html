@@ -1,0 +1,121 @@
+{% extends "emails/base_email.html" %}
+
+{% block header_title %}New Order Received{% endblock %}
+{% block header_subtitle %}{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="email-section">
+    <h2>🎉 New Order Alert</h2>
+    <p>A new order has been placed and is ready for processing.</p>
+
+    <div class="order-summary">
+        <div class="summary-item">
+            <span class="summary-item-label">Order Number:</span>
+            <span class="summary-item-value">{{ order_number }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Order Date:</span>
+            <span class="summary-item-value">{{ order_date|date:"M d, Y H:i" }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Status:</span>
+            <span class="summary-item-value">{{ order_status }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Payment Status:</span>
+            <span class="summary-item-value">{{ payment_status }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Information -->
+<div class="email-section">
+    <h2>👤 Customer Information</h2>
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="50%" style="padding-right: 10px;">
+                <div class="address-block">
+                    <h4>Customer Name</h4>
+                    <p>{{ customer_name }}</p>
+                </div>
+            </td>
+            <td width="50%">
+                <div class="address-block">
+                    <h4>Email Address</h4>
+                    <p>{{ customer_email }}</p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="address-block">
+                    <h4>Phone Number</h4>
+                    <p>{{ customer_phone }}</p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- Shipping Address -->
+<div class="email-section">
+    <h2>📮 Delivery Address</h2>
+    <div class="address-block">
+        <p>{{ shipping_address }}</p>
+    </div>
+</div>
+
+<!-- Order Items -->
+<div class="email-section">
+    <h2>📦 Order Items</h2>
+    <table class="items-table">
+        <tr>
+            <th>Product</th>
+            <th>Variant</th>
+            <th>Size</th>
+            <th>Qty</th>
+            <th style="text-align: right;">Unit Price</th>
+            <th style="text-align: right;">Total</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_color }}</td>
+            <td>{{ item.size }}</td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td style="text-align: right;">₹{{ item.unit_price }}</td>
+            <td style="text-align: right; font-weight: 600;">₹{{ item.total_price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Order Totals -->
+<div class="email-section">
+    <h2>💰 Order Summary</h2>
+    <div class="order-summary">
+        <div class="summary-item">
+            <span class="summary-item-label">Subtotal ({{ item_count }} items):</span>
+            <span class="summary-item-value">₹{{ subtotal }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Shipping Charge:</span>
+            <span class="summary-item-value">₹{{ shipping_charge }}</span>
+        </div>
+        <div class="summary-item total">
+            <span class="summary-item-label">Grand Total:</span>
+            <span class="summary-item-value">₹{{ total_amount }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Action -->
+<div class="email-section" style="text-align: center;">
+    <p style="margin: 20px 0; color: #666; font-size: 14px;">
+        Log in to the admin panel to process this order.
+    </p>
+    <a href="https://comfycute.com/admin/" class="cta-button">View Order in Admin</a>
+</div>
+
+{% endblock %}

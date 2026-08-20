@@ -1,0 +1,56 @@
+YOUR ORDER HAS BEEN DELIVERED!
+==============================
+
+Wonderful! Your order has arrived. We hope you love what you got from COMFY CUTE!
+
+Order Number: {{ order_number }}
+Current Status: ✅ Delivered
+Order Total: ₹{{ total_amount }}
+
+WHAT YOU RECEIVED
+=================
+
+{% for item in items %}
+{{ item.product_name }}
+  Variant: {{ item.variant_color }} | Size: {{ item.size }} | Qty: {{ item.quantity }}
+  Price: ₹{{ item.total_price }}
+
+{% endfor %}
+Total: ₹{{ total_amount }}
+
+WHAT'S NEXT?
+============
+
+1. Inspect Your Order
+   Check that all items are correct and in good condition.
+
+2. Try It On
+   Enjoy wearing your new COMFY CUTE items!
+
+3. Share Your Experience
+   We'd love to hear what you think about your purchase!
+
+WE'D LOVE YOUR FEEDBACK
+=======================
+
+Help us improve by sharing your experience with this purchase. Your feedback means the world to us!
+
+Shop Again: https://comfycute.com/products/
+Send Feedback: https://comfycute.com/contact/
+
+QUESTIONS ABOUT YOUR ORDER?
+============================
+
+If you have any concerns or need to make a return or exchange, we're here to help!
+
+Email: {{ store_email }}
+Return & Exchange Policy: https://comfycute.com/return-exchange/
+
+---
+
+THANK YOU! 🙏
+
+Thank you for choosing COMFY CUTE. We truly appreciate your business and look forward to seeing you again soon!
+
+© {% now "Y" %} COMFY CUTE. All rights reserved.
+This is an automated email. Please do not reply directly to this email.

@@ -609,11 +609,12 @@ class OrderItemInline(TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(ModelAdmin):
-    list_display = ['order_number', 'customer_name_display', 'status_display', 'payment_status_display', 'total_amount_display', 'created_at']
+    list_display = ['order_number', 'customer_name_display', 'status', 'payment_status_display', 'total_amount_display', 'created_at']
     list_filter = ['status', 'payment_status', 'created_at']
     search_fields = ['order_number', 'email', 'phone_number', 'first_name', 'last_name', 'user__email', 'session_id', 'razorpay_order_id', 'razorpay_payment_id']
     readonly_fields = ['order_number', 'created_at', 'updated_at', 'session_id', 'item_count_display', 'subtotal_display', 'shipping_display', 'total_amount_display']
     inlines = [OrderItemInline]
+    list_editable = ['status']
 
     fieldsets = (
         ('Order Identification', {

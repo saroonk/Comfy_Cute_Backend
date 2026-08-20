@@ -1,0 +1,117 @@
+{% extends "emails/base_email.html" %}
+
+{% block header_title %}Order Being Prepared{% endblock %}
+{% block header_subtitle %}{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="email-section">
+    <h2>⏳ Your Order is Being Prepared</h2>
+    <p>Exciting! Your order is currently being picked and packed. We're working hard to get it to you as soon as possible.</p>
+
+    <div class="status-badge status-processing">Order Processing</div>
+
+    <div class="order-summary">
+        <div class="summary-item">
+            <span class="summary-item-label">Order Number:</span>
+            <span class="summary-item-value">{{ order_number }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Current Status:</span>
+            <span class="summary-item-value">🔄 Being Prepared</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Expected Timeline:</span>
+            <span class="summary-item-value">Ready to ship soon</span>
+        </div>
+    </div>
+</div>
+
+<!-- What's Happening -->
+<div class="email-section">
+    <h2>📋 What's Happening Now?</h2>
+    <p>Your items are currently being:</p>
+    <ul style="margin-left: 20px; margin-top: 10px; color: #666;">
+        <li style="margin: 8px 0;">✓ Verified and quality checked</li>
+        <li style="margin: 8px 0;">✓ Carefully picked from our inventory</li>
+        <li style="margin: 8px 0;">🔄 Being packed with care</li>
+        <li style="margin: 8px 0;">⏳ Getting ready to ship</li>
+    </ul>
+</div>
+
+<!-- Quick Summary -->
+<div class="email-section">
+    <h2>📦 Items in Your Order</h2>
+
+    <table class="items-table">
+        <tr>
+            <th>Product</th>
+            <th>Variant</th>
+            <th>Size</th>
+            <th>Qty</th>
+            <th style="text-align: right;">Price</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_color }}</td>
+            <td>{{ item.size }}</td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td style="text-align: right;">₹{{ item.total_price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Timeline -->
+<div class="email-section">
+    <h2>📅 Your Order Timeline</h2>
+    <div style="margin-top: 15px;">
+        <div style="display: flex; margin-bottom: 15px;">
+            <div style="flex-shrink: 0; width: 30px; color: #8CBDBC; font-weight: bold; font-size: 18px;">✓</div>
+            <div style="flex-grow: 1;">
+                <strong>Order Confirmed</strong><br>
+                <span style="color: #666; font-size: 14px;">Your payment was received</span>
+            </div>
+        </div>
+
+        <div style="display: flex; margin-bottom: 15px;">
+            <div style="flex-shrink: 0; width: 30px; color: #8CBDBC; font-weight: bold; font-size: 18px;">✓</div>
+            <div style="flex-grow: 1;">
+                <strong>Being Prepared</strong><br>
+                <span style="color: #666; font-size: 14px;">Items are being packed and prepared for shipment</span>
+            </div>
+        </div>
+
+        <div style="display: flex; margin-bottom: 15px;">
+            <div style="flex-shrink: 0; width: 30px; color: #ccc; font-weight: bold; font-size: 18px;">→</div>
+            <div style="flex-grow: 1;">
+                <strong>Ready to Ship</strong><br>
+                <span style="color: #666; font-size: 14px;">Your order will be shipped within 24-48 hours</span>
+            </div>
+        </div>
+
+        <div style="display: flex;">
+            <div style="flex-shrink: 0; width: 30px; color: #ccc; font-weight: bold; font-size: 18px;">→</div>
+            <div style="flex-grow: 1;">
+                <strong>On the Way</strong><br>
+                <span style="color: #666; font-size: 14px;">You'll get tracking details once shipped</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delivery Address -->
+<div class="email-section">
+    <h2>📮 Your Delivery Address</h2>
+    <div class="address-block">
+        <p>{{ shipping_address }}</p>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="email-section" style="text-align: center;">
+    <p style="color: #666; margin-bottom: 15px;">We'll notify you as soon as your order ships with tracking information.</p>
+    <a href="https://comfycute.com/order-success/?order_id={{ order.id }}" class="cta-button">View Your Order</a>
+</div>
+
+{% endblock %}

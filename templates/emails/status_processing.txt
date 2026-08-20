@@ -1,0 +1,59 @@
+YOUR ORDER IS BEING PREPARED
+=============================
+
+Exciting! Your order is currently being picked and packed. We're working hard to get it to you as soon as possible.
+
+Order Number: {{ order_number }}
+Current Status: 🔄 Being Prepared
+Expected Timeline: Ready to ship soon
+
+WHAT'S HAPPENING NOW?
+=====================
+
+Your items are currently being:
+✓ Verified and quality checked
+✓ Carefully picked from our inventory
+🔄 Being packed with care
+⏳ Getting ready to ship
+
+ITEMS IN YOUR ORDER
+===================
+
+{% for item in items %}
+{{ item.product_name }}
+  Variant: {{ item.variant_color }} | Size: {{ item.size }} | Qty: {{ item.quantity }}
+  Price: ₹{{ item.total_price }}
+
+{% endfor %}
+
+YOUR ORDER TIMELINE
+===================
+
+✓ Order Confirmed
+  Your payment was received
+
+✓ Being Prepared
+  Items are being packed and prepared for shipment
+
+→ Ready to Ship
+  Your order will be shipped within 24-48 hours
+
+→ On the Way
+  You'll get tracking details once shipped
+
+YOUR DELIVERY ADDRESS
+======================
+
+{{ shipping_address }}
+
+NEXT STEPS
+==========
+
+We'll notify you as soon as your order ships with tracking information.
+
+View Your Order: https://comfycute.com/order-success/?order_id={{ order.id }}
+
+Thank you for your patience and for shopping with COMFY CUTE!
+
+© {% now "Y" %} COMFY CUTE. All rights reserved.
+This is an automated email. Please do not reply directly to this email.
