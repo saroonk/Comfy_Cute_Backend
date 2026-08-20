@@ -118,7 +118,7 @@
 
 <!-- CTA Buttons -->
 <div class="email-section" style="text-align: center;">
-    <a href="{{ site_domain }}/order-success/?order_id={{ order.id }}" class="cta-button">View Your Order</a>
+    <a href="{{ site_domain }}/api/download-invoice/{{ order.id }}/" class="cta-button">Download Invoice</a>
     <a href="{{ site_domain }}/products/" class="cta-button cta-button-secondary">Continue Shopping</a>
 </div>
 

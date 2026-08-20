@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ order.order_number }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .invoice-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #8CBDBC;
+        }
+
+        .company-info h1 {
+            color: #8CBDBC;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .company-info p {
+            color: #666;
+            font-size: 14px;
+            margin: 3px 0;
+        }
+
+        .invoice-info {
+            text-align: right;
+        }
+
+        .invoice-info h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .invoice-info p {
+            color: #666;
+            font-size: 14px;
+            margin: 4px 0;
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .info-block h3 {
+            color: #8CBDBC;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .info-block p {
+            color: #666;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .items-table thead {
+            background-color: #8CBDBC;
+            color: white;
+        }
+
+        .items-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .items-table tr:last-child td {
+            border-bottom: 2px solid #8CBDBC;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .totals {
+            width: 300px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-row.grand-total {
+            border-bottom: none;
+            border-top: 2px solid #8CBDBC;
+            padding-top: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #8CBDBC;
+        }
+
+        .total-label {
+            color: #666;
+        }
+
+        .total-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .payment-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 40px;
+            font-size: 13px;
+        }
+
+        .payment-info h4 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .payment-info p {
+            color: #666;
+            margin: 4px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .footer p {
+            margin: 4px 0;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .invoice-container {
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="invoice-header">
+            <div class="company-info">
+                <h1>COMFY CUTE</h1>
+                <p><strong>{{ site_domain }}</strong></p>
+                <p>Comfort Meets Style</p>
+            </div>
+            <div class="invoice-info">
+                <h2>INVOICE</h2>
+                <p><strong>Invoice #:</strong> {{ order.order_number }}</p>
+                <p><strong>Date:</strong> {{ order.created_at|date:"d M, Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Customer & Order Info -->
+        <div class="info-section">
+            <div>
+                <div class="info-block">
+                    <h3>Bill To</h3>
+                    <p><strong>{{ customer_name }}</strong></p>
+                    <p>{{ customer_email }}</p>
+                    <p>{{ customer_phone }}</p>
+                </div>
+            </div>
+            <div>
+                <div class="info-block">
+                    <h3>Ship To</h3>
+                    <p>{{ shipping_address }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="info-section">
+            <div>
+                <div class="info-block">
+                    <h3>Order Status</h3>
+                    <p>{{ order_status }}</p>
+                </div>
+            </div>
+            <div>
+                <div class="info-block">
+                    <h3>Payment Status</h3>
+                    <p>{{ payment_status }}</p>
+                    {% if razorpay_payment_id %}
+                    <p><strong style="color: #666;">Payment ID:</strong><br>{{ razorpay_payment_id }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Variant</th>
+                    <th>Size</th>
+                    <th style="text-align: center;">Quantity</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.variant_color }}</td>
+                    <td>{{ item.size }}</td>
+                    <td style="text-align: center;">{{ item.quantity }}</td>
+                    <td class="text-right">₹{{ item.unit_price }}</td>
+                    <td class="text-right">₹{{ item.total_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals-section">
+            <div class="totals">
+                <div class="total-row">
+                    <span class="total-label">Subtotal:</span>
+                    <span class="total-value">₹{{ subtotal }}</span>
+                </div>
+                <div class="total-row">
+                    <span class="total-label">Shipping:</span>
+                    <span class="total-value">₹{{ shipping_charge }}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Grand Total:</span>
+                    <span>₹{{ total_amount }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="payment-info">
+            <h4>Payment Details</h4>
+            <p><strong>Payment Method:</strong> Razorpay</p>
+            <p><strong>Status:</strong> {{ payment_status }}</p>
+            {% if razorpay_payment_id %}
+            <p><strong>Transaction ID:</strong> {{ razorpay_payment_id }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Thank you for shopping with COMFY CUTE!</strong></p>
+            <p>We appreciate your business and look forward to serving you again.</p>
+        </div>
+    </div>
+</body>
+</html>
