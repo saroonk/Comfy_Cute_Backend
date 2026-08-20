@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/cart/update/', views.cart_update, name='cart_update'),
     path('api/cart/remove/', views.cart_remove, name='cart_remove'),
     path('api/cart/get/', views.cart_get, name='cart_get'),
+    path('api/checkout-data/', views.checkout_data, name='checkout_data'),
 
     # Admin API endpoints
     path('api/product-subcategories/', views.admin_api_subcategories, name='admin_api_subcategories'),

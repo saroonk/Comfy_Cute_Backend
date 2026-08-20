@@ -441,6 +441,7 @@
 
           <!-- Right Column: Order Summary -->
           <div class="col-lg-5">
+            {% if has_cart %}
             <div class="order-summary-card">
               <h3 class="summary-title">Order Summary</h3>
 
@@ -458,11 +459,13 @@
               <div class="summary-pricing">
                 <div class="price-row">
                   <span class="price-label">Subtotal</span>
-                  <span class="price-value subtotal-value">₹0</span>
+                  <span class="price-value subtotal-value">₹{{ cart_subtotal }}</span>
                 </div>
                 <div class="price-row">
                   <span class="price-label">Shipping</span>
-                  <span class="price-value shipping-value">Select State</span>
+                  <span class="price-value shipping-value {% if shipping_charge == 0 %}shipping-free{% endif %}">
+                    {% if shipping_charge > 0 %}₹{{ shipping_charge }}{% else %}FREE{% endif %}
+                  </span>
                 </div>
               </div>
 
@@ -475,7 +478,7 @@
                   <span class="total-label">Total</span>
                   <span class="total-subtitle">Including all taxes</span>
                 </div>
-                <span class="total-value">₹0</span>
+                <span class="total-value">₹{{ total_amount }}</span>
               </div>
 
               <!-- Place Order Button -->
@@ -489,6 +492,18 @@
                 <span>Secured Payment</span>
               </div>
             </div>
+            {% else %}
+            <div class="order-summary-card empty-cart-message">
+              <div class="empty-state">
+                <i class="fa-solid fa-cart-shopping-circle" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                <h4>Your Cart is Empty</h4>
+                <p>Add items to your cart before proceeding to checkout.</p>
+                <a href="{% url 'ComfyCuteApp:products' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                  Continue Shopping
+                </a>
+              </div>
+            </div>
+            {% endif %}
           </div>
 
         </div>
@@ -573,6 +588,18 @@
 
   <!-- Custom JS -->
   <script src="{% static 'js/main.js' %}"></script>
+
+  <!-- Initialize checkout cart data from Django backend -->
+  <script>
+    // Cart data from Django backend
+    window.checkoutCartData = {{ cart_data_json|safe }};
+    window.checkoutTotalQuantity = {{ total_quantity }};
+    window.checkoutSubtotal = {{ cart_subtotal }};
+    window.checkoutShippingCharge = {{ shipping_charge }};
+    window.checkoutTotalAmount = {{ total_amount }};
+    window.hasCart = {{ has_cart|lower }};
+  </script>
+
   <script src="{% static 'js/checkout.js' %}"></script>
   <script src="{% static 'js/wishlist-system.js' %}"></script>
   <script>

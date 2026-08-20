@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function () {
           cartSubtotalText.textContent = '₹' + cartTotal;
         }
 
-        // Render items in cart drawer
+        // Render items in cart drawer and manage checkout button state
         if (cartDrawerItems) {
           if (items.length === 0) {
             cartDrawerItems.innerHTML = `
@@ -370,6 +370,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button class="btn btn-premium btn-premium-primary btn-sm" data-bs-dismiss="offcanvas">Shop Now</button>
               </div>
             `;
+            // Disable checkout button when cart is empty
+            const checkoutBtn = document.querySelector('.btn-cart-checkout');
+            if (checkoutBtn) {
+              checkoutBtn.classList.add('disabled');
+              checkoutBtn.style.pointerEvents = 'none';
+              checkoutBtn.style.cursor = 'not-allowed';
+              checkoutBtn.style.opacity = '0.6';
+              checkoutBtn.style.color = 'currentColor';  // Keep text visible
+              checkoutBtn.setAttribute('aria-disabled', 'true');
+              // Remove href to prevent navigation
+              checkoutBtn.removeAttribute('href');
+            }
           } else {
             cartDrawerItems.innerHTML = items.map(item => `
               <div class="cart-item">
@@ -391,6 +403,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 </button>
               </div>
             `).join('');
+            // Enable checkout button when cart has items
+            const checkoutBtn = document.querySelector('.btn-cart-checkout');
+            if (checkoutBtn) {
+              checkoutBtn.classList.remove('disabled');
+              checkoutBtn.style.pointerEvents = 'auto';
+              checkoutBtn.style.cursor = 'pointer';
+              checkoutBtn.style.opacity = '1';  // Restore full visibility
+              checkoutBtn.removeAttribute('aria-disabled');
+              // Restore href to checkout
+              if (!checkoutBtn.hasAttribute('href')) {
+                checkoutBtn.setAttribute('href', '/checkout/');
+              }
+            }
           }
         }
       })
@@ -406,6 +431,13 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
           `;
         }
+      })
+      .finally(() => {
+        // Dispatch event to notify other components (like checkout) that cart has been updated
+        const cartUpdateEvent = new CustomEvent('cartUpdated', {
+          detail: { cartUpdated: true }
+        });
+        document.dispatchEvent(cartUpdateEvent);
       });
   }
 

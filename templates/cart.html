@@ -18,7 +18,7 @@
       <span class="cart-subtotal-price">₹0</span>
     </div>
     <div class="cart-action-buttons">
-      <button class="btn btn-cart-checkout" onclick="alert('Proceeding to Checkout!');">Proceed to Checkout</button>
+      <a href="{% url 'ComfyCuteApp:checkout' %}" class="btn btn-cart-checkout">Proceed to Checkout</a>
       <button class="btn btn-cart-continue" data-bs-dismiss="offcanvas">Continue Shopping</button>
     </div>
   </div>

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import cache_control
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
@@ -474,13 +475,97 @@ def return_exchange(request):
 
 
 
+@cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
 def checkout(request):
     """
     Checkout page view.
-    Displays the checkout form where users can enter their billing and shipping information.
-    Cart data is handled client-side via JavaScript and localStorage.
+    Displays the checkout form and order summary with actual cart data.
+
+    Cart data is fetched from the database for authenticated users or session-based carts.
     """
-    return render(request, 'checkout.html')
+    from decimal import Decimal
+    import json
+
+    # Get the user's cart
+    cart = None
+    cart_items = []
+    cart_subtotal = Decimal('0.00')
+    total_quantity = 0
+    shipping_charge = Decimal('0.00')
+    total_amount = Decimal('0.00')
+    has_cart = False
+
+    if request.user.is_authenticated:
+        # Fetch authenticated user's cart
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        # Fetch session-based cart
+        # Ensure we use the CURRENT session (from cookie if available)
+        # Accessing request.session triggers Django to load the session from the cookie
+        _ = request.session.session_key  # Access the session to load it from cookie
+        session_id = request.session.session_key
+
+        if session_id:
+            # Use existing session from cookie
+            cart = Cart.objects.filter(session_id=session_id).first()
+        else:
+            # No existing session - this is a fresh visit
+            # Create a new session for anonymous user
+            request.session.create()
+            session_id = request.session.session_key
+            if session_id:
+                cart = Cart.objects.filter(session_id=session_id).first()
+
+    # Check if cart is empty - redirect if so
+    if not cart or cart.is_empty:
+        # Cart is empty - redirect to products page
+        return redirect('ComfyCuteApp:products')
+
+    # Process cart items
+    has_cart = True
+    cart_items = cart.items.all()
+    total_quantity = cart.total_quantity
+    cart_subtotal = cart.subtotal
+
+    # Calculate shipping based on total quantity
+    # 1-3 pieces: ₹40, 4+ pieces: FREE
+    if total_quantity <= 3:
+        shipping_charge = Decimal('40.00')
+    else:
+        shipping_charge = Decimal('0.00')
+
+    # Calculate total
+    total_amount = cart_subtotal + shipping_charge
+
+    # Prepare cart data for JavaScript (JSON format)
+    cart_data_json = '[]'
+    if has_cart:
+        cart_items_list = []
+        for item in cart_items:
+            item_data = {
+                'id': item.id,
+                'name': item.product.name,
+                'price': float(item.unit_price),
+                'quantity': item.quantity,
+                'size': item.size.name if item.size else '',
+                'color': item.variant.color.name if item.variant else '',
+                'image': item.product.main_image.url if item.product.main_image else '',
+            }
+            cart_items_list.append(item_data)
+        cart_data_json = json.dumps(cart_items_list)
+
+    context = {
+        'cart': cart,
+        'cart_items': cart_items,
+        'has_cart': has_cart,
+        'total_quantity': total_quantity,
+        'cart_subtotal': cart_subtotal,
+        'shipping_charge': shipping_charge,
+        'total_amount': total_amount,
+        'cart_data_json': cart_data_json,  # JSON string for JavaScript
+    }
+
+    return render(request, 'checkout.html', context)
 
 
 # ==========================================
@@ -965,3 +1050,96 @@ def cart_get(request):
     cart_data['success'] = True
 
     return JsonResponse(cart_data)
+
+
+@cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
+@require_http_methods(["GET"])
+def checkout_data(request):
+    """
+    Get current checkout data - cart items and totals.
+
+    Used by checkout.html to keep Order Summary in sync with actual Cart.
+    Always returns fresh data (no caching).
+
+    Returns JSON with:
+    - items: Current CartItems with product details
+    - subtotal: Cart subtotal
+    - total_quantity: Total number of pieces
+    - shipping_charge: Calculated shipping
+    - total_amount: Grand total
+    - success: True/False
+    """
+    from decimal import Decimal
+    import json
+
+    # Determine which cart to fetch
+    cart = None
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        # IMPORTANT: Use the EXACT same session logic as checkout() view
+        # Access session key to load from cookie first, before creating
+        _ = request.session.session_key
+        session_id = request.session.session_key
+
+        if session_id:
+            # Use existing session from cookie
+            cart = Cart.objects.filter(session_id=session_id).first()
+        else:
+            # No existing session - create new one only as fallback
+            request.session.create()
+            session_id = request.session.session_key
+            if session_id:
+                cart = Cart.objects.filter(session_id=session_id).first()
+
+    # Prepare response
+    response_data = {
+        'success': False,
+        'items': [],
+        'subtotal': 0,
+        'total_quantity': 0,
+        'shipping_charge': 0,
+        'total_amount': 0,
+    }
+
+    # If no cart or empty cart, return empty data
+    if not cart or cart.is_empty:
+        return JsonResponse(response_data)
+
+    # Build items list with full product details
+    items_list = []
+    for item in cart.items.all():
+        item_data = {
+            'id': item.id,
+            'name': item.product.name,
+            'price': float(item.unit_price),
+            'quantity': item.quantity,
+            'size': item.size.name if item.size else '',
+            'color': item.variant.color.name if item.variant else '',
+            'image': item.product.main_image.url if item.product.main_image else '',
+        }
+        items_list.append(item_data)
+
+    # Calculate totals
+    total_quantity = cart.total_quantity
+    cart_subtotal = float(cart.subtotal)
+
+    # Calculate shipping (1-3: ₹40, 4+: FREE)
+    if total_quantity <= 3:
+        shipping_charge = 40.00
+    else:
+        shipping_charge = 0.00
+
+    total_amount = cart_subtotal + shipping_charge
+
+    # Build successful response
+    response_data = {
+        'success': True,
+        'items': items_list,
+        'subtotal': cart_subtotal,
+        'total_quantity': total_quantity,
+        'shipping_charge': shipping_charge,
+        'total_amount': total_amount,
+    }
+
+    return JsonResponse(response_data)

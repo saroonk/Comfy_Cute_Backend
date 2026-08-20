@@ -18,27 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initMobileAccountPopup();
 });
 
-/**
- * Sample items used for UI preview/testing when the cart is empty.
- */
-const sampleItems = [
-  {
-    name: "Cozy Organic Cotton Knit Romper",
-    price: 599,
-    quantity: 1,
-    size: "0-3M",
-    color: "Sage Green",
-    image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=400&auto=format&fit=crop"
-  },
-  {
-    name: "Premium Ribbed Baby Leggings",
-    price: 399,
-    quantity: 2,
-    size: "6-12M",
-    color: "Oatmeal",
-    image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=400&auto=format&fit=crop"
-  }
-];
+// Sample items have been removed - checkout now uses ONLY actual cart data from Django backend
 
 /**
  * Initialize checkout page
@@ -47,15 +27,43 @@ function initCheckout() {
   // Render cart items in order summary
   renderCheckoutSummary();
 
-  // Update summary totals
+  // Update summary totals (based on actual cart quantity and backend calculation)
   updateSummaryTotals();
 
-  // Add event listener to state field for dynamic shipping calculation
-  const stateInput = document.getElementById('state');
-  if (stateInput) {
-    stateInput.addEventListener('input', updateSummaryTotals);
-    stateInput.addEventListener('change', updateSummaryTotals);
-  }
+  // Listen for cart updates from main.js
+  // When cart changes, fetch fresh checkout data to keep Order Summary in sync
+  document.addEventListener('cartUpdated', function() {
+    refreshCheckoutData();
+  });
+}
+
+/**
+ * Refresh checkout data from server
+ * Called whenever cart is updated to keep checkout in sync
+ */
+function refreshCheckoutData() {
+  fetch('/api/checkout-data/?_=' + Date.now())
+    .then(response => response.json())
+    .then(data => {
+      if (!data.success) {
+        console.error('Error fetching checkout data:', data);
+        return;
+      }
+
+      // Update window variables with fresh data
+      window.checkoutCartData = data.items || [];
+      window.checkoutTotalQuantity = data.total_quantity;
+      window.checkoutSubtotal = data.subtotal;
+      window.checkoutShippingCharge = data.shipping_charge;
+      window.checkoutTotalAmount = data.total_amount;
+
+      // Re-render checkout summary
+      renderCheckoutSummary();
+      updateSummaryTotals();
+    })
+    .catch(error => {
+      console.error('Error refreshing checkout data:', error);
+    });
 }
 
 /**
@@ -65,13 +73,13 @@ function renderCheckoutSummary() {
   const cartItemsContainer = document.querySelector('.cart-items-summary');
   if (!cartItemsContainer) return;
 
-  // Get cart from localStorage
-  let cart = getCart();
-  let isDemo = false;
+  // Get cart from backend data (passed from Django)
+  let cart = window.checkoutCartData || [];
 
   if (cart.length === 0) {
-    cart = sampleItems;
-    isDemo = true;
+    // No cart data available
+    cartItemsContainer.innerHTML = '<p style="text-align: center; color: #666;">No items in cart</p>';
+    return;
   }
 
   // Render each cart item
@@ -113,28 +121,47 @@ function renderCheckoutSummary() {
  * Update order summary totals
  */
 function updateSummaryTotals() {
-  let cart = getCart();
+  // Use backend cart data
+  let cart = window.checkoutCartData || [];
   if (cart.length === 0) {
-    cart = sampleItems;
+    // If no cart data, use the values passed from Django
+    const subtotal = window.checkoutSubtotal || 0;
+    const shipping = window.checkoutShippingCharge || 0;
+    const total = window.checkoutTotalAmount || 0;
+
+    // Update display with backend values
+    const subtotalEl = document.querySelector('.subtotal-value');
+    const shippingEl = document.querySelector('.shipping-value');
+    const totalEl = document.querySelector('.total-value');
+
+    if (subtotalEl) subtotalEl.textContent = `₹${formatPrice(subtotal)}`;
+    if (shippingEl) {
+      const shippingText = shipping === 0 ? 'FREE' : `₹${formatPrice(shipping)}`;
+      shippingEl.textContent = shippingText;
+      shippingEl.className = `price-value shipping-value ${shipping === 0 ? 'shipping-free' : ''}`;
+    }
+    if (totalEl) totalEl.textContent = `₹${formatPrice(total)}`;
+    return;
   }
+
   const subtotal = calculateCartSubtotal(cart);
+  const totalQuantity = calculateTotalQuantity(cart);
 
-  // Determine shipping based on state input
-  const stateInput = document.getElementById('state');
-  const stateValue = stateInput ? stateInput.value.trim() : '';
-
+  // COMFY CUTE Shipping Rule:
+  // 1-3 pieces: ₹40
+  // 4+ pieces: FREE
   let shipping = 0;
   let shippingText = '';
   let shippingClass = '';
 
-  if (!stateValue) {
-    shippingText = 'Select State';
-    shippingClass = 'shipping-pending';
+  if (totalQuantity <= 3) {
+    shipping = 40;
+    shippingText = `₹${formatPrice(shipping)}`;
+    shippingClass = '';
   } else {
-    // Shipping (free above ₹999)
-    shipping = subtotal >= 999 ? 0 : 100;
-    shippingText = shipping === 0 ? 'FREE' : `₹${formatPrice(shipping)}`;
-    shippingClass = shipping === 0 ? 'shipping-free' : '';
+    shipping = 0;
+    shippingText = 'FREE';
+    shippingClass = 'shipping-free';
   }
 
   // Total
@@ -159,6 +186,15 @@ function updateSummaryTotals() {
 function calculateCartSubtotal(cart) {
   return cart.reduce((total, item) => {
     return total + (parseFloat(item.price) * parseInt(item.quantity));
+  }, 0);
+}
+
+/**
+ * Calculate total quantity (sum of all quantities, not distinct items)
+ */
+function calculateTotalQuantity(cart) {
+  return cart.reduce((total, item) => {
+    return total + parseInt(item.quantity);
   }, 0);
 }
 
