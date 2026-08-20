@@ -37,7 +37,6 @@ urlpatterns = [
     path('api/verify-payment/', views.verify_order_payment, name='verify_order_payment'),
     path('api/payment-failure/', views.payment_failure, name='payment_failure'),
     path('invoice/download/<str:invoice_token>/', views.download_invoice_public, name='download_invoice_public'),
-    path('api/download-invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
     path('order-success/', views.order_success, name='order_success'),
 
     # Admin API endpoints
