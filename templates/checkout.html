@@ -371,6 +371,7 @@
           <!-- Left Column: Forms -->
           <div class="col-lg-7">
             <form id="checkoutForm" class="checkout-form">
+              {% csrf_token %}
 
               <!-- Contact Information Section -->
               <div class="checkout-card">
@@ -586,6 +587,9 @@
   <!-- Owl Carousel 2.3.4 JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
+  <!-- Razorpay Payment Gateway -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
   <!-- Custom JS -->
   <script src="{% static 'js/main.js' %}"></script>
 
@@ -593,12 +597,16 @@
   <script>
     // Cart data from Django backend
     window.checkoutCartData = {{ cart_data_json|safe }};
+    window.checkoutCartId = {{ cart.id }};  // Current cart ID for Place Order request
     window.checkoutTotalQuantity = {{ total_quantity }};
     window.checkoutSubtotal = {{ cart_subtotal }};
     window.checkoutShippingCharge = {{ shipping_charge }};
     window.checkoutTotalAmount = {{ total_amount }};
     window.hasCart = {{ has_cart|lower }};
   </script>
+
+  <!-- Razorpay Payment Integration -->
+  <script src="{% static 'js/razorpay-checkout.js' %}"></script>
 
   <script src="{% static 'js/checkout.js' %}"></script>
   <script src="{% static 'js/wishlist-system.js' %}"></script>

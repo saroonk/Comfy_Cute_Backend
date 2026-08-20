@@ -6,12 +6,17 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.utils import timezone
+from django.db import transaction
 from datetime import timedelta
 import threading
 import logging
+import json
+import hmac
+import hashlib
+from decimal import Decimal
 from .models import (
     HeroBanner, ContactSubmission, Testimonial, Product, Category, SubCategory,
-    Fabric, Size, VariantSizeStock, Wishlist, Cart, CartItem, ProductVariant
+    Fabric, Size, VariantSizeStock, Wishlist, Cart, CartItem, ProductVariant, Order, OrderItem
 )
 from .forms import ContactSubmissionForm, RegistrationForm, EmailAuthenticationForm
 
@@ -1130,3 +1135,465 @@ def checkout_data(request):
     }
 
     return JsonResponse(response_data)
+
+
+# ==========================================
+# ORDER PLACEMENT AND PAYMENT VIEWS
+# ==========================================
+
+def generate_order_number():
+    """Generate a unique order number."""
+    import uuid
+    from datetime import datetime
+    timestamp = datetime.now().strftime('%Y%m%d')
+    unique_id = str(uuid.uuid4()).split('-')[0].upper()
+    return f'ORD-{timestamp}-{unique_id}'
+
+
+def validate_checkout_form_data(data):
+    """
+    Validate checkout form data.
+
+    Returns tuple: (is_valid, error_message)
+    """
+    required_fields = {
+        'email': 'Email',
+        'first_name': 'First Name',
+        'last_name': 'Last Name',
+        'phone_number': 'Phone Number',
+        'address': 'Address',
+        'city': 'City',
+        'state': 'State',
+        'postal_code': 'PIN Code',
+    }
+
+    for field, label in required_fields.items():
+        value = data.get(field, '').strip() if data.get(field) else ''
+        if not value:
+            return False, f'{label} is required'
+
+    # Validate email format
+    email = data.get('email', '').strip()
+    if '@' not in email or '.' not in email:
+        return False, 'Invalid email address'
+
+    # Validate phone (at least 10 digits)
+    phone = data.get('phone_number', '').replace(' ', '').replace('-', '')
+    if len(phone) < 10 or not phone.isdigit():
+        return False, 'Phone number must have at least 10 digits'
+
+    # Validate postal code (5-6 digits)
+    postal = data.get('postal_code', '').strip()
+    if not postal.isdigit() or len(postal) < 5 or len(postal) > 6:
+        return False, 'PIN Code must be 5-6 digits'
+
+    return True, None
+
+
+def create_razorpay_order(amount_paise, order_number):
+    """
+    Create a Razorpay order.
+
+    Args:
+        amount_paise: Amount in paise (1 rupee = 100 paise)
+        order_number: Order number for reference
+
+    Returns:
+        dict with razorpay_order_id or None on failure
+    """
+    try:
+        import razorpay
+
+        # DEBUG: Log Razorpay initialization details
+        logger.warning(f'RAZORPAY_ORDER_DEBUG:')
+        logger.warning(f'  Razorpay Key ID configured: {bool(settings.RAZORPAY_KEY_ID)}')
+        logger.warning(f'  Razorpay Secret configured: {bool(settings.RAZORPAY_KEY_SECRET)}')
+        logger.warning(f'  Amount (paise): {amount_paise}')
+        logger.warning(f'  Order number: {order_number}')
+
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        logger.warning(f'  Razorpay client initialized: success')
+
+        razorpay_order = client.order.create(dict(
+            amount=amount_paise,
+            currency='INR',
+            receipt=order_number,
+            payment_capture=1
+        ))
+
+        logger.warning(f'  Razorpay order created: {razorpay_order.get("id")}')
+
+        return {
+            'razorpay_order_id': razorpay_order['id'],
+        }
+    except Exception as e:
+        logger.error(f'Razorpay order creation failed')
+        logger.error(f'  Exception type: {type(e).__name__}')
+        logger.error(f'  Exception message: {str(e)}')
+        import traceback
+        logger.error(f'  Traceback: {traceback.format_exc()}')
+        return None
+
+
+def verify_razorpay_payment(razorpay_payment_id, razorpay_order_id, razorpay_signature):
+    """
+    Verify Razorpay payment signature using official SDK method.
+
+    Returns: True if valid, False otherwise
+    """
+    try:
+        import razorpay
+
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        # Use official SDK verification
+        client.utility.verify_payment_signature({
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature,
+        })
+
+        return True
+    except razorpay.BadRequestError:
+        logger.warning(f'Invalid payment signature for order {razorpay_order_id}')
+        return False
+    except Exception as e:
+        logger.error(f'Payment verification error: {str(e)}')
+        return False
+
+
+@require_http_methods(["POST"])
+@cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
+def place_order(request):
+    """
+    Place an order with checkout information.
+
+    Uses the existing cart retrieval logic (get_or_create_user_cart)
+    to ensure we're accessing the same cart that was displayed in checkout.
+
+    Flow:
+    1. Validate checkout form
+    2. Get current cart (reuse existing cart helper)
+    3. Verify cart is not empty
+    4. Verify stock
+    5. Create pending Order
+    6. Create Razorpay order
+    7. Return Razorpay order details to frontend
+    """
+    try:
+        form_data = {
+            'email': request.POST.get('email', '').strip(),
+            'first_name': request.POST.get('first_name', '').strip(),
+            'last_name': request.POST.get('last_name', '').strip(),
+            'phone_number': request.POST.get('phone_number', '').strip(),
+            'address': request.POST.get('address', '').strip(),
+            'address_2': request.POST.get('address_2', '').strip() or None,
+            'city': request.POST.get('city', '').strip(),
+            'state': request.POST.get('state', '').strip(),
+            'postal_code': request.POST.get('postal_code', '').strip(),
+        }
+
+        is_valid, error_msg = validate_checkout_form_data(form_data)
+        if not is_valid:
+            return JsonResponse({
+                'success': False,
+                'message': error_msg,
+            }, status=400)
+
+        # Try to get cart ID from frontend first (most reliable)
+        cart_id_str = request.POST.get('cart_id', '').strip()
+
+        logger.warning(f"PLACE_ORDER DEBUG:")
+        logger.warning(f"  Received cart_id: {cart_id_str}")
+        logger.warning(f"  User authenticated: {request.user.is_authenticated}")
+        logger.warning(f"  User: {request.user.id if request.user.is_authenticated else 'Anonymous'}")
+        logger.warning(f"  Session key: {request.session.session_key}")
+
+        cart = None
+
+        # If cart ID was sent from frontend, use it
+        if cart_id_str:
+            try:
+                cart_id = int(cart_id_str)
+                cart = Cart.objects.get(id=cart_id)
+                logger.warning(f"  Cart retrieved by ID: {cart.id}")
+            except (ValueError, Cart.DoesNotExist):
+                logger.warning(f"  Cart ID lookup failed, falling back to user/session")
+                cart = None
+
+        # Fallback: use SAME cart retrieval as checkout() - line 493
+        # This ensures place_order() retrieves the same Cart that checkout.html is displaying
+        if not cart:
+            cart = get_user_cart_for_display(request)
+            logger.warning(f"  Cart retrieved by user/session")
+
+        logger.warning(f"  Cart found: {cart is not None}")
+        if cart:
+            logger.warning(f"    Cart ID: {cart.id}")
+            logger.warning(f"    Cart user: {cart.user}")
+            logger.warning(f"    Cart session_id: {cart.session_id}")
+            logger.warning(f"    Cart items count: {cart.items.count()}")
+            logger.warning(f"    Cart is_empty: {cart.is_empty}")
+
+        if not cart or cart.is_empty:
+            return JsonResponse({
+                'success': False,
+                'message': 'Your cart is empty. Add items before placing an order.',
+            }, status=400)
+
+        for cart_item in cart.items.all():
+            stock = VariantSizeStock.objects.filter(
+                variant=cart_item.variant,
+                size=cart_item.size
+            ).first()
+
+            if not stock or stock.stock < cart_item.quantity:
+                available = stock.stock if stock else 0
+                return JsonResponse({
+                    'success': False,
+                    'message': f'{cart_item.product.name} ({cart_item.variant.color.name}, {cart_item.size.name}) has only {available} left in stock.',
+                }, status=400)
+
+        checkout_data = prepare_checkout_data(cart)
+
+        user = request.user if request.user.is_authenticated else None
+        session_id = request.session.session_key if not user else None
+
+        order_number = generate_order_number()
+
+        order = Order.objects.create(
+            user=user,
+            session_id=session_id,
+            order_number=order_number,
+            first_name=form_data['first_name'],
+            last_name=form_data['last_name'],
+            email=form_data['email'],
+            phone_number=form_data['phone_number'],
+            address=form_data['address'],
+            address_2=form_data['address_2'],
+            city=form_data['city'],
+            state=form_data['state'],
+            postal_code=form_data['postal_code'],
+            subtotal=checkout_data['subtotal'],
+            shipping_charge=checkout_data['shipping_charge'],
+            total_amount=checkout_data['total_amount'],
+            status='pending',
+            payment_status='pending',
+        )
+
+        for cart_item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                variant=cart_item.variant,
+                size=cart_item.size,
+                quantity=cart_item.quantity,
+                unit_price=cart_item.unit_price,
+            )
+
+        amount_paise = int(checkout_data['total_amount'] * 100)
+
+        razorpay_data = create_razorpay_order(amount_paise, order_number)
+
+        if not razorpay_data:
+            order.status = 'cancelled'
+            order.payment_status = 'failed'
+            order.save()
+
+            return JsonResponse({
+                'success': False,
+                'message': 'Payment system unavailable. Please try again.',
+            }, status=500)
+
+        order.razorpay_order_id = razorpay_data['razorpay_order_id']
+        order.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Ready for payment',
+            'razorpay_key_id': settings.RAZORPAY_KEY_ID,
+            'razorpay_order_id': razorpay_data['razorpay_order_id'],
+            'order_number': order_number,
+            'amount': int(amount_paise),
+            'amount_display': str(checkout_data['total_amount']),
+            'email': form_data['email'],
+            'contact': form_data['phone_number'],
+            'order_id': order.id,
+        })
+
+    except Exception as e:
+        logger.error(f'Order placement error: {str(e)}')
+        return JsonResponse({
+            'success': False,
+            'message': 'An error occurred. Please try again.',
+        }, status=500)
+
+
+@require_http_methods(["POST"])
+@cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
+def verify_order_payment(request):
+    """
+    Verify Razorpay payment and finalize order.
+
+    Flow:
+    1. Verify Razorpay payment signature
+    2. Get Order
+    3. Verify stock one more time
+    4. Atomically reduce stock
+    5. Update Order status to confirmed
+    6. Clear Cart
+    7. Return success
+    """
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid request format',
+        }, status=400)
+
+    try:
+        razorpay_payment_id = data.get('razorpay_payment_id')
+        razorpay_order_id = data.get('razorpay_order_id')
+        razorpay_signature = data.get('razorpay_signature')
+        order_id = data.get('order_id')
+
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Order not found',
+            }, status=404)
+
+        if not verify_razorpay_payment(razorpay_payment_id, razorpay_order_id, razorpay_signature):
+            logger.warning(f'Invalid payment signature for order {order.order_number}')
+            return JsonResponse({
+                'success': False,
+                'message': 'Payment verification failed. Please try again.',
+            }, status=400)
+
+        with transaction.atomic():
+            order_items = order.items.all()
+
+            for order_item in order_items:
+                stock = VariantSizeStock.objects.select_for_update().get(
+                    variant=order_item.variant,
+                    size=order_item.size
+                )
+
+                if stock.stock < order_item.quantity:
+                    raise ValueError(
+                        f'Insufficient stock for {order_item.product.name}. '
+                        f'Available: {stock.stock}, Requested: {order_item.quantity}'
+                    )
+
+                stock.stock -= order_item.quantity
+                stock.save()
+
+            order.status = 'confirmed'
+            order.payment_status = 'paid'
+            order.razorpay_payment_id = razorpay_payment_id
+            order.save()
+
+            # Clear cart items (same cart retrieval as place_order and checkout)
+            cart = get_user_cart_for_display(request)
+            if cart:
+                cart.items.all().delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Payment verified and order confirmed',
+            'order_number': order.order_number,
+            'order_id': order.id,
+        })
+
+    except ValueError as e:
+        logger.error(f'Stock verification failed for order: {str(e)}')
+        return JsonResponse({
+            'success': False,
+            'message': str(e),
+        }, status=400)
+
+    except Exception as e:
+        logger.error(f'Payment verification error: {str(e)}')
+        return JsonResponse({
+            'success': False,
+            'message': 'Payment verification error. Please contact support.',
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+@cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
+def order_success(request):
+    """
+    Display order success page.
+    """
+    order_id = request.GET.get('order_id')
+
+    try:
+        order = Order.objects.get(id=order_id)
+
+        if order.user and order.user != request.user:
+            return redirect('ComfyCuteApp:home')
+
+        if order.session_id and request.session.session_key != order.session_id:
+            return redirect('ComfyCuteApp:home')
+
+        context = {
+            'order': order,
+            'order_items': order.items.all(),
+        }
+
+        return render(request, 'order-success.html', context)
+
+    except Order.DoesNotExist:
+        return redirect('ComfyCuteApp:home')
+
+
+@require_http_methods(["POST"])
+@cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
+def payment_failure(request):
+    """
+    Handle payment failure.
+    """
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid request format',
+        }, status=400)
+
+    try:
+        order_id = data.get('order_id')
+
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Order not found',
+            }, status=404)
+
+        order.payment_status = 'failed'
+        order.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Payment cancelled. You can try again.',
+            'order_number': order.order_number,
+        })
+
+    except Exception as e:
+        logger.error(f'Payment failure handler error: {str(e)}')
+        return JsonResponse({
+            'success': False,
+            'message': 'Error handling payment failure',
+        }, status=500)
+

@@ -138,3 +138,13 @@ CKEDITOR_CONFIGS = {
         'extraPlugins': 'codesnippet',
     }
 }
+
+# ==========================================
+# RAZORPAY PAYMENT CONFIGURATION
+# ==========================================
+RAZORPAY_KEY_ID = 'rzp_test_SLFGCvb0VMW4Dl'  # Add your Razorpay Key ID here
+RAZORPAY_KEY_SECRET = '1t5NKclonzMGs1mD9smIywJ3'  # Add your Razorpay Key Secret here
+# WARNING: Keep RAZORPAY_KEY_SECRET server-side only. Never expose to frontend.
+
+# RAZORPAY_KEY_ID = "rzp_test_SLFGCvb0VMW4Dl"
+# RAZORPAY_SECRET = "1t5NKclonzMGs1mD9smIywJ3"

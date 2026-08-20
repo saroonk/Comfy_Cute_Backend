@@ -32,6 +32,12 @@ urlpatterns = [
     path('api/cart/get/', views.cart_get, name='cart_get'),
     path('api/checkout-data/', views.checkout_data, name='checkout_data'),
 
+    # Order and Payment endpoints
+    path('api/place-order/', views.place_order, name='place_order'),
+    path('api/verify-payment/', views.verify_order_payment, name='verify_order_payment'),
+    path('api/payment-failure/', views.payment_failure, name='payment_failure'),
+    path('order-success/', views.order_success, name='order_success'),
+
     # Admin API endpoints
     path('api/product-subcategories/', views.admin_api_subcategories, name='admin_api_subcategories'),
 

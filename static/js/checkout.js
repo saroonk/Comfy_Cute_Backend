@@ -8,12 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize checkout page
   initCheckout();
 
-  // Set up form submission
-  const checkoutForm = document.getElementById('checkoutForm');
-  if (checkoutForm) {
-    checkoutForm.addEventListener('submit', handleCheckoutSubmit);
-  }
-
   // Initialize mobile account popup
   initMobileAccountPopup();
 });
@@ -232,71 +226,6 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
-/**
- * Handle checkout form submission
- */
-function handleCheckoutSubmit(e) {
-  e.preventDefault();
-
-  // Validate form
-  if (!validateCheckoutForm()) {
-    showNotification('Please fill in all required fields correctly.', 'error');
-    return;
-  }
-
-  // Get form data
-  const formData = new FormData(document.getElementById('checkoutForm'));
-  const checkoutData = Object.fromEntries(formData);
-
-  // Get cart
-  const cart = getCart();
-
-  if (cart.length === 0) {
-    showNotification('Your cart is empty. Add items before checking out.', 'error');
-    return;
-  }
-
-  // Prepare order data
-  const orderData = {
-    customer: {
-      email: checkoutData.email,
-      firstName: checkoutData.fullName,
-      lastName: checkoutData.lastName || '',
-      phone: checkoutData.phone,
-    },
-    shipping: {
-      address: checkoutData.address,
-      apartment: checkoutData.apartment || '',
-      city: checkoutData.city,
-      state: checkoutData.state,
-      pincode: checkoutData.pincode,
-    },
-    items: cart,
-  };
-
-  // Show loading state
-  const submitButton = document.querySelector('button[type="submit"]');
-  const originalText = submitButton.innerHTML;
-  submitButton.disabled = true;
-  submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-
-  // Simulate order placement (in production, send to server)
-  setTimeout(() => {
-    // Success message
-    showNotification('Order placed successfully! Redirecting...', 'success');
-
-    // Clear cart after successful order
-    localStorage.removeItem('cart');
-
-    // Redirect after 2 seconds
-    setTimeout(() => {
-      // In production, redirect to order confirmation page
-      window.location.href = '/products/';
-    }, 2000);
-  }, 1500);
-
-  console.log('Order data:', orderData);
-}
 
 /**
  * Validate checkout form
