@@ -70,6 +70,18 @@ async function handleCheckoutSubmit(e) {
 
     const data = await response.json();
 
+    // DEBUG: Log the response from place_order
+    console.log('=== PLACE ORDER RESPONSE ===');
+    console.log('Success:', data.success);
+    console.log('Message:', data.message);
+    if (data.success) {
+      console.log('Django order_id:', data.order_id);
+      console.log('Django order_number:', data.order_number);
+      console.log('Razorpay order_id:', data.razorpay_order_id);
+      console.log('Amount (paise):', data.amount);
+      console.log('Amount display (rupees):', data.amount_display);
+    }
+
     if (!data.success) {
       showNotification(data.message || 'Order creation failed', 'error');
       submitButton.disabled = false;
@@ -78,6 +90,7 @@ async function handleCheckoutSubmit(e) {
     }
 
     // Order created successfully, initiate Razorpay payment
+    console.log('=== CALLING INITIATE RAZORPAY PAYMENT ===');
     initiateRazorpayPayment(data);
 
   } catch (error) {
@@ -92,19 +105,29 @@ async function handleCheckoutSubmit(e) {
  * Initiate Razorpay payment checkout
  */
 function initiateRazorpayPayment(orderData) {
+  // DEBUG: Log what we're about to initialize
+  console.log('=== RAZORPAY INITIALIZATION ===');
+  console.log('Django order_id:', orderData.order_id);
+  console.log('Django order_number:', orderData.order_number);
+  console.log('Razorpay order_id to use:', orderData.razorpay_order_id);
+  console.log('Key ID:', orderData.razorpay_key_id ? orderData.razorpay_key_id.substring(0, 10) + '...' : 'MISSING');
+  console.log('Amount (paise):', orderData.amount);
+
   const options = {
     key: orderData.razorpay_key_id,
     amount: orderData.amount, // in paise
     currency: 'INR',
-    order_id: orderData.razorpay_order_id,
+    order_id: orderData.razorpay_order_id,  // CRITICAL: This MUST be the Razorpay order ID, not Django order.id
     name: 'COMFY CUTE',
     description: `Order ${orderData.order_number}`,
     image: '/static/images/logo.jpeg',
-    customer_id: 'CUSTOMER_ID',
     email: orderData.email,
     contact: orderData.contact,
 
     handler: function(response) {
+      console.log('=== RAZORPAY PAYMENT SUCCESS ===');
+      console.log('Razorpay returned payment_id:', response.razorpay_payment_id);
+      console.log('Razorpay returned order_id:', response.razorpay_order_id);
       verifyPayment(response, orderData);
     },
 
@@ -124,11 +147,13 @@ function initiateRazorpayPayment(orderData) {
 
     modal: {
       ondismiss: function() {
+        console.log('=== RAZORPAY MODAL DISMISSED ===');
         handlePaymentCancelled(orderData);
       }
     }
   };
 
+  console.log('=== OPENING RAZORPAY MODAL ===');
   const rzp = new Razorpay(options);
   rzp.open();
 }
@@ -143,6 +168,35 @@ async function verifyPayment(razorpayResponse, orderData) {
   }
 
   try {
+    // DEBUG: Log what Razorpay returned
+    console.log('=== RAZORPAY RESPONSE ===');
+    console.log('razorpay_payment_id:', razorpayResponse.razorpay_payment_id);
+    console.log('razorpay_order_id:', razorpayResponse.razorpay_order_id);
+    console.log('razorpay_signature:', razorpayResponse.razorpay_signature ? razorpayResponse.razorpay_signature.substring(0, 20) + '...' : 'MISSING');
+
+    // DEBUG: Log what orderData contains
+    console.log('=== ORDER DATA ===');
+    console.log('order_id (Django):', orderData.order_id);
+    console.log('razorpay_order_id (from place order response):', orderData.razorpay_order_id);
+    console.log('order_number:', orderData.order_number);
+
+    // DEBUG: Check for mismatches
+    if (razorpayResponse.razorpay_order_id !== orderData.razorpay_order_id) {
+      console.error('⚠️ RAZORPAY ORDER ID MISMATCH!');
+      console.error('Razorpay returned:', razorpayResponse.razorpay_order_id);
+      console.error('Place Order response had:', orderData.razorpay_order_id);
+    }
+
+    const verifyPayloadBody = {
+      razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+      razorpay_order_id: razorpayResponse.razorpay_order_id,
+      razorpay_signature: razorpayResponse.razorpay_signature,
+      order_id: orderData.order_id,
+    };
+
+    console.log('=== SENDING TO BACKEND ===');
+    console.log('Payload:', verifyPayloadBody);
+
     // IMPORTANT: credentials: 'include' sends session cookie for cart clearing
     const verifyResponse = await fetch('/api/verify-payment/', {
       method: 'POST',
@@ -151,15 +205,13 @@ async function verifyPayment(razorpayResponse, orderData) {
         'Content-Type': 'application/json',
         'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]')?.value || '',
       },
-      body: JSON.stringify({
-        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-        razorpay_order_id: razorpayResponse.razorpay_order_id,
-        razorpay_signature: razorpayResponse.razorpay_signature,
-        order_id: orderData.order_id,
-      }),
+      body: JSON.stringify(verifyPayloadBody),
     });
 
     const verifyData = await verifyResponse.json();
+    console.log('=== VERIFICATION RESPONSE ===');
+    console.log('Success:', verifyData.success);
+    console.log('Message:', verifyData.message);
 
     if (verifyData.success) {
       // Payment verified successfully, redirect to success page

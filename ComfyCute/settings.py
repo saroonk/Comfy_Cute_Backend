@@ -79,8 +79,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+
+from django.utils import timezone
+
+now = timezone.now()
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+
+TIME_ZONE = 'Asia/Kolkata'
+
 USE_I18N = True
 USE_TZ = True
 

@@ -1247,9 +1247,19 @@ def verify_razorpay_payment(razorpay_payment_id, razorpay_order_id, razorpay_sig
     try:
         import razorpay
 
+        # DEBUG: Log what we're about to verify
+        logger.warning(f'VERIFY_PAYMENT_DEBUG:')
+        logger.warning(f'  Razorpay Key ID configured: {bool(settings.RAZORPAY_KEY_ID)}')
+        logger.warning(f'  Razorpay Secret configured: {bool(settings.RAZORPAY_KEY_SECRET)}')
+        logger.warning(f'  razorpay_payment_id: {razorpay_payment_id}')
+        logger.warning(f'  razorpay_order_id: {razorpay_order_id}')
+        logger.warning(f'  razorpay_signature: {razorpay_signature[:20] if razorpay_signature else None}...')
+
         client = razorpay.Client(
             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
         )
+
+        logger.warning(f'  Razorpay SDK client initialized: success')
 
         # Use official SDK verification
         client.utility.verify_payment_signature({
@@ -1258,12 +1268,21 @@ def verify_razorpay_payment(razorpay_payment_id, razorpay_order_id, razorpay_sig
             'razorpay_signature': razorpay_signature,
         })
 
+        logger.warning(f'  Signature verified: success')
         return True
-    except razorpay.BadRequestError:
-        logger.warning(f'Invalid payment signature for order {razorpay_order_id}')
+    except razorpay.BadRequestError as e:
+        logger.warning(f'VERIFY_PAYMENT_FAILED:')
+        logger.warning(f'  Exception type: {type(e).__name__}')
+        logger.warning(f'  Exception message: {str(e)}')
+        logger.warning(f'  razorpay_order_id sent: {razorpay_order_id}')
         return False
     except Exception as e:
-        logger.error(f'Payment verification error: {str(e)}')
+        logger.error(f'VERIFY_PAYMENT_ERROR:')
+        logger.error(f'  Exception type: {type(e).__name__}')
+        logger.error(f'  Exception message: {str(e)}')
+        logger.error(f'  razorpay_order_id: {razorpay_order_id}')
+        import traceback
+        logger.error(f'  Traceback: {traceback.format_exc()}')
         return False
 
 
@@ -1413,6 +1432,14 @@ def place_order(request):
         order.razorpay_order_id = razorpay_data['razorpay_order_id']
         order.save()
 
+        # DEBUG: Verify what we're sending to frontend
+        logger.warning(f'PLACE_ORDER_RESPONSE:')
+        logger.warning(f'  Django Order ID: {order.id}')
+        logger.warning(f'  Django Order Number: {order.order_number}')
+        logger.warning(f'  Razorpay Order ID (being sent): {razorpay_data["razorpay_order_id"]}')
+        logger.warning(f'  Razorpay Order ID (in database): {order.razorpay_order_id}')
+        logger.warning(f'  Amount (paise): {amount_paise}')
+
         return JsonResponse({
             'success': True,
             'message': 'Ready for payment',
@@ -1463,13 +1490,33 @@ def verify_order_payment(request):
         razorpay_signature = data.get('razorpay_signature')
         order_id = data.get('order_id')
 
+        logger.warning(f'VERIFY_ORDER_PAYMENT_DEBUG:')
+        logger.warning(f'  Received order_id: {order_id}')
+        logger.warning(f'  Received razorpay_order_id: {razorpay_order_id}')
+        logger.warning(f'  Received razorpay_payment_id: {razorpay_payment_id}')
+        logger.warning(f'  Received razorpay_signature: {str(razorpay_signature)[:20] if razorpay_signature else None}...')
+
         try:
             order = Order.objects.get(id=order_id)
         except Order.DoesNotExist:
+            logger.warning(f'  Order not found: {order_id}')
             return JsonResponse({
                 'success': False,
                 'message': 'Order not found',
             }, status=404)
+
+        # CRITICAL CHECK: Verify that the razorpay_order_id in database matches what frontend is sending
+        logger.warning(f'  Database order.razorpay_order_id: {order.razorpay_order_id}')
+        if order.razorpay_order_id != razorpay_order_id:
+            logger.error(f'RAZORPAY_ORDER_MISMATCH:')
+            logger.error(f'  Database has: {order.razorpay_order_id}')
+            logger.error(f'  Frontend sent: {razorpay_order_id}')
+            logger.error(f'  Order number: {order.order_number}')
+            logger.error(f'  Django Order ID: {order.id}')
+            return JsonResponse({
+                'success': False,
+                'message': 'Payment verification failed: Order ID mismatch. Please contact support.',
+            }, status=400)
 
         if not verify_razorpay_payment(razorpay_payment_id, razorpay_order_id, razorpay_signature):
             logger.warning(f'Invalid payment signature for order {order.order_number}')
