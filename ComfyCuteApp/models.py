@@ -1019,6 +1019,14 @@ class Order(models.Model):
         unique=True,
         help_text='Unique order number for customer reference (e.g., ORD-20240101-001)'
     )
+    invoice_token = models.CharField(
+        max_length=255,
+        unique=True,
+        db_index=True,
+        null=True,
+        blank=True,
+        help_text='Secure random token for public invoice download (no authentication required)'
+    )
 
     # Customer information (snapshot at time of order)
     first_name = models.CharField(
@@ -1135,6 +1143,14 @@ class Order(models.Model):
     def __str__(self):
         owner = self.user.email if self.user else f"Session {self.session_id}"
         return f"Order {self.order_number} - {owner}"
+
+    def save(self, *args, **kwargs):
+        """Generate a secure invoice token on first creation."""
+        if not self.invoice_token:
+            import secrets
+            # Generate a cryptographically secure random token
+            self.invoice_token = secrets.token_urlsafe(32)
+        super().save(*args, **kwargs)
 
     @property
     def item_count(self):

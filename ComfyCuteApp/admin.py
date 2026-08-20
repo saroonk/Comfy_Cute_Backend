@@ -609,12 +609,13 @@ class OrderItemInline(TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(ModelAdmin):
-    list_display = ['order_number', 'customer_name_display', 'status', 'payment_status_display', 'total_amount_display', 'created_at']
+    list_display = ['order_number', 'customer_name_display', 'status', 'payment_status_display', 'total_amount_display', 'created_at', 'download_invoice_button']
     list_filter = ['status', 'payment_status', 'created_at']
     search_fields = ['order_number', 'email', 'phone_number', 'first_name', 'last_name', 'user__email', 'session_id', 'razorpay_order_id', 'razorpay_payment_id']
     readonly_fields = ['order_number', 'created_at', 'updated_at', 'session_id', 'item_count_display', 'subtotal_display', 'shipping_display', 'total_amount_display']
     inlines = [OrderItemInline]
     list_editable = ['status']
+    actions = ['download_invoice_action']
 
     fieldsets = (
         ('Order Identification', {
@@ -699,6 +700,47 @@ class OrderAdmin(ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Orders should not be deleted for audit trail
         return False
+
+    def download_invoice_button(self, obj):
+        """Display invoice download button in list view."""
+        from django.urls import reverse
+        from django.utils.html import format_html
+
+        # Use public token-based URL (works without session/auth)
+        url = reverse('ComfyCuteApp:download_invoice_public', args=[obj.invoice_token])
+        return format_html(
+            '<a class="button" href="{}" target="_blank" style="background-color: #8CBDBC; color: white; padding: 5px 15px; border-radius: 4px; text-decoration: none;">Download Invoice</a>',
+            url
+        )
+    download_invoice_button.short_description = 'Download Invoice'
+
+    def download_invoice_action(self, request, queryset):
+        """Admin action to download first selected order's invoice."""
+        from .invoice_service import InvoiceGenerator
+        from django.http import HttpResponse
+
+        if queryset.count() == 0:
+            self.message_user(request, 'No orders selected.', level=admin.messages.ERROR)
+            return
+
+        # Download the first selected order's invoice
+        order = queryset.first()
+
+        try:
+            pdf_buffer = InvoiceGenerator.generate_pdf(order)
+            response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="COMFY-CUTE-Invoice-{order.order_number}.pdf"'
+            response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response['Pragma'] = 'no-cache'
+            response['Expires'] = '0'
+
+            self.message_user(request, f'Invoice for {order.order_number} is being downloaded.', level=admin.messages.SUCCESS)
+            return response
+
+        except Exception as e:
+            self.message_user(request, f'Error generating invoice: {str(e)}', level=admin.messages.ERROR)
+
+    download_invoice_action.short_description = 'Download invoice for selected order'
 
 
 @admin.register(OrderItem)

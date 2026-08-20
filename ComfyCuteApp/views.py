@@ -1647,14 +1647,57 @@ def payment_failure(request):
 
 @require_http_methods(["GET"])
 @cache_control(no_cache=True, no_store=True, must_revalidate=True, max_age=0)
-def download_invoice(request, order_id):
+def download_invoice_public(request, invoice_token):
     """
-    Download invoice PDF for a specific order.
+    PUBLIC invoice download endpoint (NO AUTHENTICATION REQUIRED).
 
-    Security: Only authenticated users can download their own invoices,
-    or guests can download via secure session mechanism.
+    Downloads invoice PDF using a secure random token.
+    Anyone with the valid invoice token can download the invoice.
+    This allows invoice downloads from emails on any device/browser without login.
+
+    Token is cryptographically secure and unguessable, preventing unauthorized access.
     """
     try:
+        from .invoice_service import InvoiceGenerator
+
+        # Get the order by invoice token (no authentication needed)
+        try:
+            order = Order.objects.get(invoice_token=invoice_token)
+        except Order.DoesNotExist:
+            return JsonResponse({
+                'error': 'Invoice not found'
+            }, status=404)
+
+        # Generate PDF using invoice service
+        pdf_buffer = InvoiceGenerator.generate_pdf(order)
+
+        # Return PDF as forced download (not browser preview)
+        response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="COMFY-CUTE-Invoice-{order.order_number}.pdf"'
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+
+        logger.info(f"Invoice PDF downloaded via token for order {order.order_number}")
+        return response
+
+    except Exception as e:
+        logger.error(f'Invoice download error (token): {str(e)}', exc_info=True)
+        return JsonResponse({
+            'error': 'Invoice not found'
+        }, status=404)
+
+
+def download_invoice(request, order_id):
+    """
+    DEPRECATED: Admin/authenticated invoice download endpoint.
+
+    Use download_invoice_public() with invoice token instead.
+    Kept for backwards compatibility with admin actions.
+    """
+    try:
+        from .invoice_service import InvoiceGenerator
+
         # Get the order
         try:
             order = Order.objects.get(id=order_id)
@@ -1679,172 +1722,18 @@ def download_invoice(request, order_id):
                 'error': 'Unauthorized'
             }, status=403)
 
-        # Get order items
-        order_items = order.items.select_related(
-            'product', 'variant', 'variant__color', 'size'
-        ).all()
+        # Generate PDF using invoice service
+        pdf_buffer = InvoiceGenerator.generate_pdf(order)
 
-        items_list = []
-        for item in order_items:
-            items_list.append({
-                'product_name': item.product.name,
-                'variant_color': item.variant.color.name,
-                'size': item.size.name,
-                'quantity': item.quantity,
-                'unit_price': item.unit_price,
-                'total_price': item.total_price,
-            })
+        # Return PDF as forced download (not browser preview)
+        response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="COMFY-CUTE-Invoice-{order.order_number}.pdf"'
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
 
-        # Get status display names
-        status_display_map = {
-            'pending': 'Pending',
-            'confirmed': 'Confirmed',
-            'processing': 'Processing',
-            'shipped': 'Shipped',
-            'delivered': 'Delivered',
-            'cancelled': 'Cancelled',
-        }
-
-        payment_status_display_map = {
-            'pending': 'Pending',
-            'paid': 'Paid',
-            'failed': 'Failed',
-            'refunded': 'Refunded',
-        }
-
-        # Prepare customer name
-        customer_name = f"{order.first_name} {order.last_name}".strip()
-
-        # Full shipping address
-        address_parts = [order.address]
-        if order.address_2:
-            address_parts.append(order.address_2)
-        address_parts.extend([order.city, order.state, order.postal_code])
-        shipping_address = ', '.join(filter(None, address_parts))
-
-        # Prepare context
-        context = {
-            'order': order,
-            'order_number': order.order_number,
-            'order_status': status_display_map.get(order.status, order.status),
-            'payment_status': payment_status_display_map.get(order.payment_status, order.payment_status),
-            'customer_name': customer_name,
-            'customer_email': order.email,
-            'customer_phone': order.phone_number,
-            'shipping_address': shipping_address,
-            'items': items_list,
-            'subtotal': order.subtotal,
-            'shipping_charge': order.shipping_charge,
-            'total_amount': order.total_amount,
-            'razorpay_payment_id': order.razorpay_payment_id,
-            'site_domain': getattr(settings, 'SITE_DOMAIN', 'https://comfycute.com'),
-        }
-
-        # Try to generate PDF using weasyprint
-        try:
-            from weasyprint import HTML, CSS
-            from django.template.loader import render_to_string
-            from io import BytesIO
-
-            # Render the HTML template
-            html_string = render_to_string('invoice.html', context)
-
-            # Generate PDF
-            html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
-            pdf_file = html.write_pdf()
-
-            # Return PDF as download
-            response = HttpResponse(pdf_file, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="invoice-{order.order_number}.pdf"'
-            return response
-
-        except ImportError:
-            # Fallback: If weasyprint is not available, use reportlab
-            try:
-                from reportlab.lib.pagesizes import A4
-                from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-                from reportlab.lib.units import inch
-                from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-                from reportlab.lib import colors
-                from io import BytesIO
-
-                # Create PDF
-                buffer = BytesIO()
-                doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.5*inch, bottomMargin=0.5*inch)
-                elements = []
-                styles = getSampleStyleSheet()
-
-                # Header
-                title_style = ParagraphStyle(
-                    'CustomTitle',
-                    parent=styles['Heading1'],
-                    fontSize=24,
-                    textColor=colors.HexColor('#8CBDBC'),
-                    spaceAfter=6,
-                )
-                elements.append(Paragraph('COMFY CUTE', title_style))
-                elements.append(Paragraph('Invoice', styles['Heading2']))
-                elements.append(Spacer(1, 0.3*inch))
-
-                # Invoice Info
-                invoice_info = f"Invoice #: {order.order_number}<br/>Date: {order.created_at.strftime('%d %b, %Y')}"
-                elements.append(Paragraph(invoice_info, styles['Normal']))
-                elements.append(Spacer(1, 0.2*inch))
-
-                # Customer Info
-                customer_info = f"<b>Bill To:</b><br/>{customer_name}<br/>{order.email}<br/>{order.phone_number}"
-                elements.append(Paragraph(customer_info, styles['Normal']))
-                elements.append(Spacer(1, 0.2*inch))
-
-                # Order Items Table
-                items_data = [['Product', 'Variant', 'Size', 'Qty', 'Unit Price', 'Total']]
-                for item in items_list:
-                    items_data.append([
-                        item['product_name'],
-                        item['variant_color'],
-                        item['size'],
-                        str(item['quantity']),
-                        f"₹{item['unit_price']}",
-                        f"₹{item['total_price']}",
-                    ])
-
-                items_table = Table(items_data)
-                items_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8CBDBC')),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('ALIGN', (3, 0), (-1, -1), 'RIGHT'),
-                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, 0), 10),
-                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-                    ('FONTSIZE', (0, 1), (-1, -1), 9),
-                ]))
-                elements.append(items_table)
-                elements.append(Spacer(1, 0.2*inch))
-
-                # Totals
-                totals_info = f"<b>Subtotal:</b> ₹{order.subtotal}<br/><b>Shipping:</b> ₹{order.shipping_charge}<br/><b>Grand Total:</b> ₹{order.total_amount}"
-                elements.append(Paragraph(totals_info, styles['Normal']))
-                elements.append(Spacer(1, 0.2*inch))
-
-                # Footer
-                footer = "Thank you for shopping with COMFY CUTE!"
-                elements.append(Paragraph(footer, styles['Normal']))
-
-                # Build PDF
-                doc.build(elements)
-                buffer.seek(0)
-
-                # Return PDF as download
-                response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-                response['Content-Disposition'] = f'attachment; filename="invoice-{order.order_number}.pdf"'
-                return response
-
-            except ImportError:
-                # Fallback: Render HTML that user can print as PDF
-                return render(request, 'invoice.html', context, content_type='text/html')
+        logger.info(f"Invoice PDF downloaded for order {order.order_number}")
+        return response
 
     except Exception as e:
         logger.error(f'Invoice download error: {str(e)}', exc_info=True)

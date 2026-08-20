@@ -242,4 +242,5 @@ def _prepare_order_context(order):
         'store_name': 'COMFY CUTE',
         'store_email': getattr(settings, 'STORE_EMAIL', settings.DEFAULT_FROM_EMAIL),
         'site_domain': getattr(settings, 'SITE_DOMAIN', 'https://comfycute.com'),
+        'invoice_token': order.invoice_token,
     }
