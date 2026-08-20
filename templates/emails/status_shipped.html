@@ -28,20 +28,13 @@
 
 <!-- Tracking Information -->
 <div class="email-section">
-    <h2>📍 Track Your Package</h2>
-    <p>Your order has left our warehouse and is on its way to you.</p>
+    <h2>📍 Your Package is On Its Way</h2>
+    <p>Your order has left our warehouse and is on its way to you. Your package should arrive within the next 5-10 business days depending on your location.</p>
 
     <div class="address-block">
-        <h4>Tracking Details</h4>
+        <h4>Track Your Order</h4>
         <p style="margin: 10px 0; color: #666; font-size: 14px;">
-            Tracking information has been sent to your registered email and phone number.
-        </p>
-        <p style="margin: 10px 0; color: #666; font-size: 14px;">
-            You can track your shipment through your carrier's website using the tracking number provided in the shipping email.
-        </p>
-        <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-            <strong>Expected Delivery:</strong><br>
-            <span style="color: #666;">Your package should arrive within the next 5-10 business days depending on your location.</span>
+            You can track your shipment status through our website.
         </p>
     </div>
 </div>
@@ -116,15 +109,13 @@
 
 <!-- CTA -->
 <div class="email-section" style="text-align: center;">
-    <a href="{{ site_domain }}/order-success/?order_id={{ order.id }}" class="cta-button">View Your Order</a>
-    <a href="{{ site_domain }}/track-order/" class="cta-button cta-button-secondary" style="display: inline-block; margin-top: 10px;">Track Your Package</a>
+    <a href="{{ site_domain }}/track-order/" class="cta-button">Track Your Order</a>
 </div>
 
 <!-- Important Notes -->
 <div class="email-section" style="background-color: #FCFEFE; padding: 15px; border-radius: 4px;">
     <h3 style="margin-bottom: 10px; color: #333;">💡 Important Notes</h3>
     <ul style="margin-left: 20px; color: #666; font-size: 14px;">
-        <li style="margin: 8px 0;">Check the tracking number in your shipping email for real-time updates</li>
         <li style="margin: 8px 0;">Make sure someone is available to receive the package</li>
         <li style="margin: 8px 0;">If you don't receive your order by the expected date, please contact us</li>
     </ul>

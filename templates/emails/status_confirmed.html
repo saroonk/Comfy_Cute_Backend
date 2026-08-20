@@ -6,7 +6,7 @@
 {% block content %}
 <div class="email-section">
     <h2>✅ Your Order is Confirmed</h2>
-    <p>Great news! Your order has been confirmed and is now being prepared for shipment.</p>
+    <p>Thank you for your order! Your purchase has been successfully confirmed.</p>
 
     <div class="status-badge status-confirmed">Order Confirmed</div>
 
@@ -17,83 +17,28 @@
         </div>
         <div class="summary-item">
             <span class="summary-item-label">Order Date:</span>
-            <span class="summary-item-value">{{ order_date|date:"M d, Y" }}</span>
+            <span class="summary-item-value">{{ order_date|date:"M d, Y H:i" }}</span>
         </div>
         <div class="summary-item">
-            <span class="summary-item-label">Total Amount:</span>
-            <span class="summary-item-value">₹{{ total_amount }}</span>
+            <span class="summary-item-label">Payment Status:</span>
+            <span class="summary-item-value">✅ {{ payment_status }}</span>
         </div>
     </div>
 </div>
 
-<!-- Quick Summary -->
+<!-- Customer Information -->
 <div class="email-section">
-    <h2>📋 Order Summary</h2>
+    <h2>👤 Your Information</h2>
+    <p>Hi <strong>{{ customer_name }}</strong>,</p>
 
-    <table class="items-table">
-        <tr>
-            <th>Product</th>
-            <th>Variant</th>
-            <th>Size</th>
-            <th>Qty</th>
-            <th style="text-align: right;">Price</th>
-        </tr>
-        {% for item in items %}
-        <tr>
-            <td>{{ item.product_name }}</td>
-            <td>{{ item.variant_color }}</td>
-            <td>{{ item.size }}</td>
-            <td style="text-align: center;">{{ item.quantity }}</td>
-            <td style="text-align: right;">₹{{ item.total_price }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <div class="order-summary" style="margin-top: 15px;">
-        <div class="summary-item total">
-            <span class="summary-item-label">Total Amount:</span>
-            <span class="summary-item-value">₹{{ total_amount }}</span>
-        </div>
+    <div class="address-block">
+        <h4>Email Address</h4>
+        <p>{{ customer_email }}</p>
     </div>
-</div>
 
-<!-- What Happens Next -->
-<div class="email-section">
-    <h2>📦 What Happens Next?</h2>
-    <p>Your order is now being prepared for shipment. Here's what you can expect:</p>
-
-    <div style="margin-top: 15px;">
-        <div style="display: flex; margin-bottom: 15px;">
-            <div style="flex-shrink: 0; width: 30px; color: #8CBDBC; font-weight: bold; font-size: 18px;">✓</div>
-            <div style="flex-grow: 1;">
-                <strong>Order Confirmed</strong><br>
-                <span style="color: #666; font-size: 14px;">Payment received and order is being processed</span>
-            </div>
-        </div>
-
-        <div style="display: flex; margin-bottom: 15px;">
-            <div style="flex-shrink: 0; width: 30px; color: #ccc; font-weight: bold; font-size: 18px;">→</div>
-            <div style="flex-grow: 1;">
-                <strong>Being Prepared</strong><br>
-                <span style="color: #666; font-size: 14px;">Your items are being packed (2-3 business days)</span>
-            </div>
-        </div>
-
-        <div style="display: flex; margin-bottom: 15px;">
-            <div style="flex-shrink: 0; width: 30px; color: #ccc; font-weight: bold; font-size: 18px;">→</div>
-            <div style="flex-grow: 1;">
-                <strong>Shipped</strong><br>
-                <span style="color: #666; font-size: 14px;">You'll receive tracking details and shipping notification</span>
-            </div>
-        </div>
-
-        <div style="display: flex;">
-            <div style="flex-shrink: 0; width: 30px; color: #ccc; font-weight: bold; font-size: 18px;">→</div>
-            <div style="flex-grow: 1;">
-                <strong>Delivered</strong><br>
-                <span style="color: #666; font-size: 14px;">Your order arrives at your doorstep</span>
-            </div>
-        </div>
+    <div class="address-block">
+        <h4>Phone Number</h4>
+        <p>{{ customer_phone }}</p>
     </div>
 </div>
 
@@ -103,20 +48,77 @@
     <div class="address-block">
         <p>{{ shipping_address }}</p>
     </div>
-    <p style="margin-top: 10px; color: #666; font-size: 14px;">If you need to make changes to your delivery address, please contact us immediately.</p>
 </div>
 
-<!-- CTA -->
+<!-- Order Items -->
+<div class="email-section">
+    <h2>📦 Order Items</h2>
+    <table class="items-table">
+        <tr>
+            <th>Product</th>
+            <th>Variant</th>
+            <th>Size</th>
+            <th>Qty</th>
+            <th style="text-align: right;">Unit Price</th>
+            <th style="text-align: right;">Total</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_color }}</td>
+            <td>{{ item.size }}</td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td style="text-align: right;">₹{{ item.unit_price }}</td>
+            <td style="text-align: right; font-weight: 600;">₹{{ item.total_price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Order Total -->
+<div class="email-section">
+    <h2>💰 Order Total</h2>
+    <div class="order-summary">
+        <div class="summary-item">
+            <span class="summary-item-label">Subtotal ({{ item_count }} items):</span>
+            <span class="summary-item-value">₹{{ subtotal }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Shipping Charge:</span>
+            <span class="summary-item-value">₹{{ shipping_charge }}</span>
+        </div>
+        <div class="summary-item total">
+            <span class="summary-item-label">Grand Total:</span>
+            <span class="summary-item-value">₹{{ total_amount }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice -->
+<div class="email-section">
+    <div class="invoice-placeholder">
+        <p style="margin-bottom: 10px;">📄 <strong>Invoice</strong></p>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Download your invoice for record keeping</p>
+        <a href="{{ site_domain }}/order-success/?order_id={{ order.id }}" style="display: inline-block; margin-top: 10px;">Download Invoice</a>
+    </div>
+</div>
+
+<!-- What's Next -->
+<div class="email-section">
+    <h2>📋 What's Next?</h2>
+    <p>Your order is now being prepared for shipment. You'll receive an email notification as soon as your order is shipped.</p>
+</div>
+
+<!-- CTA Buttons -->
 <div class="email-section" style="text-align: center;">
-    <a href="{{ site_domain }}/order-success/?order_id={{ order.id }}" class="cta-button">Track Your Order</a>
+    <a href="{{ site_domain }}/order-success/?order_id={{ order.id }}" class="cta-button">View Your Order</a>
+    <a href="{{ site_domain }}/products/" class="cta-button cta-button-secondary" style="display: inline-block; margin-top: 10px;">Continue Shopping</a>
 </div>
 
-<!-- Questions -->
-<div class="email-section" style="background-color: #FCFEFE; padding: 15px; border-radius: 4px;">
-    <h3 style="margin-bottom: 10px;">Questions?</h3>
-    <p style="margin: 5px 0; font-size: 14px;">If you have any questions about your order, please don't hesitate to reach out.</p>
-    <p style="margin: 5px 0; font-size: 14px;">
-        <strong>Email:</strong> <a href="mailto:{{ store_email }}" style="color: #8CBDBC; text-decoration: none;">{{ store_email }}</a>
+<!-- Thank You -->
+<div class="email-section" style="text-align: center; padding: 20px; background-color: #FCFEFE; border-radius: 4px;">
+    <p style="font-size: 14px; color: #666;">
+        Thank you for shopping with <strong>COMFY CUTE</strong>! We're committed to delivering comfort and style to your doorstep.
     </p>
 </div>
 
