@@ -63,6 +63,8 @@ def _send_order_email(email_type, order_id, **kwargs):
             _send_status_change_customer_email(order, 'shipped')
         elif email_type == 'delivered':
             _send_status_change_customer_email(order, 'delivered')
+        elif email_type == 'cancelled':
+            _send_status_change_customer_email(order, 'cancelled')
         else:
             logger.warning(f"Unknown email type: {email_type}")
 
@@ -129,6 +131,7 @@ def _send_status_change_customer_email(order, status):
             'processing': f"Your Order is Being Prepared - {order.order_number}",
             'shipped': f"Your Order Has Been Shipped - {order.order_number}",
             'delivered': f"Your Order Has Been Delivered - {order.order_number}",
+            'cancelled': f"Your Order Has Been Cancelled - {order.order_number}",
         }
 
         template_map = {
@@ -136,6 +139,7 @@ def _send_status_change_customer_email(order, status):
             'processing': 'emails/status_processing.html',
             'shipped': 'emails/status_shipped.html',
             'delivered': 'emails/status_delivered.html',
+            'cancelled': 'emails/status_cancelled.html',
         }
 
         text_template_map = {
@@ -143,6 +147,7 @@ def _send_status_change_customer_email(order, status):
             'processing': 'emails/status_processing.txt',
             'shipped': 'emails/status_shipped.txt',
             'delivered': 'emails/status_delivered.txt',
+            'cancelled': 'emails/status_cancelled.txt',
         }
 
         if status not in status_subjects:
@@ -236,4 +241,5 @@ def _prepare_order_context(order):
         'order_status': status_display_map.get(order.status, order.status),
         'store_name': 'COMFY CUTE',
         'store_email': getattr(settings, 'STORE_EMAIL', settings.DEFAULT_FROM_EMAIL),
+        'site_domain': getattr(settings, 'SITE_DOMAIN', 'https://comfycute.com'),
     }

@@ -1,0 +1,57 @@
+YOUR ORDER HAS BEEN CANCELLED
+=============================
+
+Your order has been cancelled as requested. We understand that plans can change, and we're here to help if you need anything else.
+
+Order Number: {{ order_number }}
+Cancellation Date: {{ order_date|date:"M d, Y" }}
+Total Amount: ₹{{ total_amount }}
+
+CANCELLED ORDER ITEMS
+====================
+
+{% for item in items %}
+{{ item.product_name }}
+  Variant: {{ item.variant_color }} | Size: {{ item.size }} | Qty: {{ item.quantity }}
+  Price: ₹{{ item.total_price }}
+
+{% endfor %}
+Cancelled Amount: ₹{{ total_amount }}
+
+WHAT HAPPENS NEXT?
+==================
+
+1. Order Cancelled
+   Your order cancellation has been processed.
+
+2. Refund Processing
+   If payment was made, your refund will be processed to your original payment method within 5-10 business days.
+
+3. Need Help?
+   If you have any questions about this cancellation, please contact our support team.
+
+NEED ASSISTANCE?
+================
+
+Our customer support team is here to help with any questions about your cancellation or refund.
+
+Email: {{ store_email }}
+
+BROWSE OUR COLLECTION
+====================
+
+We'd love to help you find what you're looking for.
+
+Visit: {{ site_domain }}/products/
+
+FEEDBACK
+========
+
+If we can improve our service, please let us know. Your feedback helps us serve you better.
+
+Send Us Feedback: {{ site_domain }}/contact/
+
+Thank you for your understanding.
+
+© {% now "Y" %} COMFY CUTE. All rights reserved.
+This is an automated email. Please do not reply directly to this email.

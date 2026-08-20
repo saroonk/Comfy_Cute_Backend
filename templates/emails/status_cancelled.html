@@ -1,0 +1,116 @@
+{% extends "emails/base_email.html" %}
+
+{% block header_title %}Order Cancelled{% endblock %}
+{% block header_subtitle %}{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="email-section">
+    <h2>⚠️ Your Order Has Been Cancelled</h2>
+    <p>Your order has been cancelled as requested. We understand that plans can change, and we're here to help if you need anything else.</p>
+
+    <div class="status-badge" style="background-color: #f8d7da; color: #721c24;">Order Cancelled</div>
+
+    <div class="order-summary">
+        <div class="summary-item">
+            <span class="summary-item-label">Order Number:</span>
+            <span class="summary-item-value">{{ order_number }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Cancellation Date:</span>
+            <span class="summary-item-value">{{ order_date|date:"M d, Y" }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-item-label">Total Amount:</span>
+            <span class="summary-item-value">₹{{ total_amount }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Cancelled Items -->
+<div class="email-section">
+    <h2>📋 Cancelled Order Items</h2>
+    <p>The following items in your order have been cancelled:</p>
+
+    <table class="items-table">
+        <tr>
+            <th>Product</th>
+            <th>Variant</th>
+            <th>Size</th>
+            <th>Qty</th>
+            <th style="text-align: right;">Price</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_color }}</td>
+            <td>{{ item.size }}</td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td style="text-align: right;">₹{{ item.total_price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="order-summary" style="margin-top: 15px;">
+        <div class="summary-item total">
+            <span class="summary-item-label">Cancelled Amount:</span>
+            <span class="summary-item-value">₹{{ total_amount }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- What Happens Next -->
+<div class="email-section">
+    <h2>💰 What Happens Next?</h2>
+    <div style="margin-top: 15px;">
+        <div style="display: flex; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+            <div style="flex-shrink: 0; width: 30px; color: #721c24; font-weight: bold; font-size: 18px;">1</div>
+            <div style="flex-grow: 1; margin-left: 15px;">
+                <strong>Order Cancelled</strong><br>
+                <span style="color: #666; font-size: 14px;">Your order cancellation has been processed.</span>
+            </div>
+        </div>
+
+        <div style="display: flex; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+            <div style="flex-shrink: 0; width: 30px; color: #721c24; font-weight: bold; font-size: 18px;">2</div>
+            <div style="flex-grow: 1; margin-left: 15px;">
+                <strong>Refund Processing</strong><br>
+                <span style="color: #666; font-size: 14px;">If payment was made, your refund will be processed to your original payment method within 5-10 business days.</span>
+            </div>
+        </div>
+
+        <div style="display: flex;">
+            <div style="flex-shrink: 0; width: 30px; color: #721c24; font-weight: bold; font-size: 18px;">3</div>
+            <div style="flex-grow: 1; margin-left: 15px;">
+                <strong>Need Help?</strong><br>
+                <span style="color: #666; font-size: 14px;">If you have any questions about this cancellation, please contact our support team.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Support Section -->
+<div class="email-section" style="background-color: #FCFEFE; padding: 15px; border-radius: 4px;">
+    <h3 style="margin-bottom: 10px;">📞 Need Assistance?</h3>
+    <p style="margin: 10px 0; font-size: 14px; color: #666;">
+        Our customer support team is here to help with any questions about your cancellation or refund.
+    </p>
+    <p style="margin: 10px 0; font-size: 14px;">
+        <strong>Email:</strong> <a href="mailto:{{ store_email }}" style="color: #8CBDBC; text-decoration: none;">{{ store_email }}</a>
+    </p>
+</div>
+
+<!-- CTA -->
+<div class="email-section" style="text-align: center;">
+    <p style="color: #666; margin-bottom: 15px;">We'd love to help you find what you're looking for.</p>
+    <a href="{{ site_domain }}/products/" class="cta-button">Browse Our Collection</a>
+</div>
+
+<!-- Feedback -->
+<div class="email-section" style="text-align: center; padding: 20px; background-color: #FCFEFE; border-radius: 4px;">
+    <p style="font-size: 14px; color: #666;">
+        If we can improve our service, please let us know. Your feedback helps us serve you better.
+    </p>
+    <a href="{{ site_domain }}/contact/" style="color: #8CBDBC; text-decoration: none; font-weight: 600;">Send Us Feedback</a>
+</div>
+
+{% endblock %}

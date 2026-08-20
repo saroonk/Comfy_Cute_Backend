@@ -112,6 +112,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # Store email for order notifications (admin/store alerts)
 STORE_EMAIL = 'saroonsharu@gmail.com'  # Change this to your store's email address
 
+# Website domain for email links (change for production)
+SITE_DOMAIN = 'http://127.0.0.1:8000/'  # Change this to your actual domain
+
 # Custom User Model Configuration
 AUTH_USER_MODEL = 'ComfyCuteApp.User'
 

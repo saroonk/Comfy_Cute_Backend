@@ -74,7 +74,7 @@ def order_post_save(sender, instance, created, **kwargs):
                     send_email_async('new_order', instance.pk)
 
                 # For other status transitions, send customer notification
-                elif instance.status in ['confirmed', 'processing', 'shipped', 'delivered']:
+                elif instance.status in ['confirmed', 'processing', 'shipped', 'delivered', 'cancelled']:
                     # Only send status change emails if transitioning to one of these statuses
                     # Skip if this was the pending→confirmed transition (already handled above)
                     if not (old_status == 'pending' and instance.status == 'confirmed'):
