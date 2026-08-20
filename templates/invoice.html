@@ -1,310 +1,271 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Invoice {{ order.order_number }}</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<title>Invoice {{ order.order_number }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2.1cm 1.8cm 2.4cm 1.8cm;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10.5pt;
+    color: #1A160F;
+  }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { vertical-align: top; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            line-height: 1.6;
-        }
+  /* COMFY CUTE wordmark styling */
+  .wordmark {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 30pt;
+    letter-spacing: -0.3pt;
+    line-height: 1;
+    color: #1A160F;
+  }
+  .wordmark-primary { color: #8CBDBC; }
+  .brand-tagline {
+    font-size: 9pt;
+    color: #8A7B6C;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+  }
+  .invoice-heading {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 20pt;
+    color: #1A160F;
+    text-align: right;
+  }
+  .invoice-meta-table td {
+    font-size: 9.5pt;
+    padding: 1px 0;
+  }
+  .invoice-meta-label {
+    color: #8A7B6C;
+    text-align: right;
+    padding-right: 10px;
+  }
+  .invoice-meta-value {
+    text-align: right;
+    font-weight: bold;
+    color: #1A160F;
+  }
 
-        .invoice-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px;
-            background: white;
-        }
+  .header-table { margin-bottom: 26px; }
 
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #8CBDBC;
-        }
+  .hr-brand {
+    border-bottom: 1.6pt solid #8CBDBC;
+    line-height: 0;
+    font-size: 0;
+    margin: 6px 0 18px 0;
+  }
+  .section-label {
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8CBDBC;
+    font-weight: bold;
+    padding-bottom: 4px;
+  }
+  .info-block-table { table-layout: fixed; margin-bottom: 26px; }
+  .info-col { width: 50%; vertical-align: top; }
+  .info-col--left { text-align: left; padding-right: 24px; }
+  .info-col--right { text-align: right; padding-left: 24px; }
+  .info-name { font-weight: bold; font-size: 11pt; margin-bottom: 4px; }
+  .info-line { font-size: 9.5pt; color: #3A342A; line-height: 1.6; }
 
-        .company-info h1 {
-            color: #8CBDBC;
-            font-size: 32px;
-            margin-bottom: 5px;
-        }
+  .items-table { table-layout: fixed; margin-top: 8px; margin-bottom: 4px; }
+  .items-table thead td {
+    background-color: #8CBDBC;
+    color: #FFFDF8;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 10px;
+    vertical-align: middle;
+  }
+  .items-table tbody td {
+    font-size: 9.5pt;
+    padding: 12px 10px;
+    border-bottom: 0.75pt solid #EDE6D6;
+    vertical-align: middle;
+  }
+  .items-table .col-img { width: 76px; }
+  .items-table .col-qty { width: 42px; text-align: center; }
+  .items-table .col-price { width: 84px; text-align: right; }
+  .items-table .col-total { width: 90px; text-align: right; font-weight: bold; }
+  .prod-thumb { width: 56px; height: 56px; }
+  .prod-name { font-weight: bold; color: #1A160F; }
+  .prod-sub { font-size: 8pt; color: #8A7B6C; margin-top: 2px; }
 
-        .company-info p {
-            color: #666;
-            font-size: 14px;
-            margin: 3px 0;
-        }
+  .totals-table { width: 260px; margin-left: auto; margin-top: 18px; }
+  .totals-table td { padding: 6px 0; font-size: 9.5pt; }
+  .totals-label { color: #5C5344; }
+  .totals-value { text-align: right; }
+  .totals-free { color: #8CBDBC; font-weight: bold; text-align: right; }
+  .grand-row td { padding-top: 9px; }
+  .grand-label { font-size: 11.5pt; font-weight: bold; color: #1A160F; }
+  .grand-value { font-size: 13pt; font-weight: bold; text-align: right; color: #8CBDBC; }
 
-        .invoice-info {
-            text-align: right;
-        }
+  .status-pill {
+    display: inline;
+    font-size: 8pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    color: #FFFDF8;
+    background-color: #8CBDBC;
+  }
 
-        .invoice-info h2 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .invoice-info p {
-            color: #666;
-            font-size: 14px;
-            margin: 4px 0;
-        }
-
-        .info-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .info-block h3 {
-            color: #8CBDBC;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        .info-block p {
-            color: #666;
-            font-size: 13px;
-            margin: 4px 0;
-        }
-
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 40px;
-        }
-
-        .items-table thead {
-            background-color: #8CBDBC;
-            color: white;
-        }
-
-        .items-table th {
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .items-table td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            font-size: 13px;
-        }
-
-        .items-table tr:last-child td {
-            border-bottom: 2px solid #8CBDBC;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .totals-section {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 40px;
-        }
-
-        .totals {
-            width: 300px;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            font-size: 14px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .total-row.grand-total {
-            border-bottom: none;
-            border-top: 2px solid #8CBDBC;
-            padding-top: 15px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #8CBDBC;
-        }
-
-        .total-label {
-            color: #666;
-        }
-
-        .total-value {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .payment-info {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 40px;
-            font-size: 13px;
-        }
-
-        .payment-info h4 {
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .payment-info p {
-            color: #666;
-            margin: 4px 0;
-        }
-
-        .footer {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 13px;
-        }
-
-        .footer p {
-            margin: 4px 0;
-        }
-
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-            }
-
-            .invoice-container {
-                padding: 0;
-                max-width: 100%;
-            }
-        }
-    </style>
+  .footer-table { margin-top: 36px; }
+  .footer-heading-cell {
+    height: 64px;
+    vertical-align: middle;
+    text-align: center;
+    border-top: 0.75pt solid #DAD2C2;
+    border-bottom: 0.75pt solid #DAD2C2;
+  }
+  .footer-thanks {
+    font-weight: bold;
+    font-size: 13.5pt;
+    color: #8CBDBC;
+  }
+  .footer-sub {
+    margin-top: 22px;
+    font-size: 9.5pt;
+    color: #8A7B6C;
+    line-height: 1.7;
+    text-align: center;
+  }
+</style>
 </head>
 <body>
-    <div class="invoice-container">
-        <!-- Header -->
-        <div class="invoice-header">
-            <div class="company-info">
-                <h1>COMFY CUTE</h1>
-                <p><strong>{{ site_domain }}</strong></p>
-                <p>Comfort Meets Style</p>
-            </div>
-            <div class="invoice-info">
-                <h2>INVOICE</h2>
-                <p><strong>Invoice #:</strong> {{ order.order_number }}</p>
-                <p><strong>Date:</strong> {{ order.created_at|date:"d M, Y" }}</p>
-            </div>
-        </div>
 
-        <!-- Customer & Order Info -->
-        <div class="info-section">
-            <div>
-                <div class="info-block">
-                    <h3>Bill To</h3>
-                    <p><strong>{{ customer_name }}</strong></p>
-                    <p>{{ customer_email }}</p>
-                    <p>{{ customer_phone }}</p>
-                </div>
-            </div>
-            <div>
-                <div class="info-block">
-                    <h3>Ship To</h3>
-                    <p>{{ shipping_address }}</p>
-                </div>
-            </div>
+  <!-- ============ COMPANY + INVOICE HEADER ============ -->
+  <table class="header-table">
+    <tr>
+      <td style="width: 55%;">
+        <div class="wordmark">Comfy<span class="wordmark-primary">Cute</span></div>
+        <div class="brand-tagline">COMFORT MEETS STYLE</div>
+        <div class="info-line" style="margin-top: 10px;">
+          123 Gemstone Lane, Bandra West<br/>
+          Mumbai, Maharashtra 400050, India<br/>
+          soulstones@gmail.com &nbsp;&middot;&nbsp; +91 7593029706
         </div>
-
-        <!-- Order Details -->
-        <div class="info-section">
-            <div>
-                <div class="info-block">
-                    <h3>Order Status</h3>
-                    <p>{{ order_status }}</p>
-                </div>
-            </div>
-            <div>
-                <div class="info-block">
-                    <h3>Payment Status</h3>
-                    <p>{{ payment_status }}</p>
-                    {% if razorpay_payment_id %}
-                    <p><strong style="color: #666;">Payment ID:</strong><br>{{ razorpay_payment_id }}</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Items Table -->
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Variant</th>
-                    <th>Size</th>
-                    <th style="text-align: center;">Quantity</th>
-                    <th class="text-right">Unit Price</th>
-                    <th class="text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td>{{ item.product_name }}</td>
-                    <td>{{ item.variant_color }}</td>
-                    <td>{{ item.size }}</td>
-                    <td style="text-align: center;">{{ item.quantity }}</td>
-                    <td class="text-right">₹{{ item.unit_price }}</td>
-                    <td class="text-right">₹{{ item.total_price }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+      </td>
+      <td style="width: 45%;">
+        <div class="invoice-heading">INVOICE</div>
+        <table class="invoice-meta-table" style="margin-top: 10px;">
+          <tr><td class="invoice-meta-label">Invoice Number</td><td class="invoice-meta-value">{{ order.order_number }}</td></tr>
+          <tr><td class="invoice-meta-label">Invoice Date</td><td class="invoice-meta-value">{{ invoice_date|date:"d M Y" }}</td></tr>
+          <tr><td class="invoice-meta-label">Order Number</td><td class="invoice-meta-value">{{ order.order_number }}</td></tr>
+          <tr><td class="invoice-meta-label">Payment Status</td><td class="invoice-meta-value">{{ order.get_payment_status_display }}</td></tr>
+          <tr><td class="invoice-meta-label">Order Status</td><td class="invoice-meta-value">{{ order.get_order_status_display }}</td></tr>
         </table>
+      </td>
+    </tr>
+  </table>
 
-        <!-- Totals -->
-        <div class="totals-section">
-            <div class="totals">
-                <div class="total-row">
-                    <span class="total-label">Subtotal:</span>
-                    <span class="total-value">₹{{ subtotal }}</span>
-                </div>
-                <div class="total-row">
-                    <span class="total-label">Shipping:</span>
-                    <span class="total-value">₹{{ shipping_charge }}</span>
-                </div>
-                <div class="total-row grand-total">
-                    <span>Grand Total:</span>
-                    <span>₹{{ total_amount }}</span>
-                </div>
-            </div>
-        </div>
+  <div class="hr-brand">&nbsp;</div>
 
-        <!-- Payment Info -->
-        <div class="payment-info">
-            <h4>Payment Details</h4>
-            <p><strong>Payment Method:</strong> Razorpay</p>
-            <p><strong>Status:</strong> {{ payment_status }}</p>
-            {% if razorpay_payment_id %}
-            <p><strong>Transaction ID:</strong> {{ razorpay_payment_id }}</p>
-            {% endif %}
+  <!-- ============ CUSTOMER + SHIPPING ============ -->
+  <table class="info-block-table">
+    <colgroup>
+      <col style="width: 50%;" />
+      <col style="width: 50%;" />
+    </colgroup>
+    <tr>
+      <td class="info-col info-col--left">
+        <div class="section-label">Billed To</div>
+        <div class="info-name">{{ order.first_name }} {{ order.last_name }}</div>
+        <div class="info-line">
+          {{ order.email }}<br/>
+          {{ order.phone_number }}
         </div>
+      </td>
+      <td class="info-col info-col--right">
+        <div class="section-label">Shipping Address</div>
+        <div class="info-name">{{ order.first_name }} {{ order.last_name }}</div>
+        <div class="info-line">
+          {{ order.address }}{% if order.address_2 %}, {{ order.address_2 }}{% endif %}<br/>
+          {{ order.city }}, {{ order.state }}<br/>
+          India &ndash; {{ order.postal_code }}
+        </div>
+      </td>
+    </tr>
+  </table>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p><strong>Thank you for shopping with COMFY CUTE!</strong></p>
-            <p>We appreciate your business and look forward to serving you again.</p>
-        </div>
-    </div>
+  <!-- ============ PRODUCTS TABLE ============ -->
+  <table class="items-table">
+    <thead>
+      <tr>
+        <td class="col-img">&nbsp;</td>
+        <td class="col-name">Product</td>
+        <td class="col-qty">Qty</td>
+        <td class="col-price">Unit Price</td>
+        <td class="col-total">Total</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td class="col-img">
+          {% if item.invoice_image %}
+          <img class="prod-thumb" src="{{ item.invoice_image }}" />
+          {% endif %}
+        </td>
+        <td class="col-name">
+          <div class="prod-name">{{ item.product.name }}</div>
+          <div class="prod-sub">
+            {% if item.variant and item.variant.color %}{{ item.variant.color.name }}{% endif %}
+            {% if item.size %} · {{ item.size.name }}{% endif %}
+          </div>
+        </td>
+        <td class="col-qty">{{ item.quantity }}</td>
+        <td class="col-price">₹ {{ item.unit_price|floatformat:0 }}</td>
+        <td class="col-total">₹ {{ item.total_price|floatformat:0 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- ============ TOTALS ============ -->
+  <table class="totals-table">
+    <tr>
+      <td class="totals-label">Subtotal</td>
+      <td class="totals-value">₹ {{ order.subtotal|floatformat:0 }}</td>
+    </tr>
+    <tr>
+      <td class="totals-label">Shipping</td>
+      <td class="totals-free">{% if order.shipping_charge == 0 %}FREE{% else %}₹ {{ order.shipping_charge|floatformat:0 }}{% endif %}</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding: 8px 0 0 0;"><div style="border-top: 1.4pt solid #8CBDBC;">&nbsp;</div></td>
+    </tr>
+    <tr class="grand-row">
+      <td class="grand-label">Grand Total</td>
+      <td class="grand-value">₹ {{ order.total_amount|floatformat:0 }}</td>
+    </tr>
+  </table>
+
+  <!-- ============ FOOTER ============ -->
+  <table class="footer-table">
+    <tr>
+      <td class="footer-heading-cell">
+        <div class="footer-thanks">Thank you for choosing COMFY CUTE.</div>
+      </td>
+    </tr>
+  </table>
+  <div class="footer-sub">
+    We appreciate your trust.<br/>
+    This invoice is computer generated and does not require a signature.
+  </div>
+
 </body>
 </html>
