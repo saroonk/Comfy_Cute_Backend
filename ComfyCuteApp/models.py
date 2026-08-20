@@ -957,3 +957,273 @@ class CartItem(models.Model):
         subtotal = unit_price × quantity
         """
         return self.unit_price * self.quantity
+
+
+# ==========================================
+# ORDER MODELS
+# ==========================================
+
+class Order(models.Model):
+    """
+    Model for customer orders.
+    Supports both authenticated users and anonymous sessions.
+
+    An order can belong to either:
+    - An authenticated user (user is set, session_id is NULL)
+    - An anonymous session (session_id is set, user is NULL)
+
+    An order preserves both the financial snapshot and customer/shipping information at the time of purchase:
+    - subtotal: sum of all OrderItem totals
+    - shipping_charge: calculated based on item count (1-3: ₹40, 4+: ₹0)
+    - total_amount: final amount to be paid (subtotal + shipping_charge)
+    - Customer details: first_name, last_name, email, phone_number
+    - Shipping address: address, address_2, city, state, postal_code
+
+    Razorpay references are stored for payment processing.
+    """
+    ORDER_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('processing', 'Processing'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+
+    # Order ownership (user OR session, but not both)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='orders',
+        null=True,
+        blank=True,
+        help_text='Authenticated user (NULL for anonymous sessions)'
+    )
+    session_id = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        help_text='Session ID for anonymous users (NULL for authenticated users)'
+    )
+
+    # Order identification
+    order_number = models.CharField(
+        max_length=50,
+        unique=True,
+        help_text='Unique order number for customer reference (e.g., ORD-20240101-001)'
+    )
+
+    # Customer information (snapshot at time of order)
+    first_name = models.CharField(
+        max_length=100,
+        default='',
+        help_text='Customer first name'
+    )
+    last_name = models.CharField(
+        max_length=100,
+        default='',
+        help_text='Customer last name'
+    )
+    email = models.EmailField(
+        default='',
+        help_text='Customer email address'
+    )
+    phone_number = models.CharField(
+        max_length=20,
+        default='',
+        help_text='Customer phone number'
+    )
+
+    # Shipping address (snapshot at time of order)
+    address = models.TextField(
+        default='',
+        help_text='Street address'
+    )
+    address_2 = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Apartment, suite, etc. (optional)'
+    )
+    city = models.CharField(
+        max_length=100,
+        default='',
+        help_text='City'
+    )
+    state = models.CharField(
+        max_length=100,
+        default='',
+        help_text='State'
+    )
+    postal_code = models.CharField(
+        max_length=20,
+        default='',
+        help_text='PIN code / Postal code'
+    )
+
+    # Order status
+    status = models.CharField(
+        max_length=20,
+        choices=ORDER_STATUS_CHOICES,
+        default='pending',
+        help_text='Current order fulfillment status'
+    )
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS_CHOICES,
+        default='pending',
+        help_text='Current payment status'
+    )
+
+    # Financial snapshot at time of order creation
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='Order subtotal (sum of all item totals)'
+    )
+    shipping_charge = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='Shipping charge (1-3 items: ₹40, 4+ items: ₹0)'
+    )
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='Final total amount to be paid (subtotal + shipping_charge)'
+    )
+
+    # Razorpay payment integration
+    razorpay_order_id = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text='Razorpay order ID generated during payment initialization'
+    )
+    razorpay_payment_id = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text='Razorpay payment ID returned after successful payment'
+    )
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Order'
+        verbose_name_plural = 'Orders'
+        # Prevent orders with both user and session_id
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(user__isnull=False, session_id__isnull=True)
+                | models.Q(user__isnull=True, session_id__isnull=False),
+                name='order_must_have_owner',
+            ),
+        ]
+
+    def __str__(self):
+        owner = self.user.email if self.user else f"Session {self.session_id}"
+        return f"Order {self.order_number} - {owner}"
+
+    @property
+    def item_count(self):
+        """Get total number of items in this order (sum of quantities)."""
+        from django.db.models import Sum
+        result = self.items.aggregate(total=Sum('quantity'))
+        return result['total'] or 0
+
+    @property
+    def is_paid(self):
+        """Check if order has been paid."""
+        return self.payment_status == 'paid'
+
+    @property
+    def is_delivered(self):
+        """Check if order has been delivered."""
+        return self.status == 'delivered'
+
+
+class OrderItem(models.Model):
+    """
+    Model for individual items in an order.
+    Preserves the exact product/variant/size/price configuration at purchase time.
+
+    Represents a specific product/variant/size combination with its purchased quantity
+    and the price that was charged at the time of order creation.
+
+    Example:
+    Order: ORD-20240101-001
+    Items:
+      - Product: Girls Cotton T-Shirt, Variant: Red, Size: M, Qty: 2, Unit Price: ₹699
+      - Product: Boys Cotton Set, Variant: Blue, Size: 6-12 Months, Qty: 1, Unit Price: ₹749
+
+    The prices are snapshots - they don't change even if product prices change later.
+    """
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items',
+        help_text='Parent order'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name='order_items',
+        help_text='Product in order (protected to maintain order history)'
+    )
+    variant = models.ForeignKey(
+        ProductVariant,
+        on_delete=models.PROTECT,
+        related_name='order_items',
+        help_text='Product variant (color) at time of purchase'
+    )
+    size = models.ForeignKey(
+        Size,
+        on_delete=models.PROTECT,
+        related_name='order_items',
+        help_text='Selected size at time of purchase'
+    )
+
+    # Quantity and pricing snapshot
+    quantity = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        help_text='Quantity purchased'
+    )
+    unit_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text='Unit price at time of order creation (includes variant overrides)'
+    )
+    total_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text='Total price for this item (unit_price × quantity)'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Order Item'
+        verbose_name_plural = 'Order Items'
+
+    def __str__(self):
+        return f"{self.order.order_number} - {self.product.name} ({self.variant.color.name}, {self.size.name}) x{self.quantity}"
+
+    def save(self, *args, **kwargs):
+        """Automatically calculate total_price before saving."""
+        if not self.total_price:
+            self.total_price = self.unit_price * self.quantity
+        super().save(*args, **kwargs)

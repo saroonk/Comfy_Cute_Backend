@@ -7,7 +7,7 @@ from .models import (
     HeroBanner, ContactSubmission, Testimonial, User, Announcement,
     Category, SubCategory, Product, ProductVariant, ProductVariantImage,
     VariantSizeStock, Collection, Fabric, Color, Size, Wishlist,
-    Cart, CartItem
+    Cart, CartItem, Order, OrderItem
 )
 from unfold.admin import ModelAdmin, TabularInline, StackedInline
 
@@ -579,4 +579,175 @@ class CartItemAdmin(ModelAdmin):
 
     def has_add_permission(self, request):
         # Cart items are typically added via frontend, not admin
+        return False
+
+
+# ==========================================
+# ORDER ADMIN
+# ==========================================
+
+class OrderItemInline(TabularInline):
+    """Inline admin for OrderItem - manages items in an order."""
+    model = OrderItem
+    extra = 0
+    fields = ['product', 'variant', 'size', 'quantity', 'unit_price_display', 'total_price_display']
+    readonly_fields = ['product', 'variant', 'size', 'quantity', 'unit_price_display', 'total_price_display', 'created_at']
+    can_delete = False
+    verbose_name = 'Order Item'
+    verbose_name_plural = 'Order Items'
+
+    def unit_price_display(self, obj):
+        """Display the unit price for this item."""
+        return f"₹{obj.unit_price}"
+    unit_price_display.short_description = 'Unit Price'
+
+    def total_price_display(self, obj):
+        """Display the total price for this item."""
+        return f"₹{obj.total_price}"
+    total_price_display.short_description = 'Total Price'
+
+
+@admin.register(Order)
+class OrderAdmin(ModelAdmin):
+    list_display = ['order_number', 'customer_name_display', 'status_display', 'payment_status_display', 'total_amount_display', 'created_at']
+    list_filter = ['status', 'payment_status', 'created_at']
+    search_fields = ['order_number', 'email', 'phone_number', 'first_name', 'last_name', 'user__email', 'session_id', 'razorpay_order_id', 'razorpay_payment_id']
+    readonly_fields = ['order_number', 'created_at', 'updated_at', 'session_id', 'item_count_display', 'subtotal_display', 'shipping_display', 'total_amount_display']
+    inlines = [OrderItemInline]
+
+    fieldsets = (
+        ('Order Identification', {
+            'fields': ('order_number', 'user', 'session_id', 'created_at')
+        }),
+        ('Customer Information', {
+            'fields': ('first_name', 'last_name', 'email', 'phone_number')
+        }),
+        ('Shipping Address', {
+            'fields': ('address', 'address_2', 'city', 'state', 'postal_code')
+        }),
+        ('Order Status', {
+            'fields': ('status', 'payment_status')
+        }),
+        ('Financial Summary', {
+            'fields': ('item_count_display', 'subtotal_display', 'shipping_display', 'total_amount_display')
+        }),
+        ('Razorpay Integration', {
+            'fields': ('razorpay_order_id', 'razorpay_payment_id'),
+            'classes': ('collapse',)
+        }),
+        ('Metadata', {
+            'fields': ('updated_at',),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-created_at']
+
+    def customer_name_display(self, obj):
+        """Display the customer name."""
+        return f"{obj.first_name} {obj.last_name}"
+    customer_name_display.short_description = 'Customer'
+
+    def status_display(self, obj):
+        """Display the order status with color."""
+        status_colors = {
+            'pending': '🟡',
+            'confirmed': '🟢',
+            'processing': '🔵',
+            'shipped': '📦',
+            'delivered': '✅',
+            'cancelled': '❌',
+        }
+        return f"{status_colors.get(obj.status, '')} {obj.get_status_display()}"
+    status_display.short_description = 'Status'
+
+    def payment_status_display(self, obj):
+        """Display the payment status with color."""
+        payment_colors = {
+            'pending': '🟡 Pending',
+            'paid': '✅ Paid',
+            'failed': '❌ Failed',
+            'refunded': '🔄 Refunded',
+        }
+        return payment_colors.get(obj.payment_status, obj.get_payment_status_display())
+    payment_status_display.short_description = 'Payment'
+
+    def total_amount_display(self, obj):
+        """Display the total order amount."""
+        return f"₹{obj.total_amount}"
+    total_amount_display.short_description = 'Total'
+
+    def item_count_display(self, obj):
+        """Display the total item count."""
+        return obj.item_count
+    item_count_display.short_description = 'Items'
+
+    def subtotal_display(self, obj):
+        """Display the subtotal."""
+        return f"₹{obj.subtotal}"
+    subtotal_display.short_description = 'Subtotal'
+
+    def shipping_display(self, obj):
+        """Display the shipping charge."""
+        return f"₹{obj.shipping_charge}"
+    shipping_display.short_description = 'Shipping'
+
+    def has_add_permission(self, request):
+        # Orders are created via checkout, not admin
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Orders should not be deleted for audit trail
+        return False
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(ModelAdmin):
+    list_display = ['order_number_display', 'product', 'variant_color_display', 'size', 'quantity', 'unit_price_display', 'total_price_display']
+    list_filter = ['order__created_at', 'order__status', 'product']
+    search_fields = ['order__order_number', 'product__name', 'variant__color__name', 'size__name']
+    readonly_fields = ['order', 'product', 'variant', 'size', 'quantity', 'unit_price_display', 'total_price_display', 'created_at']
+
+    fieldsets = (
+        ('Order Reference', {
+            'fields': ('order',)
+        }),
+        ('Product Details', {
+            'fields': ('product', 'variant', 'size', 'quantity')
+        }),
+        ('Pricing Snapshot', {
+            'fields': ('unit_price_display', 'total_price_display')
+        }),
+        ('Metadata', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
+    ordering = ['-created_at']
+
+    def order_number_display(self, obj):
+        """Display the order number."""
+        return obj.order.order_number
+    order_number_display.short_description = 'Order #'
+
+    def variant_color_display(self, obj):
+        """Display variant color."""
+        return obj.variant.color.name if obj.variant else "N/A"
+    variant_color_display.short_description = 'Color'
+
+    def unit_price_display(self, obj):
+        """Display the unit price."""
+        return f"₹{obj.unit_price}"
+    unit_price_display.short_description = 'Unit Price'
+
+    def total_price_display(self, obj):
+        """Display the total price."""
+        return f"₹{obj.total_price}"
+    total_price_display.short_description = 'Total Price'
+
+    def has_add_permission(self, request):
+        # Order items are created during order creation, not admin
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Order items should not be deleted for audit trail
         return False
