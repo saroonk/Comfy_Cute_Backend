@@ -481,88 +481,28 @@ def checkout(request):
     Checkout page view.
     Displays the checkout form and order summary with actual cart data.
 
-    Cart data is fetched from the database for authenticated users or session-based carts.
+    Uses shared helper functions to get cart and prepare checkout data,
+    eliminating code duplication with checkout_data() API endpoint.
     """
-    from decimal import Decimal
-    import json
+    # Get the user's cart (for display - doesn't create empty carts)
+    cart = get_user_cart_for_display(request)
 
-    # Get the user's cart
-    cart = None
-    cart_items = []
-    cart_subtotal = Decimal('0.00')
-    total_quantity = 0
-    shipping_charge = Decimal('0.00')
-    total_amount = Decimal('0.00')
-    has_cart = False
-
-    if request.user.is_authenticated:
-        # Fetch authenticated user's cart
-        cart = Cart.objects.filter(user=request.user).first()
-    else:
-        # Fetch session-based cart
-        # Ensure we use the CURRENT session (from cookie if available)
-        # Accessing request.session triggers Django to load the session from the cookie
-        _ = request.session.session_key  # Access the session to load it from cookie
-        session_id = request.session.session_key
-
-        if session_id:
-            # Use existing session from cookie
-            cart = Cart.objects.filter(session_id=session_id).first()
-        else:
-            # No existing session - this is a fresh visit
-            # Create a new session for anonymous user
-            request.session.create()
-            session_id = request.session.session_key
-            if session_id:
-                cart = Cart.objects.filter(session_id=session_id).first()
-
-    # Check if cart is empty - redirect if so
+    # Check if cart is empty - redirect to products if so
     if not cart or cart.is_empty:
-        # Cart is empty - redirect to products page
         return redirect('ComfyCuteApp:products')
 
-    # Process cart items
-    has_cart = True
-    cart_items = cart.items.all()
-    total_quantity = cart.total_quantity
-    cart_subtotal = cart.subtotal
-
-    # Calculate shipping based on total quantity
-    # 1-3 pieces: ₹40, 4+ pieces: FREE
-    if total_quantity <= 3:
-        shipping_charge = Decimal('40.00')
-    else:
-        shipping_charge = Decimal('0.00')
-
-    # Calculate total
-    total_amount = cart_subtotal + shipping_charge
-
-    # Prepare cart data for JavaScript (JSON format)
-    cart_data_json = '[]'
-    if has_cart:
-        cart_items_list = []
-        for item in cart_items:
-            item_data = {
-                'id': item.id,
-                'name': item.product.name,
-                'price': float(item.unit_price),
-                'quantity': item.quantity,
-                'size': item.size.name if item.size else '',
-                'color': item.variant.color.name if item.variant else '',
-                'image': item.product.main_image.url if item.product.main_image else '',
-            }
-            cart_items_list.append(item_data)
-        cart_data_json = json.dumps(cart_items_list)
+    # Prepare checkout data using shared helper
+    checkout_data = prepare_checkout_data(cart)
 
     context = {
         'cart': cart,
-        'cart_items': cart_items,
-        'has_cart': has_cart,
-        'total_quantity': total_quantity,
-        'cart_subtotal': cart_subtotal,
-        'shipping_charge': shipping_charge,
-        'total_amount': total_amount,
-        'cart_data_json': cart_data_json,  # JSON string for JavaScript
+        'cart_items': cart.items.all(),
+        'has_cart': True,
+        'total_quantity': checkout_data['total_quantity'],
+        'cart_subtotal': checkout_data['subtotal'],
+        'shipping_charge': checkout_data['shipping_charge'],
+        'total_amount': checkout_data['total_amount'],
+        'cart_data_json': checkout_data['items_json'],  # JSON string for JavaScript
     }
 
     return render(request, 'checkout.html', context)
@@ -776,6 +716,9 @@ def get_or_create_user_cart(request):
     """
     Get or create a cart for the current user/session.
 
+    Used by cart modification endpoints (add, update, remove) where
+    we want to auto-create a cart if it doesn't exist.
+
     Returns:
         Cart object
         None if user is not authenticated and session is not set
@@ -792,6 +735,32 @@ def get_or_create_user_cart(request):
         session_key = request.session.session_key
         cart, created = Cart.objects.get_or_create(session_id=session_key)
         return cart
+
+
+def get_user_cart_for_display(request):
+    """
+    Get the user's cart for display purposes (checkout, cart view).
+
+    Does NOT create a new session/cart - only retrieves existing ones.
+    This prevents creating empty carts just from viewing checkout page.
+
+    Returns:
+        Cart object if found, None otherwise
+    """
+    if request.user.is_authenticated:
+        # Authenticated user - get their cart
+        return Cart.objects.filter(user=request.user).first()
+    else:
+        # Anonymous user - use existing session without creating new one
+        # Accessing request.session.session_key loads session from cookie if available
+        _ = request.session.session_key
+        session_id = request.session.session_key
+
+        if session_id:
+            # Use existing session from cookie
+            return Cart.objects.filter(session_id=session_id).first()
+        # No existing session, return None (don't create session for display)
+        return None
 
 
 def format_cart_response(cart):
@@ -824,6 +793,64 @@ def format_cart_response(cart):
         'cart_count': cart.total_quantity,
         'cart_total': str(cart.subtotal),
         'items': items,
+    }
+
+
+def prepare_checkout_data(cart):
+    """
+    Prepare checkout data including shipping calculation.
+
+    Used by both checkout() view and checkout_data() API endpoint.
+    Eliminates duplicated cart processing and calculation logic.
+
+    Args:
+        cart: Cart object (must not be None or empty)
+
+    Returns dict with:
+    - items: List of cart items with product details (for rendering)
+    - items_json: JSON string of items (for JavaScript initialization)
+    - subtotal: Cart subtotal (Decimal)
+    - total_quantity: Total number of pieces
+    - shipping_charge: Calculated shipping (Decimal)
+    - total_amount: Grand total (Decimal)
+    """
+    from decimal import Decimal
+    import json
+
+    # Build items list with product details for checkout display
+    items_list = []
+    for item in cart.items.all().select_related('product', 'variant', 'size'):
+        item_data = {
+            'id': item.id,
+            'name': item.product.name,
+            'price': float(item.unit_price),
+            'quantity': item.quantity,
+            'size': item.size.name if item.size else '',
+            'color': item.variant.color.name if item.variant else '',
+            'image': item.product.main_image.url if item.product.main_image else '',
+        }
+        items_list.append(item_data)
+
+    # Get cart totals
+    total_quantity = cart.total_quantity
+    cart_subtotal = cart.subtotal
+
+    # Calculate shipping based on total quantity
+    # Rule: 1-3 pieces: ₹40, 4+ pieces: FREE
+    if total_quantity <= 3:
+        shipping_charge = Decimal('40.00')
+    else:
+        shipping_charge = Decimal('0.00')
+
+    total_amount = cart_subtotal + shipping_charge
+
+    return {
+        'items': items_list,
+        'items_json': json.dumps(items_list),
+        'subtotal': cart_subtotal,
+        'total_quantity': total_quantity,
+        'shipping_charge': shipping_charge,
+        'total_amount': total_amount,
     }
 
 
@@ -1061,6 +1088,9 @@ def checkout_data(request):
     Used by checkout.html to keep Order Summary in sync with actual Cart.
     Always returns fresh data (no caching).
 
+    Uses shared helper functions to get cart and prepare checkout data,
+    eliminating code duplication with checkout() view.
+
     Returns JSON with:
     - items: Current CartItems with product details
     - subtotal: Cart subtotal
@@ -1069,30 +1099,10 @@ def checkout_data(request):
     - total_amount: Grand total
     - success: True/False
     """
-    from decimal import Decimal
-    import json
+    # Get the user's cart (for display - doesn't create empty carts)
+    cart = get_user_cart_for_display(request)
 
-    # Determine which cart to fetch
-    cart = None
-    if request.user.is_authenticated:
-        cart = Cart.objects.filter(user=request.user).first()
-    else:
-        # IMPORTANT: Use the EXACT same session logic as checkout() view
-        # Access session key to load from cookie first, before creating
-        _ = request.session.session_key
-        session_id = request.session.session_key
-
-        if session_id:
-            # Use existing session from cookie
-            cart = Cart.objects.filter(session_id=session_id).first()
-        else:
-            # No existing session - create new one only as fallback
-            request.session.create()
-            session_id = request.session.session_key
-            if session_id:
-                cart = Cart.objects.filter(session_id=session_id).first()
-
-    # Prepare response
+    # Default empty response
     response_data = {
         'success': False,
         'items': [],
@@ -1106,40 +1116,17 @@ def checkout_data(request):
     if not cart or cart.is_empty:
         return JsonResponse(response_data)
 
-    # Build items list with full product details
-    items_list = []
-    for item in cart.items.all():
-        item_data = {
-            'id': item.id,
-            'name': item.product.name,
-            'price': float(item.unit_price),
-            'quantity': item.quantity,
-            'size': item.size.name if item.size else '',
-            'color': item.variant.color.name if item.variant else '',
-            'image': item.product.main_image.url if item.product.main_image else '',
-        }
-        items_list.append(item_data)
+    # Prepare checkout data using shared helper
+    checkout_data_dict = prepare_checkout_data(cart)
 
-    # Calculate totals
-    total_quantity = cart.total_quantity
-    cart_subtotal = float(cart.subtotal)
-
-    # Calculate shipping (1-3: ₹40, 4+: FREE)
-    if total_quantity <= 3:
-        shipping_charge = 40.00
-    else:
-        shipping_charge = 0.00
-
-    total_amount = cart_subtotal + shipping_charge
-
-    # Build successful response
+    # Build successful response using prepared data
     response_data = {
         'success': True,
-        'items': items_list,
-        'subtotal': cart_subtotal,
-        'total_quantity': total_quantity,
-        'shipping_charge': shipping_charge,
-        'total_amount': total_amount,
+        'items': checkout_data_dict['items'],
+        'subtotal': float(checkout_data_dict['subtotal']),
+        'total_quantity': checkout_data_dict['total_quantity'],
+        'shipping_charge': float(checkout_data_dict['shipping_charge']),
+        'total_amount': float(checkout_data_dict['total_amount']),
     }
 
     return JsonResponse(response_data)
