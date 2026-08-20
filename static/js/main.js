@@ -373,14 +373,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Disable checkout button when cart is empty
             const checkoutBtn = document.querySelector('.btn-cart-checkout');
             if (checkoutBtn) {
-              checkoutBtn.classList.add('disabled');
+              checkoutBtn.setAttribute('disabled', '');
               checkoutBtn.style.pointerEvents = 'none';
-              checkoutBtn.style.cursor = 'not-allowed';
-              checkoutBtn.style.opacity = '0.6';
-              checkoutBtn.style.color = 'currentColor';  // Keep text visible
-              checkoutBtn.setAttribute('aria-disabled', 'true');
-              // Remove href to prevent navigation
-              checkoutBtn.removeAttribute('href');
             }
           } else {
             cartDrawerItems.innerHTML = items.map(item => `
@@ -406,15 +400,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Enable checkout button when cart has items
             const checkoutBtn = document.querySelector('.btn-cart-checkout');
             if (checkoutBtn) {
-              checkoutBtn.classList.remove('disabled');
-              checkoutBtn.style.pointerEvents = 'auto';
-              checkoutBtn.style.cursor = 'pointer';
-              checkoutBtn.style.opacity = '1';  // Restore full visibility
-              checkoutBtn.removeAttribute('aria-disabled');
-              // Restore href to checkout
-              if (!checkoutBtn.hasAttribute('href')) {
-                checkoutBtn.setAttribute('href', '/checkout/');
-              }
+              checkoutBtn.removeAttribute('disabled');
+              checkoutBtn.style.pointerEvents = '';
             }
           }
         }
