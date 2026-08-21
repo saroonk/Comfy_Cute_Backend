@@ -2,24 +2,6 @@
    TRACK ORDER PAGE - FUNCTIONALITY
    ==================================== */
 
-// Sample order data for demo
-const sampleOrders = {
-  'CC-123456': {
-    orderID: 'CC-123456',
-    email: 'customer@example.com',
-    deliveryDate: 'Thursday, Oct 26',
-    trackingNumber: '1Z999999999999999',
-    status: 'shipped'
-  },
-  'CC-847291': {
-    orderID: 'CC-847291',
-    email: 'user@comfy.com',
-    deliveryDate: 'Thursday, Oct 26',
-    trackingNumber: '1Z999999999999999',
-    status: 'shipped'
-  }
-};
-
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
   setupTrackOrderForm();
@@ -46,41 +28,142 @@ function handleTrackOrderSubmit(e) {
   const orderID = document.getElementById('orderID').value.trim().toUpperCase();
   const emailOrPhone = document.getElementById('emailOrPhone').value.trim();
 
-  // Validate inputs
-  if (!orderID || !emailOrPhone) {
-    showAlert('error', 'Please fill in all fields.');
+  // Validate: at least one field must be filled
+  if (!orderID && !emailOrPhone) {
+    showAlert('error', 'Please enter your order number, email address, or phone number.');
     return;
   }
 
-  // Check if order exists in sample data
-  if (sampleOrders[orderID]) {
-    // Simulate API call
-    displayOrderStatus(sampleOrders[orderID]);
-    document.getElementById('orderStatusSection').scrollIntoView({ behavior: 'smooth' });
-  } else {
-    showAlert('error', 'Order not found. Please check your Order ID and try again.');
+  // Show loading state
+  const submitBtn = document.querySelector('.track-order-btn');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = 'SEARCHING...';
+  submitBtn.disabled = true;
+
+  // Prepare request data - only include fields that are filled
+  const requestData = {};
+
+  if (orderID) {
+    requestData.order_number = orderID;
   }
+
+  // Determine if input is email or phone
+  if (emailOrPhone) {
+    if (emailOrPhone.includes('@')) {
+      requestData.email = emailOrPhone;
+    } else {
+      requestData.phone = emailOrPhone;
+    }
+  }
+
+  // Make API call
+  fetch('/api/track-order-search/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify(requestData)
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        showAlert('error', data.error);
+        return;
+      }
+
+      // Display the order
+      displayOrderStatus(data);
+      document.getElementById('orderStatusSection').scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(error => {
+      console.error('Order search error:', error);
+      showAlert('error', 'An error occurred while searching for your order.');
+    })
+    .finally(() => {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    });
 }
 
 function displayOrderStatus(order) {
   const statusSection = document.getElementById('orderStatusSection');
 
   // Update order details
-  document.getElementById('displayOrderID').textContent = order.orderID;
-  document.getElementById('deliveryDate').textContent = order.deliveryDate;
-  document.getElementById('trackingNumber').textContent = order.trackingNumber;
+  document.getElementById('displayOrderID').textContent = order.order_number;
+
+  // Calculate and display expected delivery date (add 5 business days from order date)
+  const orderDate = new Date(order.created_at);
+  const deliveryDate = calculateDeliveryDate(orderDate);
+  document.getElementById('deliveryDate').textContent = deliveryDate;
+
+  // For now, use a generic tracking number (could be generated per order)
+  document.getElementById('trackingNumber').textContent = generateTrackingNumber(order.order_number);
 
   // Update timeline based on order status
   updateTimeline(order.status);
+
+  // Display order items
+  displayOrderItems(order.items);
 
   // Show the status section
   statusSection.style.display = 'block';
 }
 
+function displayOrderItems(items) {
+  const itemsContainer = document.querySelector('.tracking-items-container');
+  if (!itemsContainer) return;
+
+  if (items.length === 0) {
+    itemsContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No items in this order</p>';
+    return;
+  }
+
+  let itemsHTML = '<div class="tracking-items-list">';
+  items.forEach(item => {
+    itemsHTML += `
+      <div class="tracking-item">
+        <div class="tracking-item-info">
+          <h6 class="tracking-item-name">${item.product_name}</h6>
+          <span class="tracking-item-meta">${item.variant_color} | Size: ${item.size}</span>
+        </div>
+        <div class="tracking-item-qty">Qty: ${item.quantity}</div>
+        <div class="tracking-item-price">₹${parseFloat(item.total_price).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+      </div>
+    `;
+  });
+  itemsHTML += '</div>';
+
+  itemsContainer.innerHTML = itemsHTML;
+}
+
 function updateTimeline(status) {
-  // Define status progression
+  // Define status progression in UI
   const statusStages = ['confirmed', 'processing', 'packed', 'shipped', 'out-for-delivery', 'delivered'];
-  const currentIndex = statusStages.indexOf(status);
+
+  // Map database status to UI stage index
+  let currentIndex = -1;
+  switch (status) {
+    case 'confirmed':
+      currentIndex = 0;
+      break;
+    case 'processing':
+      currentIndex = 1;
+      break;
+    case 'shipped':
+      currentIndex = 3;  // Skip 'packed' as it's not in DB
+      break;
+    case 'delivered':
+      currentIndex = 5;
+      break;
+    case 'pending':
+      currentIndex = -1;  // No stages marked
+      break;
+    case 'cancelled':
+      // Show cancellation state
+      markOrderCancelled();
+      return;
+  }
 
   // Update each timeline item
   statusStages.forEach((stage, index) => {
@@ -97,6 +180,57 @@ function updateTimeline(status) {
       }
     }
   });
+}
+
+function markOrderCancelled() {
+  const timelineTrack = document.querySelector('.timeline-track');
+  if (timelineTrack) {
+    timelineTrack.innerHTML = '<p style="color: #d32f2f; text-align: center; font-weight: 600; padding: 30px;">This order has been cancelled</p>';
+  }
+}
+
+function calculateDeliveryDate(orderDate) {
+  // Add 5 business days to order date
+  let deliveryDate = new Date(orderDate);
+  let daysAdded = 0;
+
+  while (daysAdded < 5) {
+    deliveryDate.setDate(deliveryDate.getDate() + 1);
+    const dayOfWeek = deliveryDate.getDay();
+    // Skip weekends (Saturday = 6, Sunday = 0)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      daysAdded++;
+    }
+  }
+
+  return deliveryDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function generateTrackingNumber(orderNumber) {
+  // Generate a pseudo-unique tracking number based on order number
+  let hash = 0;
+  for (let i = 0; i < orderNumber.length; i++) {
+    const char = orderNumber.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  const trackingNumber = Math.abs(hash).toString().substring(0, 12).padEnd(18, '0');
+  return trackingNumber.substring(0, 18);
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
 }
 
 /* ==========================================

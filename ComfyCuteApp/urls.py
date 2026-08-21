@@ -42,6 +42,9 @@ urlpatterns = [
     # Admin API endpoints
     path('api/product-subcategories/', views.admin_api_subcategories, name='admin_api_subcategories'),
 
+    # Order tracking API
+    path('api/track-order-search/', views.track_order_search, name='track_order_search'),
+
     # Product Detail page
     path('products/<slug:slug>/', views.product_detail, name='product_detail'),
 ]

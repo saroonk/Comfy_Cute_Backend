@@ -379,36 +379,138 @@
   </section>
 
   <!-- ==========================================
+       AUTHENTICATED USER ORDERS SECTION
+       ========================================== -->
+  {% if request.user.is_authenticated and user_orders %}
+  <section class="order-status-section" id="authenticatedOrdersSection" style="display: block;">
+    <div class="container">
+      {% for order_data in user_orders %}
+      <div class="tracking-card">
+        <!-- Order Info Header -->
+        <div class="tracking-card-header">
+          <div class="order-info-left">
+            <h3 class="order-title">Order #<span>{{ order_data.order_number }}</span></h3>
+            <p class="order-delivery">Ordered: <span>{{ order_data.created_at|date:"M d, Y" }}</span></p>
+          </div>
+          <div class="order-info-right">
+            <div class="tracking-info">
+              <span class="tracking-label">AMOUNT</span>
+              <p class="tracking-value" style="font-size: 1.2rem;">₹{{ order_data.total_amount|floatformat:2 }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="tracking-divider"></div>
+
+        <!-- Horizontal Timeline -->
+        <div class="tracking-timeline">
+          <div class="timeline-track">
+            <!-- Timeline Line -->
+            <div class="timeline-line"></div>
+
+            <!-- Timeline Steps -->
+            <div class="timeline-step {% if order_data.status in 'confirmed,processing,shipped,delivered' %}completed{% endif %}" id="status-confirmed-{{ forloop.counter }}">
+              <div class="step-marker">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="step-label">Order Confirmed</div>
+            </div>
+
+            <div class="timeline-step {% if order_data.status in 'processing,shipped,delivered' %}completed{% endif %}" id="status-processing-{{ forloop.counter }}">
+              <div class="step-marker">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="step-label">Processing</div>
+            </div>
+
+            <div class="timeline-step {% if order_data.status in 'shipped,delivered' %}completed{% endif %}" id="status-packed-{{ forloop.counter }}">
+              <div class="step-marker">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="step-label">Packed</div>
+            </div>
+
+            <div class="timeline-step {% if order_data.status in 'shipped,delivered' %}completed{% endif %} {% if order_data.status == 'shipped' %}active{% endif %}" id="status-shipped-{{ forloop.counter }}">
+              <div class="step-marker">
+                <i class="fa-solid fa-box"></i>
+              </div>
+              <div class="step-label">Shipped</div>
+            </div>
+
+            <div class="timeline-step {% if order_data.status == 'delivered' %}completed{% endif %}" id="status-out-for-delivery-{{ forloop.counter }}">
+              <div class="step-marker">
+                <i class="fa-solid fa-truck"></i>
+              </div>
+              <div class="step-label">Out for Delivery</div>
+            </div>
+
+            <div class="timeline-step {% if order_data.status == 'delivered' %}completed active{% endif %}" id="status-delivered-{{ forloop.counter }}">
+              <div class="step-marker">
+                <i class="fa-solid fa-house"></i>
+              </div>
+              <div class="step-label">Delivered</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="tracking-divider"></div>
+
+        <!-- Order Items Section -->
+        <div class="tracking-items-section">
+          <h4 class="tracking-items-title">Order Items</h4>
+          <div class="tracking-items-list">
+            {% for item in order_data.items %}
+            <div class="tracking-item">
+              <div class="tracking-item-info">
+                <h6 class="tracking-item-name">{{ item.product_name }}</h6>
+                <span class="tracking-item-meta">{{ item.variant_color }} | Size: {{ item.size }}</span>
+              </div>
+              <div class="tracking-item-qty">Qty: {{ item.quantity }}</div>
+              <div class="tracking-item-price">₹{{ item.total_price|floatformat:2 }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ==========================================
        TRACK ORDER FORM SECTION
        ========================================== -->
-  <section class="track-order-form-section" id="trackOrderForm">
+  <section class="track-order-form-section" id="trackOrderForm" {% if request.user.is_authenticated and user_orders %}style="display: none;"{% endif %}>
     <div class="container">
       <div class="track-order-card">
-        <h2 class="track-order-form-title">Enter Order Details</h2>
+        <h2 class="track-order-form-title">{% if request.user.is_authenticated and not user_orders %}Search Past Orders{% else %}Track Your Order{% endif %}</h2>
+
+        <p class="track-order-form-subtitle" style="font-size: 0.95rem; color: #666; margin-bottom: 20px; text-align: center;">Enter your order number, email address, or phone number to track your order.</p>
 
         <form class="track-order-form" id="trackOrderFormElement">
           <div class="row g-3">
             <!-- Order ID -->
             <div class="col-md-6">
-              <label for="orderID" class="track-order-label">Order ID</label>
+              <label for="orderID" class="track-order-label">Order ID (Optional)</label>
               <input
                 type="text"
                 id="orderID"
                 class="track-order-input"
-                placeholder="e.g. CC-123456"
-                required
+                placeholder="e.g. ORD-20240101-001"
               >
             </div>
 
             <!-- Email or Phone -->
             <div class="col-md-6">
-              <label for="emailOrPhone" class="track-order-label">Email or Phone</label>
+              <label for="emailOrPhone" class="track-order-label">Email or Phone (Optional)</label>
               <input
                 type="text"
                 id="emailOrPhone"
                 class="track-order-input"
-                placeholder="Email used for purchase"
-                required
+                placeholder="Email or phone used for purchase"
               >
             </div>
           </div>
@@ -500,6 +602,17 @@
               <div class="step-label">Delivered</div>
               <div class="step-date">Pending</div>
             </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="tracking-divider"></div>
+
+        <!-- Order Items Section -->
+        <div class="tracking-items-section">
+          <h4 class="tracking-items-title">Order Items</h4>
+          <div class="tracking-items-container">
+            <!-- Populated dynamically by JavaScript -->
           </div>
         </div>
 

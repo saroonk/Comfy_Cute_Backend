@@ -462,7 +462,35 @@ def login(request):
     return render(request, 'login.html')
 
 def track_order(request):
-    return render(request, 'track-order.html')
+    """Track My Orders page - shows authenticated user's orders or guest search form."""
+    context = {}
+
+    # For authenticated users, pass their orders
+    if request.user.is_authenticated:
+        orders = Order.objects.filter(user=request.user).prefetch_related('items__product', 'items__variant')
+        context['user_orders'] = [
+            {
+                'order_number': order.order_number,
+                'status': order.status,
+                'created_at': order.created_at,
+                'total_amount': float(order.total_amount),
+                'items': [
+                    {
+                        'product_name': item.product.name,
+                        'variant_color': item.variant.color.name,
+                        'size': item.size.name,
+                        'quantity': item.quantity,
+                        'unit_price': float(item.unit_price),
+                        'total_price': float(item.total_price),
+                    }
+                    for item in order.items.all()
+                ]
+            }
+            for order in orders
+        ]
+        context['has_orders'] = orders.exists()
+
+    return render(request, 'track-order.html', context)
 
 def privacy_policy(request):
     return render(request, 'privacy-policy.html')
@@ -1687,5 +1715,102 @@ def download_invoice_public(request, invoice_token):
         return JsonResponse({
             'error': 'Invoice not found'
         }, status=404)
+
+
+@require_http_methods(['POST'])
+def track_order_search(request):
+    """
+    API endpoint for order tracking (authenticated or guest).
+    Accepts: order_number (optional), email (optional), phone (optional)
+    At least one identifier must be provided.
+    Returns: order details with status and items for display
+    """
+    try:
+        data = json.loads(request.body)
+        order_number = data.get('order_number', '').strip().upper()
+        email = data.get('email', '').strip().lower()
+        phone = data.get('phone', '').strip()
+
+        # At least one identifier must be provided
+        if not order_number and not email and not phone:
+            return JsonResponse({
+                'error': 'Please provide order number, email address, or phone number'
+            }, status=400)
+
+        # Build query filter - support OR logic
+        from django.db.models import Q
+        query_filter = Q()
+
+        if order_number:
+            query_filter |= Q(order_number=order_number)
+        if email:
+            query_filter |= Q(email__iexact=email) | Q(user__email__iexact=email)
+        if phone:
+            query_filter |= Q(phone_number=phone)
+
+        # Search for orders matching any criteria
+        orders = Order.objects.select_related('user').prefetch_related('items__product', 'items__variant', 'items__size').filter(query_filter)
+
+        if not orders.exists():
+            return JsonResponse({
+                'error': 'No orders found matching your search criteria'
+            }, status=404)
+
+        # If multiple results, filter more strictly based on what was provided
+        # Priority: order_number (most specific) > email > phone
+        if orders.count() > 1:
+            if order_number:
+                # If order number was provided, use only that
+                orders = orders.filter(order_number=order_number)
+            elif email:
+                # If email was provided, use only email matches
+                orders = orders.filter(Q(email__iexact=email) | Q(user__email__iexact=email))
+            elif phone:
+                # If phone was provided, use only phone matches
+                orders = orders.filter(phone_number=phone)
+
+        if not orders.exists():
+            return JsonResponse({
+                'error': 'No orders found matching your search criteria'
+            }, status=404)
+
+        # Get the first (or only) order
+        order = orders.first()
+
+        # Build order response
+        logger.info(f"Order tracked via search: {order.order_number}")
+        order_data = {
+            'order_number': order.order_number,
+            'status': order.status,
+            'created_at': order.created_at.isoformat(),
+            'total_amount': float(order.total_amount),
+            'first_name': order.first_name,
+            'last_name': order.last_name,
+            'email': order.email,
+            'phone_number': order.phone_number,
+            'address': order.address,
+            'city': order.city,
+            'state': order.state,
+            'postal_code': order.postal_code,
+            'items': [
+                {
+                    'product_name': item.product.name,
+                    'variant_color': item.variant.color.name,
+                    'size': item.size.name,
+                    'quantity': item.quantity,
+                    'unit_price': float(item.unit_price),
+                    'total_price': float(item.total_price),
+                }
+                for item in order.items.all()
+            ]
+        }
+
+        return JsonResponse(order_data)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        logger.error(f'Order tracking error: {str(e)}', exc_info=True)
+        return JsonResponse({'error': 'Internal server error'}, status=500)
 
 

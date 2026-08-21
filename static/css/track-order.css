@@ -1030,3 +1030,95 @@
     font-size: 0.45rem;
   }
 }
+
+/* ==========================================
+   TRACKING ITEMS SECTION
+   ========================================== */
+.tracking-items-section {
+  padding: 20px 0;
+}
+
+.tracking-items-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  font-family: 'Playfair Display', serif;
+}
+
+.tracking-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tracking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #8CBDBC;
+}
+
+.tracking-item-info {
+  flex: 1;
+}
+
+.tracking-item-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.tracking-item-meta {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.tracking-item-qty {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 15px;
+  min-width: 60px;
+}
+
+.tracking-item-price {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #8CBDBC;
+  min-width: 80px;
+  text-align: right;
+}
+
+@media (max-width: 576px) {
+  .tracking-items-list {
+    gap: 10px;
+  }
+
+  .tracking-item {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+  .tracking-item-info {
+    flex-basis: 100%;
+    margin-bottom: 8px;
+  }
+
+  .tracking-item-qty,
+  .tracking-item-price {
+    margin: 0;
+  }
+
+  .tracking-item-qty {
+    flex: 1;
+  }
+
+  .tracking-item-price {
+    flex: 1;
+    text-align: right;
+  }
+}
