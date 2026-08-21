@@ -382,7 +382,7 @@
        AUTHENTICATED USER ORDERS SECTION
        ========================================== -->
   {% if request.user.is_authenticated and user_orders %}
-  <section class="order-status-section" id="authenticatedOrdersSection" style="display: block;">
+  <section class="order-status-section" id="authenticatedOrdersSection"  style="display: block;">
     <div class="container">
       {% for order_data in user_orders %}
       <div class="tracking-card">
@@ -631,10 +631,10 @@
         <p class="assistance-subtitle">Our comfort concierges are here to help ensure a seamless experience.</p>
 
         <div class="assistance-buttons-group">
-          <button class="assistance-btn-outline">
+          <a href="{% url 'ComfyCuteApp:contact' %}" class="assistance-btn-outline">
             <i class="fa-solid fa-envelope"></i>
             Contact Us
-          </button>
+          </a>
           <!-- <button class="assistance-btn-outline">
             <i class="fa-solid fa-comments"></i>
             Live Chat
@@ -653,7 +653,7 @@
       <div class="discover-content">
         <h2 class="discover-title">Discover More Comfort</h2>
         <p class="discover-subtitle">Explore our latest arrivals designed to bring softness to your every day.</p>
-        <button class="btn-cta-primary">CONTINUE SHOPPING</button>
+        <a href="{% url 'ComfyCuteApp:products' %}" class="btn-cta-primary">CONTINUE SHOPPING</a>
       </div>
     </div>
   </section>

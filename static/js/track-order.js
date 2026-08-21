@@ -10,7 +10,49 @@ document.addEventListener('DOMContentLoaded', function () {
   setupCart();
   setupBackToTop();
   setupHeroSpacing();
+  initializeTimelineProgress();
 });
+
+/* ==========================================
+   INITIALIZE TIMELINE PROGRESS FOR ALL CARDS
+   ========================================== */
+function initializeTimelineProgress() {
+  // Find all timeline-track elements on the page
+  const timelineTracks = document.querySelectorAll('.timeline-track');
+
+  timelineTracks.forEach(track => {
+    updateTimelineProgress(track);
+  });
+}
+
+function updateTimelineProgress(timelineTrack) {
+  // Find all timeline steps in this track
+  const timelineSteps = timelineTrack.querySelectorAll('.timeline-step');
+  const timelineLine = timelineTrack.querySelector('.timeline-line');
+
+  if (!timelineLine) return;
+
+  // Count completed and active steps to determine progress
+  let maxCompletedIndex = -1;
+
+  timelineSteps.forEach((step, index) => {
+    if (step.classList.contains('completed') || step.classList.contains('active')) {
+      maxCompletedIndex = index;
+    }
+  });
+
+  // Calculate progress width
+  let progressWidth;
+  if (maxCompletedIndex < 0) {
+    progressWidth = '0%';  // No progress
+  } else {
+    // Progress extends to current stage: (maxCompletedIndex + 1) / totalStages * 100
+    progressWidth = ((maxCompletedIndex + 1) / timelineSteps.length) * 100 + '%';
+  }
+
+  // Set the CSS variable for this timeline line
+  timelineLine.style.setProperty('--progress-width', progressWidth);
+}
 
 /* ==========================================
    TRACK ORDER FORM
@@ -180,6 +222,16 @@ function updateTimeline(status) {
       }
     }
   });
+
+  // Update progress line width
+  // Find the timeline-track containing these steps and update its progress
+  const firstStep = document.getElementById(`status-${statusStages[0]}`);
+  if (firstStep) {
+    const timelineTrack = firstStep.closest('.timeline-track');
+    if (timelineTrack) {
+      updateTimelineProgress(timelineTrack);
+    }
+  }
 }
 
 function markOrderCancelled() {
