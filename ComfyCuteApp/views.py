@@ -122,21 +122,22 @@ def products(request):
 
     # Apply Subcategory filter (must belong to selected category if category is selected)
     # Use slug-based identification
-    selected_subcategory_slug = request.GET.get('subcategory')
-    if selected_subcategory_slug:
+    # Apply Subcategory filter (supporting multiple selections)
+    selected_subcategory_slugs = request.GET.getlist('subcategory')
+    selected_subcategory_slugs = [s.strip() for s in selected_subcategory_slugs if s.strip()]
+    if selected_subcategory_slugs:
         try:
-            # Validate that subcategory belongs to selected category (if category is selected)
             if selected_category:
-                # Verify subcategory belongs to this category
-                subcategory_obj = selected_category.subcategories.filter(
-                    slug=selected_subcategory_slug
-                ).first()
-                if subcategory_obj:
-                    products_qs = products_qs.filter(subcategory=subcategory_obj)
-                # else: subcategory doesn't belong to selected category, ignore it
+                # Verify subcategories belong to selected category
+                valid_subcategories = selected_category.subcategories.filter(
+                    slug__in=selected_subcategory_slugs
+                )
+                if valid_subcategories.exists():
+                    products_qs = products_qs.filter(subcategory__in=valid_subcategories)
+                # else: no valid subcategories for this category, ignore filter
             else:
                 # No category selected, apply subcategory filter directly
-                products_qs = products_qs.filter(subcategory__slug=selected_subcategory_slug)
+                products_qs = products_qs.filter(subcategory__slug__in=selected_subcategory_slugs)
         except (ValueError, TypeError):
             pass
 
@@ -251,7 +252,7 @@ def products(request):
         # Selected values (for maintaining state) - now using slugs
         'selected_category': selected_category,  # Pass the category object for hero title
         'selected_category_slug': selected_category_slug,  # Pass slug for filter state
-        'selected_subcategory_slug': selected_subcategory_slug,
+        'selected_subcategories': selected_subcategory_slugs,  # Pass list of subcategory slugs for filter state
         'selected_sizes': selected_sizes,
         'selected_fabrics': selected_fabrics,
         'selected_availabilities': selected_availabilities,

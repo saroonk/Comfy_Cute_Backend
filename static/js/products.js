@@ -219,12 +219,11 @@ function applyFilters() {
       url.searchParams.set('category', category);
     }
 
-    // Subcategory (single select)
-    const subcategoryChecked = container.querySelector('input[name="subcategory"]:checked');
-    const subcategory = subcategoryChecked ? subcategoryChecked.value.trim() : '';
-    if (subcategory) {
-      url.searchParams.set('subcategory', subcategory);
-    }
+    // Subcategory (can be multiple selections)
+    const subcategoryCheckboxes = container.querySelectorAll('input[name="subcategory"]:checked');
+    subcategoryCheckboxes.forEach(checkbox => {
+      url.searchParams.append('subcategory', checkbox.value.trim());
+    });
 
     // Fabric (can be multiple selections)
     const fabricCheckboxes = container.querySelectorAll('input[name="fabric"]:checked');

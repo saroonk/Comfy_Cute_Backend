@@ -443,7 +443,7 @@
                 {% if subcategories %}
                   {% for subcategory in subcategories %}
                   <label class="filter-checkbox">
-                    <input type="checkbox" name="subcategory" value="{{ subcategory.slug }}" {% if selected_subcategory_slug == subcategory.slug %}checked{% endif %}> {{ subcategory.name }}
+                    <input type="checkbox" name="subcategory" value="{{ subcategory.slug }}" {% if subcategory.slug in selected_subcategories %}checked{% endif %}> {{ subcategory.name }}
                   </label>
                   {% endfor %}
                 {% else %}
@@ -653,7 +653,7 @@
           {% if subcategories %}
             {% for subcategory in subcategories %}
             <label class="filter-checkbox">
-              <input type="checkbox" name="subcategory" value="{{ subcategory.slug }}" {% if selected_subcategory_slug == subcategory.slug %}checked{% endif %}> {{ subcategory.name }}
+              <input type="checkbox" name="subcategory" value="{{ subcategory.slug }}" {% if subcategory.slug in selected_subcategories %}checked{% endif %}> {{ subcategory.name }}
             </label>
             {% endfor %}
           {% else %}
