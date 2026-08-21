@@ -10,6 +10,24 @@
   <meta name="description" content="Sign in to your COMFY CUTE account. Access your orders, saved items, and account settings. New? Create an account today.">
   <meta name="keywords" content="login, register, sign in, account, COMFY CUTE">
 
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Login & Register | COMFY CUTE">
+  <meta property="og:description" content="Sign in to your COMFY CUTE account. Access your orders, saved items, and account settings.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="{% static 'images/logo.jpeg' %}">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Login & Register | COMFY CUTE">
+  <meta name="twitter:description" content="Sign in to your COMFY CUTE account and manage your profile.">
+  <meta name="twitter:image" content="{% static 'images/logo.jpeg' %}">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="{% static 'images/favicon.jpeg' %}">
+
+  <!-- CSRF Token for AJAX/Fetch requests -->
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
