@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 {% load static %}
 <html lang="en">
 <head>
@@ -404,6 +404,15 @@
         <div class="tracking-divider"></div>
 
         <!-- Horizontal Timeline -->
+        {% if order_data.status == 'cancelled' %}
+        <!-- Cancelled order banner -->
+        <div class="tracking-timeline">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 28px 20px; background: #fff5f5; border: 1.5px solid #f5c6cb; border-radius: 10px; margin: 8px 0;">
+            <i class="fa-solid fa-ban" style="color: #c62828; font-size: 1.5rem;"></i>
+            <span style="color: #c62828; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em;">Order Cancelled</span>
+          </div>
+        </div>
+        {% else %}
         <div class="tracking-timeline">
           <div class="timeline-track">
             <!-- Timeline Line -->
@@ -453,6 +462,7 @@
             </div>
           </div>
         </div>
+        {% endif %}
 
         <!-- Divider -->
         <div class="tracking-divider"></div>

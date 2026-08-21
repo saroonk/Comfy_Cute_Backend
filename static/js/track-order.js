@@ -114,8 +114,14 @@ function handleTrackOrderSubmit(e) {
         return;
       }
 
-      // Display the order
-      displayOrderStatus(data);
+      // Handle both single order (legacy) and multiple orders (new format)
+      if (data.orders) {
+        // New format: array of orders
+        displayMultipleOrders(data.orders);
+      } else {
+        // Legacy format: single order object
+        displayOrderStatus(data);
+      }
       document.getElementById('orderStatusSection').scrollIntoView({ behavior: 'smooth' });
     })
     .catch(error => {
@@ -150,6 +156,240 @@ function displayOrderStatus(order) {
 
   // Show the status section
   statusSection.style.display = 'block';
+}
+
+function displayMultipleOrders(ordersArray) {
+  const statusSection = document.getElementById('orderStatusSection');
+
+  // Clear any existing content
+  statusSection.innerHTML = '';
+
+  // Create container for all orders
+  const container = document.createElement('div');
+  container.className = 'container';
+
+  // Display each order
+  ordersArray.forEach((order, index) => {
+    const orderCard = createOrderCard(order, index);
+    container.appendChild(orderCard);
+  });
+
+  statusSection.appendChild(container);
+  statusSection.style.display = 'block';
+}
+
+function createOrderCard(order, index) {
+  const card = document.createElement('div');
+  card.className = 'tracking-card';
+
+  // Order header
+  const orderDate = new Date(order.created_at);
+  const deliveryDate = calculateDeliveryDate(orderDate);
+
+  card.innerHTML = `
+    <!-- Order Info Header -->
+    <div class="tracking-card-header">
+      <div class="order-info-left">
+        <h3 class="order-title">Order #<span>${order.order_number}</span></h3>
+        <p class="order-delivery">Expected Delivery: <span>${deliveryDate}</span></p>
+      </div>
+      <div class="order-info-right">
+        <div class="tracking-info">
+          <span class="tracking-label">AMOUNT</span>
+          <p class="tracking-value" style="font-size: 1.2rem;">₹${parseFloat(order.total_amount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="tracking-divider"></div>
+
+    <!-- Timeline -->
+    <div class="tracking-timeline">
+      <div class="timeline-track" data-order-index="${index}">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-step" id="status-confirmed-multi-${index}">
+          <div class="step-marker"><i class="fa-solid fa-check"></i></div>
+          <div class="step-label">Order Confirmed</div>
+        </div>
+
+        <div class="timeline-step" id="status-processing-multi-${index}">
+          <div class="step-marker"><i class="fa-solid fa-check"></i></div>
+          <div class="step-label">Processing</div>
+        </div>
+
+        <div class="timeline-step" id="status-packed-multi-${index}">
+          <div class="step-marker"><i class="fa-solid fa-check"></i></div>
+          <div class="step-label">Packed</div>
+        </div>
+
+        <div class="timeline-step" id="status-shipped-multi-${index}">
+          <div class="step-marker"><i class="fa-solid fa-box"></i></div>
+          <div class="step-label">Shipped</div>
+        </div>
+
+        <div class="timeline-step" id="status-out-for-delivery-multi-${index}">
+          <div class="step-marker"><i class="fa-solid fa-truck"></i></div>
+          <div class="step-label">Out for Delivery</div>
+        </div>
+
+        <div class="timeline-step" id="status-delivered-multi-${index}">
+          <div class="step-marker"><i class="fa-solid fa-house"></i></div>
+          <div class="step-label">Delivered</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="tracking-divider"></div>
+
+    <!-- Order Items Section -->
+    <div class="tracking-items-section">
+      <h4 class="tracking-items-title">Order Items</h4>
+      <div class="tracking-items-container-multi" id="items-${index}"></div>
+    </div>
+  `;
+
+  // Populate items
+  const itemsContainer = card.querySelector(`#items-${index}`);
+  if (order.items && order.items.length > 0) {
+    let itemsHTML = '<div class="tracking-items-list">';
+    order.items.forEach(item => {
+      itemsHTML += `
+        <div class="tracking-item">
+          <div class="tracking-item-info">
+            <h6 class="tracking-item-name">${item.product_name}</h6>
+            <span class="tracking-item-meta">${item.variant_color} | Size: ${item.size}</span>
+          </div>
+          <div class="tracking-item-qty">Qty: ${item.quantity}</div>
+          <div class="tracking-item-price">₹${parseFloat(item.total_price).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+        </div>
+      `;
+    });
+    itemsHTML += '</div>';
+    itemsContainer.innerHTML = itemsHTML;
+  } else {
+    itemsContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No items in this order</p>';
+  }
+
+  // Update timeline for this order - pass the timeline track element
+  const timelineTrack = card.querySelector('[data-order-index]');
+  if (timelineTrack) {
+    updateTimelineForOrderElement(order.status, index, timelineTrack);
+  }
+
+  return card;
+}
+
+function updateTimelineForOrder(status, orderIndex) {
+  // Legacy: used for guest single-order display (with non-indexed element IDs)
+  const statusStages = ['confirmed', 'processing', 'packed', 'shipped', 'out-for-delivery', 'delivered'];
+
+  // Map database status to UI stage index
+  let currentIndex = -1;
+  switch (status) {
+    case 'confirmed':
+      currentIndex = 0;
+      break;
+    case 'processing':
+      currentIndex = 1;
+      break;
+    case 'shipped':
+      currentIndex = 3;
+      break;
+    case 'delivered':
+      currentIndex = 5;
+      break;
+    case 'pending':
+      currentIndex = -1;
+      break;
+    case 'cancelled':
+      markOrderCancelled();
+      return;
+  }
+
+  // Update timeline steps (legacy: non-indexed IDs)
+  statusStages.forEach((stage, index) => {
+    const element = document.getElementById(`status-${stage}`);
+    if (element) {
+      if (index < currentIndex) {
+        element.classList.remove('active');
+        element.classList.add('completed');
+      } else if (index === currentIndex) {
+        element.classList.remove('completed');
+        element.classList.add('active');
+      } else {
+        element.classList.remove('active', 'completed');
+      }
+    }
+  });
+
+  // Update progress line (legacy)
+  const timelineTrack = document.querySelector('.timeline-track');
+  if (timelineTrack) {
+    updateTimelineProgress(timelineTrack);
+  }
+}
+
+function updateTimelineForOrderElement(status, orderIndex, timelineTrack) {
+  // New: used for guest multiple-orders display and authenticated user initialization
+  const statusStages = ['confirmed', 'processing', 'packed', 'shipped', 'out-for-delivery', 'delivered'];
+
+  // Map database status to UI stage index (same logic as authenticated)
+  let currentIndex = -1;
+  switch (status) {
+    case 'confirmed':
+      currentIndex = 0;
+      break;
+    case 'processing':
+      currentIndex = 1;
+      break;
+    case 'shipped':
+      currentIndex = 3;
+      break;
+    case 'delivered':
+      currentIndex = 5;
+      break;
+    case 'pending':
+      currentIndex = -1;
+      break;
+    case 'cancelled':
+      // Replace timeline content with cancelled banner, scoped to this card element
+      timelineTrack.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 28px 20px; background: #fff5f5; border: 1.5px solid #f5c6cb; border-radius: 10px; margin: 8px 0;"><i class="fa-solid fa-ban" style="color: #c62828; font-size: 1.5rem;"></i><span style="color: #c62828; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em;">Order Cancelled</span></div>';
+      return;
+  }
+
+  // Update timeline steps.
+  // IMPORTANT: Use timelineTrack.querySelector() (scoped to this card element) instead of
+  // document.getElementById() — the card may not be in the document yet when this is called
+  // from createOrderCard(), so document.getElementById() would return null for every step.
+  statusStages.forEach((stage, index) => {
+    const element = timelineTrack.querySelector(`#status-${stage}-multi-${orderIndex}`);
+    if (element) {
+      if (index < currentIndex) {
+        element.classList.remove('active');
+        element.classList.add('completed');
+      } else if (index === currentIndex) {
+        element.classList.remove('completed');
+        element.classList.add('active');
+      } else {
+        element.classList.remove('active', 'completed');
+      }
+    }
+  });
+
+  // Update progress line for this specific timeline
+  updateTimelineProgress(timelineTrack);
+}
+
+function markOrderCancelledForMultiple(orderIndex) {
+  // Fallback: only used if called before the card is in the DOM (legacy path).
+  // The primary cancelled handling is now inline in updateTimelineForOrderElement.
+  const timelineTrack = document.querySelector(`[data-order-index="${orderIndex}"]`);
+  if (timelineTrack) {
+    timelineTrack.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 28px 20px; background: #fff5f5; border: 1.5px solid #f5c6cb; border-radius: 10px; margin: 8px 0;"><i class="fa-solid fa-ban" style="color: #c62828; font-size: 1.5rem;"></i><span style="color: #c62828; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.02em;">Order Cancelled</span></div>';
+  }
 }
 
 function displayOrderItems(items) {

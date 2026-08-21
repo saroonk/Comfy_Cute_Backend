@@ -465,9 +465,9 @@ def track_order(request):
     """Track My Orders page - shows authenticated user's orders or guest search form."""
     context = {}
 
-    # For authenticated users, pass their orders
+    # For authenticated users, pass their orders (excluding pending/failed statuses)
     if request.user.is_authenticated:
-        orders = Order.objects.filter(user=request.user).prefetch_related('items__product', 'items__variant')
+        orders = Order.objects.filter(user=request.user).exclude(status__in=['pending']).prefetch_related('items__product', 'items__variant')
         context['user_orders'] = [
             {
                 'order_number': order.order_number,
@@ -1774,38 +1774,46 @@ def track_order_search(request):
                 'error': 'No orders found matching your search criteria'
             }, status=404)
 
-        # Get the first (or only) order
-        order = orders.first()
+        # Exclude orders with pending status (represents incomplete/failed orders)
+        orders = orders.exclude(status='pending')
 
-        # Build order response
-        logger.info(f"Order tracked via search: {order.order_number}")
-        order_data = {
-            'order_number': order.order_number,
-            'status': order.status,
-            'created_at': order.created_at.isoformat(),
-            'total_amount': float(order.total_amount),
-            'first_name': order.first_name,
-            'last_name': order.last_name,
-            'email': order.email,
-            'phone_number': order.phone_number,
-            'address': order.address,
-            'city': order.city,
-            'state': order.state,
-            'postal_code': order.postal_code,
-            'items': [
-                {
-                    'product_name': item.product.name,
-                    'variant_color': item.variant.color.name,
-                    'size': item.size.name,
-                    'quantity': item.quantity,
-                    'unit_price': float(item.unit_price),
-                    'total_price': float(item.total_price),
-                }
-                for item in order.items.all()
-            ]
-        }
+        if not orders.exists():
+            return JsonResponse({
+                'error': 'No orders found matching your search criteria'
+            }, status=404)
 
-        return JsonResponse(order_data)
+        # Build response with all matching orders
+        orders_list = []
+        for order in orders.order_by('-created_at'):
+            order_data = {
+                'order_number': order.order_number,
+                'status': order.status,
+                'created_at': order.created_at.isoformat(),
+                'total_amount': float(order.total_amount),
+                'first_name': order.first_name,
+                'last_name': order.last_name,
+                'email': order.email,
+                'phone_number': order.phone_number,
+                'address': order.address,
+                'city': order.city,
+                'state': order.state,
+                'postal_code': order.postal_code,
+                'items': [
+                    {
+                        'product_name': item.product.name,
+                        'variant_color': item.variant.color.name,
+                        'size': item.size.name,
+                        'quantity': item.quantity,
+                        'unit_price': float(item.unit_price),
+                        'total_price': float(item.total_price),
+                    }
+                    for item in order.items.all()
+                ]
+            }
+            orders_list.append(order_data)
+
+        logger.info(f"Orders tracked via search: {len(orders_list)} order(s) found")
+        return JsonResponse({'orders': orders_list})
 
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
